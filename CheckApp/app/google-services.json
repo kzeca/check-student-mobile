@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "100699814698",
+    "firebase_url": "https://fmm-check-student.firebaseio.com",
+    "project_id": "fmm-check-student",
+    "storage_bucket": "fmm-check-student.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:100699814698:android:245d93ecdb78b9e118fc53",
+        "android_client_info": {
+          "package_name": "com.fmm.checkapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "100699814698-f55nm1e98h6312lpnjgjpbm8fl2qatto.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fmm.checkapp",
+            "certificate_hash": "2587ef2dd2e2ac8297aab51693e4145c26c934e7"
+          }
+        },
+        {
+          "client_id": "100699814698-767o448emuhkhe8l7hpm1vc339v1r2uo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDzwRafSA_ZaiGxHBHPk0yYo_oICUfVwUY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "100699814698-767o448emuhkhe8l7hpm1vc339v1r2uo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
