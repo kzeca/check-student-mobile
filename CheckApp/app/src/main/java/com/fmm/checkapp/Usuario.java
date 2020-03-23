@@ -9,6 +9,27 @@ public class Usuario {
     private String senha;
     private String uId;
     private String turma;
+    private boolean professor;
+
+    public Usuario(){
+
+    }
+    public Usuario(String nome, String email, String senha, String uId, String turma, boolean professor) {
+        this.nome = nome;
+        this.email = email;
+        this.senha = senha;
+        this.uId = uId;
+        this.turma = turma;
+        this.professor = professor;
+    }
+
+    public boolean isProfessor() {
+        return professor;
+    }
+
+    public void setProfessor(boolean professor) {
+        this.professor = professor;
+    }
 
     public String getNome() {
         return nome;
