@@ -7,6 +7,7 @@ public class Usuario {
     private String nome;
     private String email;
     private String senha;
+    private String ra;
     private String uId;
     private String turma;
     private boolean professor;
@@ -29,6 +30,14 @@ public class Usuario {
 
     public void setProfessor(boolean professor) {
         this.professor = professor;
+    }
+
+    public String getRa() {
+        return ra;
+    }
+
+    public void setRa(String ra) {
+        this.ra = ra;
     }
 
     public String getNome() {

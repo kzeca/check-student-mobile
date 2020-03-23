@@ -29,7 +29,7 @@ public class RegisterActivity extends Activity implements AdapterView.OnItemSele
     LoginActivity login;
     FirebaseAuth firebaseAuth;
     Button btRegister;
-    EditText edtEmail, edtNome, edtSenha, edtConfirmar;
+    EditText edtEmail, edtNome, edtSenha, edtConfirmar, edtRA;
     ProgressBar progressBar;
 
     @Override
@@ -50,7 +50,7 @@ public class RegisterActivity extends Activity implements AdapterView.OnItemSele
                 if (edtEmail.getText().toString().isEmpty()
                         || edtSenha.getText().toString().isEmpty()
                         || edtNome.getText().toString().isEmpty()
-                        || edtConfirmar.getText().toString().isEmpty()) {
+                        || edtConfirmar.getText().toString().isEmpty()||edtRA.getText().toString().isEmpty()) {
                         Toast.makeText(getApplicationContext(), "Preencha todos os campos!",
                             Toast.LENGTH_SHORT).show();
                     }else{
@@ -73,8 +73,9 @@ public class RegisterActivity extends Activity implements AdapterView.OnItemSele
         btRegister = findViewById(R.id.activity_register_bt_cadastrar);
         edtEmail = findViewById(R.id.activity_edt_register_email);
         edtNome = findViewById(R.id.activity_register_edt_nome);
-        edtSenha = findViewById(R.id.activity_edt_register_senha);
+        edtSenha = findViewById(R.id.activity_register_edt_senha);
         edtConfirmar = findViewById(R.id.activity_register_edt_senha_confirmada);
+        edtRA = findViewById(R.id.activity_edt_register_ra);
         login = new LoginActivity();
     }
 
@@ -94,6 +95,7 @@ public class RegisterActivity extends Activity implements AdapterView.OnItemSele
         final String nome = edtNome.getText().toString();
         final String email = edtEmail.getText().toString();
         final String senha = edtSenha.getText().toString();
+        final String ra = edtRA.getText().toString();
 
         firebaseAuth.createUserWithEmailAndPassword(email, senha)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -103,12 +105,14 @@ public class RegisterActivity extends Activity implements AdapterView.OnItemSele
                             login.user.setSenha(senha);
                             login.user.setEmail(email);
                             login.user.setNome(nome);
+                            login.user.setRa(ra);
 
                             DatabaseReference database = FirebaseDatabase.getInstance().
                                     getReference("Salas")
                                     .child(login.user.getTurma())
                                     .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
                             database.child("name").setValue(login.user.getNome());
+                            database.child("ra").setValue(login.user.getRa());
                             Toast.makeText(getApplicationContext(), "Seus dados foram salvos!", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                             startActivity(intent);
