@@ -83,7 +83,7 @@
         app:layout_constraintGuide_percent="0.81" />
 
     <Button
-        android:id="@+id/bt_login"
+        android:id="@+id/activity_login_bt_login"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@drawable/borda_botao"
@@ -124,13 +124,14 @@
         app:srcCompat="@drawable/logo" />
 
     <EditText
-        android:id="@+id/edt_email"
+        android:id="@+id/activity_login_edt_email"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@drawable/borda_input"
         android:ems="10"
-        android:paddingLef="10dp"
+        android:paddingLeft="10dp"
         android:paddingRight="10dp"
+        android:textSize="17dp"
         android:inputType="textEmailAddress"
         app:layout_constraintBottom_toTopOf="@+id/guideline7"
         app:layout_constraintEnd_toStartOf="@+id/guideline3"
@@ -138,10 +139,12 @@
         app:layout_constraintTop_toTopOf="@+id/guideline5" />
 
     <EditText
-        android:id="@+id/edt_senha"
+        android:id="@+id/activity_login_edt_senha"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:paddingLef="10dp"
         android:paddingRight="10dp"
+        android:textSize="17dp"
         android:ems="10"
         android:paddingLeft="10dp"
         android:background="@drawable/borda_input"
@@ -162,6 +165,30 @@
         android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline5"
         app:layout_constraintStart_toStartOf="@+id/guideline8" />
+
+    <TextView
+        android:id="@+id/activity_login_tv_esqueceu_senha"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:layout_marginLeft="4dp"
+        android:text="Esqueceu a senha?"
+        android:textColor="#473F3F"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="@+id/guideline8"
+        app:layout_constraintTop_toTopOf="@+id/guideline10" />
+
+    <TextView
+        android:id="@+id/activity_login_tv_cadastrar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:layout_marginRight="4dp"
+        android:text="Cadastrar"
+        android:textColor="#473F3F"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toStartOf="@+id/guideline3"
+        app:layout_constraintTop_toTopOf="@+id/guideline10" />
 
     <TextView
         android:id="@+id/textView2"
