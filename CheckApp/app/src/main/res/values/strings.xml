@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">CheckApp</string>
+
+    <string-array name="salas">
+        <item>3AI</item>
+        <item>3BI</item>
+        <item>3CI</item>
+    </string-array>
+
 </resources>

@@ -318,4 +318,16 @@
         app:layout_constraintBottom_toTopOf="@+id/guideline26"
         app:layout_constraintStart_toStartOf="@+id/guideline20" />
 
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="7dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        app:layout_constraintEnd_toEndOf="@+id/activity_register_spn_turma"
+        app:layout_constraintTop_toTopOf="@+id/guideline18"
+        app:srcCompat="@drawable/ic_arrow_drop_down_black_24dp"
+        android:contentDescription="TODO" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
