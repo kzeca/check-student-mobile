@@ -20,7 +20,6 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
         btLogin = findViewById(R.id.activity_login_bt_login);
         tvEsqueceuSenha = findViewById(R.id.activity_login_tv_esqueceu_senha);
         tvIrTelaCadastro = findViewById(R.id.activity_login_tv_cadastrar);
@@ -44,7 +43,7 @@ public class LoginActivity extends AppCompatActivity {
         tvEsqueceuSenha.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                
+
             }
         });
     }
