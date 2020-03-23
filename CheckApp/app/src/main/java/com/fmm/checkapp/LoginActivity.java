@@ -6,10 +6,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
@@ -44,11 +47,11 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 user.setEmail(edtEmail.getText().toString());
                 user.setSenha(edtSenha.getText().toString());
-                
-                if(user.getEmail().isEmpty() || user.getSenha().isEmpty()){
+
+                if (user.getEmail().isEmpty() || user.getSenha().isEmpty()) {
                     Toast.makeText(getApplicationContext(), "Os campos de email e senha são obrigatórios",
                             Toast.LENGTH_SHORT).show();
-                }else {
+                } else {
                     String email = user.getEmail();
                     String senha = user.getSenha();
                     progressBar.setVisibility(View.VISIBLE);
@@ -68,34 +71,37 @@ public class LoginActivity extends AppCompatActivity {
         tvEsqueceuSenha.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
-                builder.setTitle("Digite o email da sua conta");
+                AlertDialog.Builder mBuilder = new AlertDialog.Builder(LoginActivity.this);
+                View mView = getLayoutInflater().inflate(R.layout.dialog_password_recovery, null);
+                final EditText edtEmail = (EditText) mView.findViewById(R.id.dialog_password_recovery_edt_email);
+                Button btnConfirma = (Button) mView.findViewById(R.id.dialog_password_recovery_bt_confirma);
+                mBuilder.setView(mView);
+                final AlertDialog dialog = mBuilder.create();
+                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-                final EditText input = new EditText(LoginActivity.this);//
-                input.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-                builder.setView(input);
 
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                btnConfirma.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        auth.sendPasswordResetEmail(input.getText().toString())
-                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if(task.isSuccessful()) {
-                                            Toast.makeText(getApplicationContext(), "Email para redefinição enviado!(Confira a caixa de spam)", Toast.LENGTH_LONG).show();
-                                        }else Toast.makeText(getApplicationContext(), "Informe um email válido", Toast.LENGTH_LONG).show();
-                                    }
-                                });
+                    public void onClick(View v) {
+                        if(!edtEmail.getText().toString().isEmpty() && edtEmail.getText().toString().contains("@")){
+                            auth.sendPasswordResetEmail(edtEmail.getText().toString())
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                Toast.makeText(getApplicationContext(), "Email para redefinição enviado!(Confira a caixa de spam)", Toast.LENGTH_LONG).show();
+                                                dialog.dismiss();
+                                            } else
+                                                Toast.makeText(getApplicationContext(), "Informe um email válido", Toast.LENGTH_LONG).show();
+                                        }
+                                    });
+                        }
+
                     }
                 });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-                builder.show();
+
+                dialog.show();
 
             }
         });
@@ -109,7 +115,7 @@ public class LoginActivity extends AppCompatActivity {
         edtEmail = findViewById(R.id.activity_login_edt_email);
         edtSenha = findViewById(R.id.activity_login_edt_senha);
         progressBar = findViewById(R.id.activity_login_progressBar);
-        auth  = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     }
 
@@ -118,14 +124,13 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(task.isSuccessful()) {
+                        if (task.isSuccessful()) {
                             firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
                             Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                             startActivity(intent);
                             progressBar.setVisibility(View.GONE);
                             finish();
-                        }
-                        else{
+                        } else {
                             progressBar.setVisibility(View.INVISIBLE);
                             Toast.makeText(LoginActivity.this, "Email e/ou senha incorretos",
                                     Toast.LENGTH_LONG).show();
