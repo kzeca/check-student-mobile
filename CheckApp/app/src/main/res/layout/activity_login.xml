@@ -205,8 +205,8 @@
     <ProgressBar
         android:id="@+id/activity_login_progressBar"
         style="?android:attr/progressBarStyle"
-        android:layout_width="155dp"
-        android:layout_height="172dp"
+        android:layout_width="140dp"
+        android:layout_height="157dp"
         android:layout_marginBottom="272dp"
         android:scrollbarThumbHorizontal="@color/colorPrimaryDark"
         android:scrollbarThumbVertical="@color/colorPrimaryDark"

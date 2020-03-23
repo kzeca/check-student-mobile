@@ -11,8 +11,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -29,17 +29,13 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
     FirebaseAuth firebaseAuth;
     Button btRegister;
     EditText edtEmail, edtNome, edtSenha, edtConfirmar;
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        btRegister = findViewById(R.id.activity_register_bt_cadastrar);
-        edtEmail = findViewById(R.id.activity_edt_register_email);
-        edtNome = findViewById(R.id.activity_register_edt_nome);
-        edtSenha = findViewById(R.id.activity_edt_register_senha);
-        edtConfirmar = findViewById(R.id.activity_register_edt_senha_confirmada);
-        login = new LoginActivity();
+        setObjects(); //Set all objects from the RegisterActivity Class
         spnTurma = findViewById(R.id.activity_register_spn_turma);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.salas, android.R.layout.simple_spinner_item);
@@ -60,11 +56,25 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
                         if(!edtSenha.getText().toString().equals(edtConfirmar.getText().toString())){
                             Toast.makeText(getApplicationContext(), "Os campos de senha não coincidem!",
                                     Toast.LENGTH_SHORT).show();
-                        }else registerUser();
+                        }else {
+                                progressBar.setVisibility(View.VISIBLE);
+                                registerUser();
+                            }
+                        }
                     }
-                }
-            });
 
+            });
+    }
+
+    private void setObjects() {
+        progressBar = findViewById(R.id.register_progressBar);
+        progressBar.setVisibility(View.INVISIBLE);
+        btRegister = findViewById(R.id.activity_register_bt_cadastrar);
+        edtEmail = findViewById(R.id.activity_edt_register_email);
+        edtNome = findViewById(R.id.activity_register_edt_nome);
+        edtSenha = findViewById(R.id.activity_edt_register_senha);
+        edtConfirmar = findViewById(R.id.activity_register_edt_senha_confirmada);
+        login = new LoginActivity();
     }
 
 
@@ -101,7 +111,12 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
                             Toast.makeText(getApplicationContext(), "Seus dados foram salvos!", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                             startActivity(intent);
+                            progressBar.setVisibility(View.GONE);
                             finish();
+                        }else {
+                            Toast.makeText(getApplicationContext(), "Sua senha não possui 6 dígitos"
+                                    ,Toast.LENGTH_SHORT).show();
+                            progressBar.setVisibility(View.INVISIBLE);
                         }
                     }
                 });
