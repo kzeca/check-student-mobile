@@ -3,6 +3,7 @@ package com.fmm.checkapp;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -59,7 +60,7 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
                         if(!edtSenha.getText().toString().equals(edtConfirmar.getText().toString())){
                             Toast.makeText(getApplicationContext(), "Os campos de senha não coincidem!",
                                     Toast.LENGTH_SHORT).show();
-                        }//else registerUser();
+                        }else registerUser();
                     }
                 }
             });
@@ -78,7 +79,7 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
 
     }
 
-    /* void registerUser(){
+    void registerUser(){
         final String nome = edtNome.getText().toString();
         final String email = edtEmail.getText().toString();
         final String senha = edtSenha.getText().toString();
@@ -93,13 +94,17 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
                             login.user.setNome(nome);
 
                             DatabaseReference database = FirebaseDatabase.getInstance().
-                                    getReference(login.user.getTurma())
+                                    getReference("Salas")
+                                    .child(login.user.getTurma())
                                     .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
-                            database.setValue(login.user.getNome());
-
+                            database.child("name").setValue(login.user.getNome());
+                            Toast.makeText(getApplicationContext(), "Seus dados foram salvos!", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                            startActivity(intent);
+                            finish();
                         }
                     }
                 });
-    }*/
+    }
 
 }
