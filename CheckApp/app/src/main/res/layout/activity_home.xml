@@ -6,15 +6,19 @@
     android:layout_height="match_parent">
 
     <ImageView
-        android:id="@+id/imageView3"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop"
         android:src="@drawable/papel_backgroud"
+        android:scaleType="centerCrop"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/home_recycler_view_events"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toStartOf="@+id/guideline37"
+        app:layout_constraintStart_toStartOf="@+id/guideline36"
+        app:layout_constraintTop_toTopOf="@+id/guideline39" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline30"
@@ -74,6 +78,7 @@
 
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="horizontal"
@@ -104,11 +109,12 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/msg_no_events"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:background="@drawable/borda_event"
         android:orientation="vertical"
-        android:padding="25dp"
-        android:background="@drawable/borda_input"
+        android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@+id/guideline38"
         app:layout_constraintEnd_toStartOf="@+id/guideline37"
         app:layout_constraintStart_toStartOf="@+id/guideline36"
@@ -117,17 +123,22 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Não temos nenhum evento no momento, aguarde a publicação pelo(a) professor(a)."
-            android:textSize="16sp"
-            android:textAlignment="center"
+            android:layout_marginLeft="25dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginRight="25dp"
             android:fontFamily="@font/noto_sans"
-            android:textColor="#000"/>
+            android:text="Não temos nenhum evento no momento, aguarde a publicação pelo(a) professor(a)."
+            android:textAlignment="center"
+            android:textColor="#000"
+            android:textSize="16sp" />
 
         <ImageView
             android:id="@+id/imageView4"
             android:layout_width="match_parent"
-            android:layout_height="327dp"
-            app:srcCompat="@drawable/sem_eventos" />
+            android:layout_height="wrap_content"
+            android:scaleType="centerCrop"
+            app:srcCompat="@drawable/sem_eventos"
+            android:layout_marginBottom="15dp"/>
 
 
     </LinearLayout>
