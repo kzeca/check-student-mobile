@@ -361,19 +361,6 @@
         app:layout_constraintBottom_toTopOf="@+id/guideline33"
         app:layout_constraintStart_toStartOf="@+id/guideline20" />
 
-    <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_marginTop="7dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        app:layout_constraintEnd_toEndOf="@+id/activity_register_spn_turma"
-        app:layout_constraintTop_toTopOf="@+id/guideline18"
-        app:srcCompat="@drawable/ic_arrow_drop_down_black_24dp"
-        android:contentDescription="TODO"
-        tools:ignore="VectorDrawableCompat" />
-
     <ProgressBar
         android:id="@+id/register_progressBar"
         style="?android:attr/progressBarStyle"
@@ -383,5 +370,16 @@
         app:layout_constraintEnd_toStartOf="@+id/guideline21"
         app:layout_constraintStart_toStartOf="@+id/guideline14"
         tools:visibility="invisible" />
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="7dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:src="@drawable/ic_arrow_drop_down_black_24dp"
+        app:layout_constraintEnd_toStartOf="@+id/guideline21"
+        app:layout_constraintTop_toTopOf="@+id/guideline18" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

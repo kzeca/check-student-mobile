@@ -90,18 +90,16 @@ public class LoginActivity extends Activity {
                                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
+                                            dialog.dismiss();
                                             if (task.isSuccessful()) {
                                                 Toast.makeText(getApplicationContext(), "Email para redefinição enviado!(Confira a caixa de spam)", Toast.LENGTH_LONG).show();
-                                                dialog.dismiss();
                                             } else
                                                 Toast.makeText(getApplicationContext(), "Informe um email válido", Toast.LENGTH_LONG).show();
                                         }
                                     });
                         }
-
                     }
                 });
-
                 dialog.show();
 
             }
