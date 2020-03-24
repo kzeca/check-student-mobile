@@ -22,6 +22,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 public class RegisterActivity extends Activity implements AdapterView.OnItemSelectedListener {
 
@@ -114,6 +115,7 @@ public class RegisterActivity extends Activity implements AdapterView.OnItemSele
                             database.child("name").setValue(login.user.getNome());
                             database.child("ra").setValue(login.user.getRa());
                             Toast.makeText(getApplicationContext(), "Seus dados foram salvos!", Toast.LENGTH_SHORT).show();
+                            registerTopic();
                             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                             startActivity(intent);
                             progressBar.setVisibility(View.GONE);
@@ -125,6 +127,10 @@ public class RegisterActivity extends Activity implements AdapterView.OnItemSele
                         }
                     }
                 });
+    }
+
+    void registerTopic(){
+        FirebaseMessaging.getInstance().subscribeToTopic(login.user.getTurma());
     }
 
 }
