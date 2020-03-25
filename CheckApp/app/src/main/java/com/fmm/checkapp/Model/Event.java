@@ -7,6 +7,10 @@ public class Event {
     private String endTime;
     private String checkInTime;
     private String checkOutTime;
+    private boolean isCheckInDone;
+    private boolean isCheckOutDone;
+
+
 
     public Event() {
     }
@@ -20,6 +24,22 @@ public class Event {
         this.checkOutTime = checkOutTime;
     }
 
+
+    public boolean isCheckOutDone() {
+        return isCheckOutDone;
+    }
+
+    public void setCheckOutDone(boolean checkOutDone) {
+        isCheckOutDone = checkOutDone;
+    }
+
+    public boolean isCheckInDone() {
+        return isCheckInDone;
+    }
+
+    public void setCheckInDone(boolean checkInDone) {
+        isCheckInDone = checkInDone;
+    }
 
     public String getSubject() {
         return subject;
