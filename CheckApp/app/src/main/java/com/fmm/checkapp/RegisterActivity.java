@@ -27,7 +27,8 @@ public class RegisterActivity extends AppCompatActivity implements AdapterView.O
     Spinner spnTurma;
     LoginActivity login;
     FirebaseAuth firebaseAuth;
-    Button btRegister;
+    Button bt
+        Register;
     EditText edtEmail, edtNome, edtSenha, edtConfirmar, edtRA;
     ProgressBar progressBar;
 
