@@ -27,7 +27,8 @@ public class Event {
         for(DataSnapshot keys_dados:dados.child("keys").getChildren()){
             this.keys.add((Keyword) keys_dados.getValue());
         }
-        this.title =dados.child("end").getValue().toString();
+        this.title =dados.child("title").getValue().toString();
+        this.subject = dados.child("subject").getValue().toString();
         this.checkInTime = "";
         this.checkOutTime = "";
         this.uIdTeacher = uid;

@@ -1,6 +1,7 @@
 package com.fmm.checkapp;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -10,6 +11,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -36,6 +38,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+
+import static com.fmm.checkapp.LoginActivity.user;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -83,6 +87,7 @@ public class HomeActivity extends AppCompatActivity {
         DatabaseReference teacherBase = dataBase.child("professores");
         //pegar uid professor
         teacherBase.addListenerForSingleValueEvent(new ValueEventListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for(DataSnapshot dados: dataSnapshot.getChildren()){
@@ -166,7 +171,7 @@ public class HomeActivity extends AppCompatActivity {
         final List<Keyword> keywords=new ArrayList<>();
 
         //Acessa parte dos professores
-        DatabaseReference teachersBase = dataBase.child("Professores");
+        DatabaseReference teachersBase = dataBase.child("professores");
 
         //Pegar palavras do banco
         teachersBase.child(uIdTeacher).child("events").child("keys").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -247,7 +252,7 @@ public class HomeActivity extends AppCompatActivity {
         //Acessa conta do professor que mandou o evento
         //Precisa saber a turma do aluno e do 'nome' do evento
         if(!listen)return;//caso deu checkout, o aluno não pode saber quais palavras chaves
-        teachersBase.child(events.get(position).getuIdTeacher()).child("events").child(events.get(position).getClassEvent()).child("evento"+(position+1)).child("keys").addValueEventListener(new ValueEventListener() {
+        teachersBase.child(events.get(position).getuIdTeacher()).child("events").child(events.get(position).getClassEvent()).child("keys").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 List<Keyword> keysAux= new ArrayList<Keyword>();
