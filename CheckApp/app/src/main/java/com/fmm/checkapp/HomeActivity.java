@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -36,20 +37,38 @@ public class HomeActivity extends AppCompatActivity {
     List<Event> events;
     RecyclerView recyclerViewEvents;
     MyRecyclerViewAdapter eventsAdapter;
+    ImageButton btInfo;
     LinearLayout msgNoEvents;
     FirebaseUser firebaseUser;
     DatabaseReference dataBase;
     String uid;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        btInfo = findViewById(R.id.activity_home_bt_about_us);
         msgNoEvents = findViewById(R.id.msg_no_events);
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         uid = firebaseUser.getUid();
         dataBase = FirebaseDatabase.getInstance().getReference();
         buildRecyclerView();
+
+        btInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(HomeActivity.this, AboutActivity.class));
+            }
+        });
+
+        btInfo.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast.makeText(HomeActivity.this, "Informações da equipe desenvolvedora", Toast.LENGTH_SHORT);
+                return true;
+            }
+        });
     }
 
 
