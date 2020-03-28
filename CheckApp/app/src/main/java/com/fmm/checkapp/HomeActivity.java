@@ -10,6 +10,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -75,10 +76,12 @@ public class HomeActivity extends AppCompatActivity {
 
     public List<Event> getEvents(){
         events = new ArrayList<Event>();
-        events.add(new Event("L.Portuguesa", "Verbos", "7h", "8h", "", ""));
-        events.add(new Event("L.Inglesa", "Mexican War", "9h", "10h", "", ""));
-        events.add(new Event("Matemática", "Ponto e Reta", "11h", "12h", "", ""));
-        events.add(new Event("Física", "Refração", "13h", "14h", "", ""));
+        events.add(new Event("L.Portuguesa", "Verbos", "7h", "8h", "",  "","https://meet.google.com/jyi-fkvd-gih"));
+        events.add(new Event("L.Inglesa", "Mexican War", "9h", "10h", "",  "","https://www.google.com.br/"));
+        events.add(new Event("Matemática", "Ponto e Reta", "11h", "12h", "", "", "https://www.google.com.br/"));
+        events.add(new Event("Física", "Refração", "13h", "14h", "", "", "https://www.google.com.br/"));
+
+        //AO ADICIONAR OS EVENTOS NO ATRIBUTO URL CONCATENAR À URL A STRING : "https://"
         if(events.size()> 0){
             msgNoEvents.setVisibility(View.INVISIBLE);
         }
@@ -133,6 +136,15 @@ public class HomeActivity extends AppCompatActivity {
                 }
 
             }
+
+            @Override
+            public void onGoLiveClick(int position) {
+                    Uri uri = Uri.parse(events.get(position).getUrl());
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    startActivity(intent);
+            }
+
+
         });
     }
 

@@ -5,6 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -23,6 +24,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     public interface OnItemClickListener{
         void onCheckInClick(int position);
         void onCheckOutClick(int position);
+        void onGoLiveClick(int position);
 
     }
 
@@ -37,6 +39,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     public static class ViewHolder extends RecyclerView.ViewHolder{
         private TextView tvSubject, tvTitle, tvStartTime, tvEndTime, tvCheckInTime, tvCheckOutTime;
         private Button btnCheckIn, btnCheckOut;
+        private ImageButton btnGoLive;
 
         public ViewHolder(@NonNull View itemView, final OnItemClickListener listener) {
             super(itemView);
@@ -48,6 +51,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
             tvCheckOutTime = itemView.findViewById(R.id.event_tv_check_out_at);
             btnCheckIn = itemView.findViewById(R.id.event_bt_check_in);
             btnCheckOut = itemView.findViewById(R.id.event_bt_check_out);
+            btnGoLive = itemView.findViewById(R.id.event_bt_go_live);
 
             btnCheckIn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -68,6 +72,18 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
                         int position = getAdapterPosition();
                         if(position != RecyclerView.NO_POSITION){
                             listener.onCheckOutClick(position);
+                        }
+                    }
+                }
+            });
+
+            btnGoLive.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(listener != null){
+                        int position = getAdapterPosition();
+                        if(position != RecyclerView.NO_POSITION){
+                            listener.onGoLiveClick(position);
                         }
                     }
                 }
@@ -108,12 +124,10 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         else{
             holder.tvCheckOutTime.setText("");
         }
-        System.out.println("DAQUELE JEITAO: "+ position);
     }
 
     @Override
     public int getItemCount() {
-        System.out.println("AQUI:"+eventList.size());
         return eventList.size();
 
     }

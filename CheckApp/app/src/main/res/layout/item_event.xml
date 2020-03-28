@@ -54,23 +54,66 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/linha" />
 
-            <TextView
-                android:id="@+id/event_tv_class_starts_at"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="Início: 07h10"
-                android:textColor="#3D3B3B"
-                android:textSize="23sp" />
+                android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/event_tv_class_ends_at"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="Fim: 8h00"
-                android:textColor="#3D3B3B"
-                android:textSize="23sp" />
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/event_tv_class_starts_at"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="Início: 07h10"
+                        android:textColor="#3D3B3B"
+                        android:textSize="23sp" />
+
+                    <TextView
+                        android:id="@+id/event_tv_class_ends_at"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="Fim: 8h00"
+                        android:textColor="#3D3B3B"
+                        android:textSize="23sp" />
+
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <ImageButton
+                        android:id="@+id/event_bt_go_live"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="6"
+                        android:layout_marginTop="10dp"
+                        android:src="@drawable/ic_live"
+                        android:background="@android:color/transparent"
+                        android:scaleType="fitCenter"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:textColor="#3D3B3B"
+                        android:text="Ir para a live"
+                        android:gravity="center"
+                        android:layout_weight="3"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -105,6 +148,7 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
+
             <TextView
                 android:id="@+id/event_tv_check_in_at"
                 android:layout_width="wrap_content"
@@ -120,6 +164,8 @@
                 android:layout_marginTop="10dp"
                 android:textColor="#635E5E"
                 android:textSize="13sp" />
+
+
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
