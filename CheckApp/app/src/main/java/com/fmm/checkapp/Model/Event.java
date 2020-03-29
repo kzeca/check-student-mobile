@@ -12,6 +12,7 @@ public class Event {
     private String endTime;
     private String checkInTime;
     private String checkOutTime;
+    private String url;
     private boolean isCheckInDone;
     private boolean isCheckOutDone;
     private String uIdTeacher;
@@ -33,50 +34,10 @@ public class Event {
         this.checkOutTime = "";
         this.uIdTeacher = uid;
         this.classEvent = classEvent;
+        this.url = dados.child("link").getValue().toString();
 
     }
 
-    public Event(String subject, String title, String startTime, String endTime, String checkInTime, String checkOutTime) {
-        this.subject = subject;
-        this.title = title;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.checkInTime = checkInTime;
-        this.checkOutTime = checkOutTime;
-    }
-
-    public Event(String subject, String title, String startTime, String endTime, String checkInTime, String checkOutTime, String uIdTeacher) {
-        this.subject = subject;
-        this.title = title;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.checkInTime = checkInTime;
-        this.checkOutTime = checkOutTime;
-        this.uIdTeacher = uIdTeacher;
-    }
-
-    public Event(String subject, String title, String startTime, String endTime, String checkInTime, String checkOutTime, String uIdTeacher, List<Keyword> keys) {
-        this.subject = subject;
-        this.title = title;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.checkInTime = checkInTime;
-        this.checkOutTime = checkOutTime;
-        this.uIdTeacher = uIdTeacher;
-        this.keys = keys;
-    }
-
-    public Event(String subject, String title, String startTime, String endTime, String checkInTime, String checkOutTime, String uIdTeacher, List<Keyword> keys, String classEvent) {
-        this.subject = subject;
-        this.title = title;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.checkInTime = checkInTime;
-        this.checkOutTime = checkOutTime;
-        this.uIdTeacher = uIdTeacher;
-        this.keys = keys;
-        this.classEvent = classEvent;
-    }
 
     public boolean isCheckOutDone() {
         return isCheckOutDone;
@@ -168,5 +129,12 @@ public class Event {
 
     public void setDate(String date) {
         this.date = date;
+    }
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

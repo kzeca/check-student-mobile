@@ -8,8 +8,12 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:scaleType="centerCrop"
         android:src="@drawable/papel_backgroud"
-        android:scaleType="centerCrop"/>
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/home_recycler_view_events"
@@ -46,7 +50,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="146dp" />
+        app:layout_constraintGuide_percent="0.2" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline32"
@@ -90,16 +94,16 @@
 
 
         <ImageView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="4"
+            android:layout_weight="1"
             android:scaleType="fitStart"
             android:src="@drawable/logo_main" />
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_weight="4"
             android:fontFamily="@font/noto_sans_bold"
             android:gravity="center"
             android:text="Eventos"
@@ -142,5 +146,21 @@
 
 
     </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/activity_home_bt_about_us"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginRight="15dp"
+        android:background="@android:color/transparent"
+        android:scaleType="fitCenter"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toTopOf="@+id/guideline31"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline35"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.31"
+        app:srcCompat="@drawable/ic_info_outline_black_24dp"
+        tools:ignore="VectorDrawableCompat" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

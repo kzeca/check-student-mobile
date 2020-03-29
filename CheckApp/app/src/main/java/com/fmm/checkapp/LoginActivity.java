@@ -1,9 +1,11 @@
 package com.fmm.checkapp;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -25,16 +27,21 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends Activity {
 
     Button btLogin;
     TextView tvIrTelaCadastro, tvEsqueceuSenha;
     EditText edtEmail;
     EditText edtSenha;
     private FirebaseAuth auth;
+    DatabaseReference dataBase;
     FirebaseUser firebaseUser;
     ProgressBar progressBar;
     static Usuario user;
@@ -91,18 +98,16 @@ public class LoginActivity extends AppCompatActivity {
                                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
+                                            dialog.dismiss();
                                             if (task.isSuccessful()) {
                                                 Toast.makeText(getApplicationContext(), "Email para redefinição enviado!(Confira a caixa de spam)", Toast.LENGTH_LONG).show();
-                                                dialog.dismiss();
                                             } else
                                                 Toast.makeText(getApplicationContext(), "Informe um email válido", Toast.LENGTH_LONG).show();
                                         }
                                     });
                         }
-
                     }
                 });
-
                 dialog.show();
 
             }
@@ -141,13 +146,31 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
-    /*
     @Override
-    protected void onStart() {                  FUNÇÃO PARA PEGAR O USUÁRIO JÁ LOGADO!
+    protected void onStart() {
         if(firebaseUser != null){
+            final FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference ref = database.getReference();
+            ref.child("salas").orderByChild(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    for (DataSnapshot childSnapshot: dataSnapshot.getChildren()) {
+                        String turma = childSnapshot.getKey();
+                        user.setTurma(turma);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
+
             Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
             startActivity(intent);
+            finish();
         }
         super.onStart();
-    }*/
+    }
 }
