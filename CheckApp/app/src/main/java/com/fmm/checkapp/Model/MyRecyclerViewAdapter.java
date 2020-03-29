@@ -1,5 +1,6 @@
 package com.fmm.checkapp.Model;
 
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,9 +10,12 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.view.menu.MenuView;
 import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.fmm.checkapp.HomeActivity;
 import com.fmm.checkapp.R;
 
 import java.util.List;
@@ -94,9 +98,6 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     }
 
 
-
-
-
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -105,6 +106,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         return viewHolder;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.tvSubject.setText(eventList.get(position).getSubject());
@@ -113,15 +115,25 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         holder.tvEndTime.setText("Fim: "+ eventList.get(position).getEndTime());
         if(!eventList.get(position).getCheckInTime().isEmpty() && eventList.get(position).getCheckInTime() != null){
             holder.tvCheckInTime.setText("Check in realizado às "+eventList.get(position).getCheckInTime());
+            holder.tvCheckInTime.setVisibility(View.VISIBLE);
+            holder.btnCheckIn.setBackgroundTintList(holder.btnCheckIn.getResources().getColorStateList(R.color.cinza_botao));
+            holder.btnCheckIn.setTextColor(holder.btnCheckIn.getContext().getResources().getColor(R.color.black));
+            holder.btnCheckOut.setBackgroundTintList(holder.btnCheckIn.getResources().getColorStateList(R.color.azul_botao));
+            holder.btnCheckOut.setTextColor(holder.btnCheckOut.getContext().getResources().getColor(R.color.white));
         }
         else{
+            holder.tvCheckInTime.setVisibility(View.GONE);
             holder.tvCheckInTime.setText("");
         }
 
         if(!eventList.get(position).getCheckOutTime().isEmpty() && eventList.get(position).getCheckOutTime() != null){
             holder.tvCheckOutTime.setText("Check out realizado às "+eventList.get(position).getCheckOutTime());
+            holder.tvCheckOutTime.setVisibility(View.VISIBLE);
+            holder.btnCheckOut.setBackgroundTintList(holder.btnCheckIn.getResources().getColorStateList(R.color.cinza_botao));
+            holder.btnCheckOut.setTextColor(holder.btnCheckOut.getContext().getResources().getColor(R.color.black));
         }
         else{
+            holder.tvCheckOutTime.setVisibility(View.GONE);
             holder.tvCheckOutTime.setText("");
         }
     }

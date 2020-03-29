@@ -105,6 +105,7 @@ public class HomeActivity extends AppCompatActivity {
             String checkOutTime;
             String checkInTime;
 
+
             @Override
             public void onCheckInClick(int position) {
                 if(!events.get(position).isCheckInDone()){
