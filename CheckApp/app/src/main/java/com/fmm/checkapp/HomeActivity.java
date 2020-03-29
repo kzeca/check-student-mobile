@@ -66,7 +66,7 @@ public class HomeActivity extends AppCompatActivity {
         btInfo.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                Toast.makeText(HomeActivity.this, "Informações da equipe desenvolvedora", Toast.LENGTH_SHORT);
+                Toast.makeText(HomeActivity.this, "Sobre nós", Toast.LENGTH_SHORT).show();
                 return true;
             }
         });
@@ -96,7 +96,7 @@ public class HomeActivity extends AppCompatActivity {
         recyclerViewEvents = findViewById(R.id.home_recycler_view_events);
         recyclerViewEvents.setLayoutManager(new LinearLayoutManager(this));
         eventsAdapter = new MyRecyclerViewAdapter(getEvents());
-        if(events.size()>0){
+        if(events != null && events.size()>0){
             recyclerViewEvents.setAdapter(eventsAdapter);
         }
 
