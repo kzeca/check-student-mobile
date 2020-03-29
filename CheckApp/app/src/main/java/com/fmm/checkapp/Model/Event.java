@@ -7,19 +7,41 @@ public class Event {
     private String endTime;
     private String checkInTime;
     private String checkOutTime;
+    private String url;
+    private boolean isCheckInDone;
+    private boolean isCheckOutDone;
+
+
 
     public Event() {
     }
 
-    public Event(String subject, String title, String startTime, String endTime, String checkInTime, String checkOutTime) {
+    public Event(String subject, String title, String startTime, String endTime, String checkInTime, String checkOutTime, String url) {
         this.subject = subject;
         this.title = title;
         this.startTime = startTime;
         this.endTime = endTime;
         this.checkInTime = checkInTime;
         this.checkOutTime = checkOutTime;
+        this.url = url;
     }
 
+
+    public boolean isCheckOutDone() {
+        return isCheckOutDone;
+    }
+
+    public void setCheckOutDone(boolean checkOutDone) {
+        isCheckOutDone = checkOutDone;
+    }
+
+    public boolean isCheckInDone() {
+        return isCheckInDone;
+    }
+
+    public void setCheckInDone(boolean checkInDone) {
+        isCheckInDone = checkInDone;
+    }
 
     public String getSubject() {
         return subject;
@@ -70,4 +92,11 @@ public class Event {
     }
 
 
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
 }

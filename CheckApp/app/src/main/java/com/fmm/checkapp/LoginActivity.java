@@ -138,13 +138,13 @@ public class LoginActivity extends Activity {
                 });
     }
 
-    /*
     @Override
-    protected void onStart() {                  FUNÇÃO PARA PEGAR O USUÁRIO JÁ LOGADO!
+    protected void onStart() {
         if(firebaseUser != null){
             Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
             startActivity(intent);
+            finish();
         }
         super.onStart();
-    }*/
+    }
 }

@@ -109,11 +109,17 @@ public class RegisterActivity extends Activity implements AdapterView.OnItemSele
                             login.user.setRa(ra);
 
                             DatabaseReference database = FirebaseDatabase.getInstance().
-                                    getReference("Salas")
+                                    getReference("salas")
                                     .child(login.user.getTurma())
                                     .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
                             database.child("name").setValue(login.user.getNome());
                             database.child("ra").setValue(login.user.getRa());
+                            database.child("turma").setValue(login.user.getTurma());
+                            database.child("checkin").setValue("");
+                            database.child("checkout").setValue("");
+                            database.child("keys").child("key1").setValue("");
+                            database.child("keys").child("key2").setValue("");
+                            database.child("keys").child("key3").setValue("");
                             Toast.makeText(getApplicationContext(), "Seus dados foram salvos!", Toast.LENGTH_SHORT).show();
                             registerTopic();
                             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
