@@ -98,6 +98,18 @@ public class HomeActivity extends Activity {
             }
         });
 
+        dataBase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                getEvents();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
     }
 
     private void onCreateContinue() {
@@ -267,8 +279,6 @@ public class HomeActivity extends Activity {
         recyclerViewEvents = findViewById(R.id.home_recycler_view_events);
         recyclerViewEvents.setLayoutManager(new LinearLayoutManager(this));
         eventsAdapter = new MyRecyclerViewAdapter(eventsList);
-        Log.d("ADOLETA", String.valueOf(eventsList.size()));
-        Log.d("ADOLETA", eventsList.toString());
 
         if (events != null && events.size() > 0) {
             recyclerViewEvents.setAdapter(eventsAdapter);
