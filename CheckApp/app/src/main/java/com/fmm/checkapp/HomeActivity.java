@@ -295,6 +295,7 @@ public class HomeActivity extends Activity {
             String checkOutTime;
             String checkInTime;
 
+
             @Override
             public void onCheckInClick(int position) {
                 if (!events.get(position).isCheckInDone()) {

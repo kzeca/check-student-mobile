@@ -3,4 +3,8 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#043F5F</color>
     <color name="colorAccent">#000</color>
+    <color name="azul_botao">#2E8FB0</color>
+    <color name="cinza_botao">#B5B5B5</color>
+    <color name="white">#fff</color>
+    <color name="black">#000</color>
 </resources>
