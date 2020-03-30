@@ -396,7 +396,7 @@ public class HomeActivity extends Activity {
                 Date time = new Date();
                 String hora = Integer.toString(time.getHours());
                 String min = Integer.toString(time.getMinutes());
-                String fullHour = hora + ":" + min + "min";
+                String fullHour = hora + "h" + min + "min";
 
                 switch (fullHour) {
                     case events.get(position).getKeys().get(0).getTime():
