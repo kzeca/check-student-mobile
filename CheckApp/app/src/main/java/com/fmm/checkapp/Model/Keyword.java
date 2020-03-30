@@ -2,9 +2,10 @@ package com.fmm.checkapp.Model;
 
 public class Keyword {
     private String key;
+    private String time;
 
     public Keyword(){
-
+        
     }
     public Keyword(String key) {
         this.key = key;

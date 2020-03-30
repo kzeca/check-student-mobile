@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import com.google.firebase.database.DataSnapshot;
 
 import java.util.List;
+import java.util.ArrayList;
 
 public class Event {
     private String subject;
@@ -18,18 +19,20 @@ public class Event {
     private boolean isCheckInDone;
     private boolean isCheckOutDone;
     private String uIdTeacher;
-    private List<Keyword> keys, keysLatest;
+    private List<Keyword> keys;
     private String classEvent;
-
 
     public Event(DataSnapshot dados, String uid, String classEvent) {
         this.startTime = dados.child("begin").getValue().toString();
         this.date = dados.child("date").getValue().toString();
         this.endTime = dados.child("end").getValue().toString();
-        /*for (DataSnapshot keys_dados : dados.child("keys").getChildren()) {
-            this.keys.add((Keyword)keys_dados.getValue());
-        }*/
-        this.keysLatest = this.keys;//Para comparar qual palavra é diferente
+        // pegar Keys
+        this.keys = new ArrayList<>();
+        for (DataSnapshot dadosAux : dados.child("keys").getChildren()) {
+            Keyword key = dadosAux.getValue(Keyword.class);
+            this.keys.add(key);
+        }
+
         this.title = dados.child("title").getValue().toString();
         this.subject = dados.child("subject").getValue().toString();
         this.checkInTime = "";
@@ -39,7 +42,6 @@ public class Event {
         this.url = dados.child("link").getValue().toString();
 
     }
-
 
     public boolean isCheckOutDone() {
         return isCheckOutDone;
@@ -145,17 +147,9 @@ public class Event {
         this.url = url;
     }
 
-    public List<Keyword> getKeysLatest() {
-        return keysLatest;
-    }
-
-    public void setKeysLatest(List<Keyword> keysLatest) {
-        this.keysLatest = keysLatest;
-    }
-
     @NonNull
     @Override
     public String toString() {
-        return this.getTitle() + "," + this.getUrl() +","+this.getStartTime() + this.getEndTime();
+        return this.getTitle() + "," + this.getUrl() + "," + this.getStartTime() + this.getEndTime();
     }
 }

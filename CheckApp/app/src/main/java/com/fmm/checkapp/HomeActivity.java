@@ -64,7 +64,6 @@ public class HomeActivity extends Activity {
     String curso;
     DatabaseReference teacherBase;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,27 +75,28 @@ public class HomeActivity extends Activity {
         System.out.println("alo:" + user.getTurma());
         dataBase = FirebaseDatabase.getInstance().getReference();
         teacherBase = dataBase.child("professores");
-        dataBase.child("salas").orderByChild(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
-                    String turma = childSnapshot.getKey();
-                    user.setTurma(turma);
-                    if (turma != null) {
-                        user.setTurma(turma);
-                        Log.d("ADOLETA", "" + user.getTurma());
-                        serie = turma.substring(0, 0);
-                        curso = turma.substring(2, 2);
+        dataBase.child("salas").orderByChild(firebaseUser.getUid())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+                            String turma = childSnapshot.getKey();
+                            user.setTurma(turma);
+                            if (turma != null) {
+                                user.setTurma(turma);
+                                Log.d("ADOLETA", "" + user.getTurma());
+                                serie = turma.substring(0, 0);
+                                curso = turma.substring(2, 2);
+                            }
+                        }
+                        onCreateContinue();
                     }
-                }
-                onCreateContinue();
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            }
-        });
+                    }
+                });
 
         dataBase.addValueEventListener(new ValueEventListener() {
             @Override
@@ -131,11 +131,10 @@ public class HomeActivity extends Activity {
         });
     }
 
-
     public void getEvents() {
         events = new ArrayList<Event>();
         teachersUID = new ArrayList<>();
-        //pegar uid professor
+        // pegar uid professor
 
         teacherBase.addListenerForSingleValueEvent(new ValueEventListener() {
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -162,7 +161,6 @@ public class HomeActivity extends Activity {
 
     }
 
-
     private List<Event> getEventsContinue() {
 
         if (teachersUID.size() > 0) {
@@ -170,49 +168,55 @@ public class HomeActivity extends Activity {
             for (i = 0; i < teachersUID.size(); i++) {
                 Log.d("ARMANDO", "existe");
                 uidTeacherCurrent = teachersUID.get(i);
-                aux = teacherBase.child(teachersUID.get(i)).child("events").child(user.getTurma());//para verificar se existe evento para sala  única
-                if (teacherBase.child(teachersUID.get(i)).child("events").child((aux != null ? user.getTurma() : serie + "ano")) != null) {//verifica se há evento para sala única ou para ano
+                aux = teacherBase.child(teachersUID.get(i)).child("events").child(user.getTurma());// para verificar se
+                                                                                                   // existe evento para
+                                                                                                   // sala única
+                if (teacherBase.child(teachersUID.get(i)).child("events")
+                        .child((aux != null ? user.getTurma() : serie + "ano")) != null) {// verifica se há evento para
+                                                                                          // sala única ou para ano
 
-                    teacherBase.child(teachersUID.get(i)).child("events").child((aux != null ? user.getTurma() : serie + "ano")).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            if (dataSnapshot.exists()) {
-                                for (DataSnapshot dados : dataSnapshot.getChildren()) {
-                                    if(!dados.getKey().equals("evento0")){
-                                        Event evento = new Event(dados, uidTeacherCurrent, (aux != null ? user.getTurma() : serie + "ano"));
-                                        events.add(evento);
+                    teacherBase.child(teachersUID.get(i)).child("events")
+                            .child((aux != null ? user.getTurma() : serie + "ano"))
+                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    if (dataSnapshot.exists()) {
+                                        for (DataSnapshot dados : dataSnapshot.getChildren()) {
+                                            if (!dados.getKey().equals("evento0")) {
+                                                Event evento = new Event(dados, uidTeacherCurrent,
+                                                        (aux != null ? user.getTurma() : serie + "ano"));
+                                                events.add(evento);
+                                            } else {
+
+                                            }
+
+                                        }
+                                        events = getCheckedEvents();
                                     }
-                                    else{
+                                }
 
-                                    }
-
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
 
                                 }
-                                events = getCheckedEvents();
-                            }
-                        }
+                            });
+                } else {// Por curso
+                    teacherBase.child(teachersUID.get(i)).child("events").child((serie + curso + "ano"))
+                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    for (DataSnapshot dados : dataSnapshot.getChildren()) {
+                                        Event evento = new Event(dados, uidTeacherCurrent, (serie + curso + "ano"));
+                                        events.add(evento);
+                                    }
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                                }
 
-                        }
-                    });
-                } else {//Por curso
-                    teacherBase.child(teachersUID.get(i)).child("events").child((serie + curso + "ano")).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            for (DataSnapshot dados : dataSnapshot.getChildren()) {
-                                Event evento = new Event(dados, uidTeacherCurrent, (serie + curso + "ano"));
-                                events.add(evento);
-                            }
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                        }
-                    });
+                                }
+                            });
                 }
             }
         }
@@ -222,7 +226,8 @@ public class HomeActivity extends Activity {
     private List<Event> getCheckedEvents() {
 
         ImageView imgNoEvents = findViewById(R.id.activity_home_img_no_events);
-        //AO ADICIONAR OS EVENTOS NO ATRIBUTO URL CONCATENAR À URL A STRING : "https://"
+        // AO ADICIONAR OS EVENTOS NO ATRIBUTO URL CONCATENAR À URL A STRING :
+        // "https://"
         if (events.size() > 0) {
             msgNoEvents.setVisibility(View.INVISIBLE);
         } else {
@@ -234,56 +239,48 @@ public class HomeActivity extends Activity {
         return events;
     }
 
-
-    public List<Keyword> getKeyWords(String uIdTeacher) {//Recupera as Keywords que já estavam registradas
-        final List<Keyword> keywords = new ArrayList<>();
-
-        //Acessa parte dos professores
-        
-
-        //Pegar palavras do banco
-
-
-        if (teacherBase.child(uIdTeacher).child("events").child((aux != null ? turma : serie + "ano")) != null) {//verifica se há evento para sala única ou para ano
-
-            teacherBase.child(uIdTeacher).child("events").child((aux != null ? turma : serie + "ano")).child("keys").addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    if(dataSnapshot.exists()){
-                        for (DataSnapshot dados : dataSnapshot.getChildren()) {
-                            Keyword key = dados.getValue(Keyword.class);
-                            keywords.add(key);
-                        }
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
-            });
-        } else {//Por curso
-            teacherBase.child(uIdTeacher).child("events").child((serie + curso + "ano")).child("keys").addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    if(dataSnapshot.exists()){
-                        for (DataSnapshot dados : dataSnapshot.getChildren()) {
-                            Keyword key = dados.getValue(Keyword.class);
-                            keywords.add(key);
-                        }
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
-            });
-        }
-
-        return keywords;
-    }
-
+    /*
+     * 
+     * public List<Keyword> getKeyWords(String uIdTeacher) {//Recupera as Keywords
+     * que já estavam registradas final List<Keyword> keywords = new ArrayList<>();
+     * 
+     * //Acessa parte dos professores
+     * 
+     * 
+     * //Pegar palavras do banco
+     * 
+     * 
+     * if (teacherBase.child(uIdTeacher).child("events").child((aux != null ? turma
+     * : serie + "ano")) != null) {//verifica se há evento para sala única ou para
+     * ano
+     * 
+     * teacherBase.child(uIdTeacher).child("events").child((aux != null ? turma :
+     * serie + "ano")).child("keys").addListenerForSingleValueEvent(new
+     * ValueEventListener() {
+     * 
+     * @Override public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+     * if(dataSnapshot.exists()){ for (DataSnapshot dados :
+     * dataSnapshot.getChildren()) { Keyword key = dados.getValue(Keyword.class);
+     * keywords.add(key); } } }
+     * 
+     * @Override public void onCancelled(@NonNull DatabaseError databaseError) {
+     * 
+     * } }); } else {//Por curso
+     * teacherBase.child(uIdTeacher).child("events").child((serie + curso +
+     * "ano")).child("keys").addListenerForSingleValueEvent(new ValueEventListener()
+     * {
+     * 
+     * @Override public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+     * if(dataSnapshot.exists()){ for (DataSnapshot dados :
+     * dataSnapshot.getChildren()) { Keyword key = dados.getValue(Keyword.class);
+     * keywords.add(key); } } }
+     * 
+     * @Override public void onCancelled(@NonNull DatabaseError databaseError) {
+     * 
+     * } }); }
+     * 
+     * return keywords; }
+     */
     public void buildRecyclerView(List<Event> eventsList) {
 
         recyclerViewEvents = findViewById(R.id.home_recycler_view_events);
@@ -309,7 +306,7 @@ public class HomeActivity extends Activity {
                     events.get(position).setCheckInTime(hora + "h" + min);
                     eventsAdapter.notifyItemChanged(position);
                     checkInTime = hora + ":" + min;
-                    //Listener para verificar palavras chaves
+                    // Listener para verificar palavras chaves
 
                     getKeyWordUpdates(events.get(position).isCheckInDone(), position);
 
@@ -331,7 +328,6 @@ public class HomeActivity extends Activity {
                         getKeyWordUpdates(!events.get(position).isCheckOutDone(), position);
                     }
 
-
                 }
 
             }
@@ -343,47 +339,97 @@ public class HomeActivity extends Activity {
                 startActivity(intent);
             }
 
-
         });
     }
 
-    public void getKeyWordUpdates(boolean listen, final int position) {//Veririfica as Keywords que foram adicionadas
-        //Acessa parte dos professores
-        
+    public void getKeyWordUpdates(boolean listen, int position) {// Veririfica as Keywords que foram adicionadas
+        // Acessa parte dos professores
 
-        //Acessa conta do professor que mandou o evento
-        //Precisa saber a turma do aluno e do 'nome' do evento
-        if (!listen) return;//caso deu checkout, o aluno não pode saber quais palavras chaves
-        teachersBase.child(events.get(position).getuIdTeacher()).child("events").child(events.get(position).getClassEvent()).child("keys").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()){
-                        List<Keyword> keysAux = new ArrayList<Keyword>();
-                    for (DataSnapshot dados : dataSnapshot.getChildren()) {
-                        keysAux.add((Keyword) dados.getValue());//atualiza as palavras chaves lançadas
+        // Acessa conta do professor que mandou o evento
+        // Precisa saber a turma do aluno e do 'nome' do evento
+        if (!listen)
+            return;// caso deu checkout, o aluno não pode saber quais palavras chaves
+        else {
+            /**
+             * ATENÇÃO CASO OCORRA ERRO AQUI DEVIDO O ALÇO INFINITO, UTILIZEM THREAD,
+             * INSTACIEM UMA THREAD
+             * 
+             * 
+             * new Thread( while (true) { Date time = new Date(); String hora =
+             * Integer.toString(time.getHours()); String min =
+             * Integer.toString(time.getMinutes()); String fullHour = hora + ":" + min +
+             * "min";
+             * 
+             * switch (fullHour) { case events.get(position).getKeys().get(0).getTime():
+             * String key = events.get(position).getKeys().get(0).getKey(); // TODO CODE OF
+             * POP UP
+             * 
+             * Toast.makeText(HomeActivity.this, "Hora de adicionar uma nova Key: " + key +
+             * "", Toast.LENGTH_LONG).show();
+             * 
+             * break;
+             * 
+             * case events.get(position).getKeys().get(1).getTime(): String key =
+             * events.get(position).getKeys().get(1).getKey(); // TODO CODE OF POP UP
+             * 
+             * Toast.makeText(HomeActivity.this, "Hora de adicionar uma nova Key: " + key +
+             * "", Toast.LENGTH_LONG).show();
+             * 
+             * break; case events.get(position).getKeys().get(2).getTime(): String key =
+             * events.get(position).getKeys().get(2).getKey(); // TODO CODE OF POP UP
+             * 
+             * Toast.makeText(HomeActivity.this, "Hora de adicionar uma nova Key: " + key +
+             * "", Toast.LENGTH_LONG).show();
+             * 
+             * break;
+             * 
+             * }
+             * 
+             * }
+             * 
+             * ).start()
+             * 
+             * POIS COM A TRHEAD, ESSA AÇÃO ESTARÁ OCORRENDO SIMULTÂNEAMENTE
+             */
 
-                    }
-                    events.get(position).setKeys(keysAux);
-                    System.out.println("TEM PALAVRA CHAVE NOVA");
-                    for (int i = 0; i < events.size(); i++) {
-                        if (events.get(position).getKeys().get(i) != events.get(position).getKeysLatest().get(i)) {
-                            //TODO CODE OF POP UP
-                                    String key = events.get(position).getKeys().get(i);
+            while (true) {
+                Date time = new Date();
+                String hora = Integer.toString(time.getHours());
+                String min = Integer.toString(time.getMinutes());
+                String fullHour = hora + ":" + min + "min";
 
-                                    Toast.makeText(HomeActivity.this, "Nova Key: "+key+"", Toast.LENGTH_LONG).show();
-                            //Depois que responder
-                            events.get(position).setKeysLatest(events.get(position).getKeys());
-                        }
-                    }
+                switch (fullHour) {
+                    case events.get(position).getKeys().get(0).getTime():
+                        String key = events.get(position).getKeys().get(0).getKey();
+                        // TODO CODE OF POP UP
+
+                        Toast.makeText(HomeActivity.this, "Hora de adicionar uma nova Key: " + key + "",
+                                Toast.LENGTH_LONG).show();
+
+                        break;
+
+                    case events.get(position).getKeys().get(1).getTime():
+                        String key = events.get(position).getKeys().get(1).getKey();
+                        // TODO CODE OF POP UP
+
+                        Toast.makeText(HomeActivity.this, "Hora de adicionar uma nova Key: " + key + "",
+                                Toast.LENGTH_LONG).show();
+
+                        break;
+                    case events.get(position).getKeys().get(2).getTime():
+                        String key = events.get(position).getKeys().get(2).getKey();
+                        // TODO CODE OF POP UP
+
+                        Toast.makeText(HomeActivity.this, "Hora de adicionar uma nova Key: " + key + "",
+                                Toast.LENGTH_LONG).show();
+
+                        break;
+
                 }
 
             }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+        }
 
     }
 }
