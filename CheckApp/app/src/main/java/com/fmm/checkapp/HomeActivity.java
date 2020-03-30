@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.app.Activity;
@@ -60,6 +61,7 @@ public class HomeActivity extends Activity {
     DatabaseReference aux;
     List<String> teachersUID;
     String uid, uidTeacherCurrent;
+    ImageView imgNoEvents;
     String serie;
     String curso;
     DatabaseReference teacherBase;
@@ -70,6 +72,7 @@ public class HomeActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         btInfo = findViewById(R.id.activity_home_bt_about_us);
+        imgNoEvents = findViewById(R.id.activity_home_img_no_events);
         msgNoEvents = findViewById(R.id.msg_no_events);
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         uid = firebaseUser.getUid();
@@ -221,7 +224,6 @@ public class HomeActivity extends Activity {
 
     private List<Event> getCheckedEvents() {
 
-        ImageView imgNoEvents = findViewById(R.id.activity_home_img_no_events);
         //AO ADICIONAR OS EVENTOS NO ATRIBUTO URL CONCATENAR À URL A STRING : "https://"
         if (events.size() > 0) {
             msgNoEvents.setVisibility(View.INVISIBLE);

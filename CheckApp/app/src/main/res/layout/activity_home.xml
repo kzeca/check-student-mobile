@@ -110,6 +110,7 @@
             android:textColor="#043F5F"
             android:textSize="42sp"
             android:textStyle="bold" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -141,9 +142,8 @@
             android:id="@+id/activity_home_img_no_events"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="visible"
+            android:background="#00FF0000"
             app:srcCompat="@drawable/sem_eventos" />
-
 
     </LinearLayout>
 
@@ -151,16 +151,14 @@
         android:id="@+id/activity_home_bt_about_us"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginRight="15dp"
-        android:background="@android:color/transparent"
-        android:scaleType="fitCenter"
-        android:layout_marginBottom="10dp"
+        android:layout_marginTop="36dp"
+        android:background="#00FFFFFF"
         app:layout_constraintBottom_toTopOf="@+id/guideline31"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.567"
         app:layout_constraintStart_toStartOf="@+id/guideline35"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.31"
-        app:srcCompat="@drawable/ic_info_outline_black_24dp"
+        app:srcCompat="@drawable/ic_info_outline_black"
         tools:ignore="VectorDrawableCompat" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
