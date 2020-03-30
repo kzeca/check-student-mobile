@@ -239,7 +239,7 @@ public class HomeActivity extends Activity {
         final List<Keyword> keywords = new ArrayList<>();
 
         //Acessa parte dos professores
-        DatabaseReference teachersBase = dataBase.child("professores");
+        
 
         //Pegar palavras do banco
 
@@ -249,9 +249,11 @@ public class HomeActivity extends Activity {
             teacherBase.child(uIdTeacher).child("events").child((aux != null ? turma : serie + "ano")).child("keys").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    for (DataSnapshot dados : dataSnapshot.getChildren()) {
-                        Keyword key = dados.getValue(Keyword.class);
-                        keywords.add(key);
+                    if(dataSnapshot.exists()){
+                        for (DataSnapshot dados : dataSnapshot.getChildren()) {
+                            Keyword key = dados.getValue(Keyword.class);
+                            keywords.add(key);
+                        }
                     }
                 }
 
@@ -264,9 +266,11 @@ public class HomeActivity extends Activity {
             teacherBase.child(uIdTeacher).child("events").child((serie + curso + "ano")).child("keys").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    for (DataSnapshot dados : dataSnapshot.getChildren()) {
-                        Keyword key = dados.getValue(Keyword.class);
-                        keywords.add(key);
+                    if(dataSnapshot.exists()){
+                        for (DataSnapshot dados : dataSnapshot.getChildren()) {
+                            Keyword key = dados.getValue(Keyword.class);
+                            keywords.add(key);
+                        }
                     }
                 }
 
@@ -345,7 +349,7 @@ public class HomeActivity extends Activity {
 
     public void getKeyWordUpdates(boolean listen, final int position) {//Veririfica as Keywords que foram adicionadas
         //Acessa parte dos professores
-        DatabaseReference teachersBase = dataBase.child("professores");
+        
 
         //Acessa conta do professor que mandou o evento
         //Precisa saber a turma do aluno e do 'nome' do evento
@@ -353,20 +357,23 @@ public class HomeActivity extends Activity {
         teachersBase.child(events.get(position).getuIdTeacher()).child("events").child(events.get(position).getClassEvent()).child("keys").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                List<Keyword> keysAux = new ArrayList<Keyword>();
-                for (DataSnapshot dados : dataSnapshot.getChildren()) {
-                    keysAux.add((Keyword) dados.getValue());//atualiza as palavras chaves lançadas
+                if(dataSnapshot.exists()){
+                        List<Keyword> keysAux = new ArrayList<Keyword>();
+                    for (DataSnapshot dados : dataSnapshot.getChildren()) {
+                        keysAux.add((Keyword) dados.getValue());//atualiza as palavras chaves lançadas
 
-                }
-                events.get(position).setKeys(keysAux);
-                System.out.println("TEM PALAVRA CHAVE NOVA");
-                for (int i = 0; i < events.size(); i++) {
-                    if (events.get(position).getKeys().get(i) != events.get(position).getKeysLatest().get(i)) {
-                        //TODO CODE OF POP UP
+                    }
+                    events.get(position).setKeys(keysAux);
+                    System.out.println("TEM PALAVRA CHAVE NOVA");
+                    for (int i = 0; i < events.size(); i++) {
+                        if (events.get(position).getKeys().get(i) != events.get(position).getKeysLatest().get(i)) {
+                            //TODO CODE OF POP UP
+                                    String key = events.get(position).getKeys().get(i);
 
-
-                        //Depois que responder
-                        events.get(position).setKeysLatest(events.get(position).getKeys());
+                                    Toast.makeText(HomeActivity.this, "Nova Key: "+key+"", Toast.LENGTH_LONG).show();
+                            //Depois que responder
+                            events.get(position).setKeysLatest(events.get(position).getKeys());
+                        }
                     }
                 }
 
