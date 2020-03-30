@@ -178,8 +178,14 @@ public class HomeActivity extends Activity {
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                             if (dataSnapshot.exists()) {
                                 for (DataSnapshot dados : dataSnapshot.getChildren()) {
-                                    Event evento = new Event(dados, uidTeacherCurrent, (aux != null ? user.getTurma() : serie + "ano"));
-                                    events.add(evento);
+                                    if(!dados.getKey().equals("evento0")){
+                                        Event evento = new Event(dados, uidTeacherCurrent, (aux != null ? user.getTurma() : serie + "ano"));
+                                        events.add(evento);
+                                    }
+                                    else{
+
+                                    }
+
 
                                 }
                                 events = getCheckedEvents();
