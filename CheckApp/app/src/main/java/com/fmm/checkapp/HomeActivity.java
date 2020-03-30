@@ -65,6 +65,7 @@ public class HomeActivity extends Activity {
     String serie;
     String curso;
     DatabaseReference teacherBase;
+    static boolean firstTime = true;
 
 
     @Override
@@ -104,7 +105,7 @@ public class HomeActivity extends Activity {
         dataBase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                getEvents();
+                atualizaEventos();
             }
 
             @Override
@@ -113,6 +114,10 @@ public class HomeActivity extends Activity {
             }
         });
 
+    }
+
+    public void atualizaEventos(){
+        getEvents();
     }
 
     private void onCreateContinue() {
@@ -310,7 +315,7 @@ public class HomeActivity extends Activity {
                     checkInTime = hora + ":" + min;
                     //Listener para verificar palavras chaves
 
-                    getKeyWordUpdates(events.get(position).isCheckInDone(), position);
+                    //getKeyWordUpdates(events.get(position).isCheckInDone(), position);
 
                 }
             }
@@ -327,7 +332,7 @@ public class HomeActivity extends Activity {
                         events.get(position).setCheckOutTime(hora + "h" + min);
                         eventsAdapter.notifyItemChanged(position);
                         checkOutTime = hora + ":" + min;
-                        getKeyWordUpdates(!events.get(position).isCheckOutDone(), position);
+                        //getKeyWordUpdates(!events.get(position).isCheckOutDone(), position);
                     }
 
 

@@ -74,7 +74,7 @@
                         android:layout_marginTop="10dp"
                         android:text="Início: 07h10"
                         android:textColor="#3D3B3B"
-                        android:textSize="23sp" />
+                        android:textSize="21sp" />
 
                     <TextView
                         android:id="@+id/event_tv_class_ends_at"
@@ -83,7 +83,7 @@
                         android:layout_marginTop="10dp"
                         android:text="Fim: 8h00"
                         android:textColor="#3D3B3B"
-                        android:textSize="23sp" />
+                        android:textSize="21sp" />
 
 
                 </LinearLayout>
