@@ -1,5 +1,7 @@
 package com.fmm.checkapp.Model;
 
+import androidx.annotation.NonNull;
+
 import com.google.firebase.database.DataSnapshot;
 
 import java.util.List;
@@ -16,20 +18,19 @@ public class Event {
     private boolean isCheckInDone;
     private boolean isCheckOutDone;
     private String uIdTeacher;
-    private List<Keyword> keys,keysLatest;
+    private List<Keyword> keys, keysLatest;
     private String classEvent;
 
 
-
     public Event(DataSnapshot dados, String uid, String classEvent) {
-        this.startTime=dados.child("begin").getValue().toString();
-        this.date=dados.child("date").getValue().toString();
-        this.endTime=dados.child("end").getValue().toString();
-        for(DataSnapshot keys_dados:dados.child("keys").getChildren()){
-            this.keys.add((Keyword) keys_dados.getValue());
-        }
-        this.keysLatest=this.keys;//Para comparar qual palavra é diferente
-        this.title =dados.child("title").getValue().toString();
+        this.startTime = dados.child("begin").getValue().toString();
+        this.date = dados.child("date").getValue().toString();
+        this.endTime = dados.child("end").getValue().toString();
+        /*for (DataSnapshot keys_dados : dados.child("keys").getChildren()) {
+            this.keys.add((Keyword)keys_dados.getValue());
+        }*/
+        this.keysLatest = this.keys;//Para comparar qual palavra é diferente
+        this.title = dados.child("title").getValue().toString();
         this.subject = dados.child("subject").getValue().toString();
         this.checkInTime = "";
         this.checkOutTime = "";
@@ -104,9 +105,13 @@ public class Event {
         this.checkOutTime = checkOutTime;
     }
 
-    public String getuIdTeacher() {  return uIdTeacher; }
+    public String getuIdTeacher() {
+        return uIdTeacher;
+    }
 
-    public void setuIdTeacher(String uIdTeacher) { this.uIdTeacher = uIdTeacher; }
+    public void setuIdTeacher(String uIdTeacher) {
+        this.uIdTeacher = uIdTeacher;
+    }
 
     public List<Keyword> getKeys() {
         return keys;
@@ -131,6 +136,7 @@ public class Event {
     public void setDate(String date) {
         this.date = date;
     }
+
     public String getUrl() {
         return url;
     }
@@ -145,5 +151,11 @@ public class Event {
 
     public void setKeysLatest(List<Keyword> keysLatest) {
         this.keysLatest = keysLatest;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return this.getTitle() + "," + this.getUrl() +","+this.getStartTime() + this.getEndTime();
     }
 }

@@ -1,5 +1,7 @@
 package com.fmm.checkapp.Model;
 
+import androidx.annotation.NonNull;
+
 import com.fmm.checkapp.Usuario;
 
 import java.util.List;

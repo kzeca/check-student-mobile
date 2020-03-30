@@ -124,6 +124,7 @@
         app:layout_constraintStart_toStartOf="@+id/guideline36"
         app:layout_constraintTop_toTopOf="@+id/guideline39">
 
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -137,12 +138,11 @@
             android:textSize="16sp" />
 
         <ImageView
-            android:id="@+id/imageView4"
+            android:id="@+id/activity_home_img_no_events"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:scaleType="centerCrop"
-            app:srcCompat="@drawable/sem_eventos"
-            android:layout_marginBottom="15dp"/>
+            android:visibility="visible"
+            app:srcCompat="@drawable/sem_eventos" />
 
 
     </LinearLayout>
