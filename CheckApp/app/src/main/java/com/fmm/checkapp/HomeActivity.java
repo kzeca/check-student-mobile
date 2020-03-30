@@ -120,6 +120,7 @@ public class HomeActivity extends Activity {
         final List<Professor> teachersUID = new ArrayList<Professor>();
         DatabaseReference teacherBase = dataBase.child("professores");
         //pegar uid professor
+
         teacherBase.addListenerForSingleValueEvent(new ValueEventListener() {
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
@@ -144,40 +145,43 @@ public class HomeActivity extends Activity {
          * As opções para nome do evento deve ser a no formato [ANO][TURMA][CURSO]( exemplos, 3AI, 1CI...) ou como as aulas são pra geral do ano, não por turma, deve ser no formato [ANO]ano, ou por curso, ficaria assim [ANO][INICIAL DO CURSO]ano
          */
         Log.d("ADOLETA", ""+user.getTurma());
-        int i;
-        for (i = 0; i < teachersUID.size(); i++) {
-            uidTeacherCurrent = teachersUID.get(i).getuId();
-            aux = teacherBase.child(teachersUID.get(i).getuId()).child("events").child(turma);//para verificar se existe evento para sala  única
-            if (teacherBase.child(teachersUID.get(i).getuId()).child("events").child((aux != null ? turma : serie + "ano")) != null) {//verifica se há evento para sala única ou para ano
-                teacherBase.child(teachersUID.get(i).getuId()).child("events").child((aux != null ? turma : serie + "ano")).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        for (DataSnapshot dados : dataSnapshot.getChildren()) {
-                            Event evento = new Event(dados, uidTeacherCurrent, (aux != null ? turma : serie + "ano"));
-                            events.add(evento);
+        if(teachersUID.size()>0){
+            int i;
+            for (i = 0; i < teachersUID.size(); i++) {
+                uidTeacherCurrent = teachersUID.get(i).getuId();
+                aux = teacherBase.child(teachersUID.get(i).getuId()).child("events").child(turma);//para verificar se existe evento para sala  única
+                if (teacherBase.child(teachersUID.get(i).getuId()).child("events").child((aux != null ? turma : serie + "ano")) != null) {//verifica se há evento para sala única ou para ano
+
+                    teacherBase.child(teachersUID.get(i).getuId()).child("events").child((aux != null ? turma : serie + "ano")).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            for (DataSnapshot dados : dataSnapshot.getChildren()) {
+                                Event evento = new Event(dados, uidTeacherCurrent, (aux != null ? turma : serie + "ano"));
+                                events.add(evento);
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                    }
-                });
-            } else {//Por curso
-                teacherBase.child(teachersUID.get(i).getuId()).child("events").child((serie + curso + "ano")).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        for (DataSnapshot dados : dataSnapshot.getChildren()) {
-                            Event evento = new Event(dados, uidTeacherCurrent, (serie + curso + "ano"));
-                            events.add(evento);
                         }
-                    }
+                    });
+                } else {//Por curso
+                    teacherBase.child(teachersUID.get(i).getuId()).child("events").child((serie + curso + "ano")).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            for (DataSnapshot dados : dataSnapshot.getChildren()) {
+                                Event evento = new Event(dados, uidTeacherCurrent, (serie + curso + "ano"));
+                                events.add(evento);
+                            }
+                        }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                    }
-                });
+                        }
+                    });
+                }
             }
         }
 
@@ -202,20 +206,40 @@ public class HomeActivity extends Activity {
             DatabaseReference teachersBase = dataBase.child("professores");
 
             //Pegar palavras do banco
-            teachersBase.child(uIdTeacher).child("events").child("keys").addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    for (DataSnapshot dados : dataSnapshot.getChildren()) {
-                        Keyword key = dados.getValue(Keyword.class);
-                        keywords.add(key);
+
+
+            if (teacherBase.child(uIdTeacher).child("events").child((aux != null ? turma : serie + "ano")) != null) {//verifica se há evento para sala única ou para ano
+
+                teacherBase.child(uIdTeacher).child("events").child((aux != null ? turma : serie + "ano")).child("keys").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        for (DataSnapshot dados : dataSnapshot.getChildren()) {
+                            Keyword key = dados.getValue(Keyword.class);
+                            keywords.add(key);
+                        }
                     }
-                }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                }
-            });
+                    }
+                });
+            } else {//Por curso
+                teacherBase.child(uIdTeacher).child("events").child((serie + curso + "ano")).child("keys").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        for (DataSnapshot dados : dataSnapshot.getChildren()) {
+                            Keyword key = dados.getValue(Keyword.class);
+                            keywords.add(key);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+            }
 
             return keywords;
         }
@@ -298,6 +322,19 @@ public class HomeActivity extends Activity {
 
                     }
                     events.get(position).setKeys(keysAux);
+                    System.out.println("TEM PALAVRA CHAVE NOVA");
+                    for(int i=0;i<events.size();i++){
+                        if(events.get(position).getKeys().get(i)!=events.get(position).getKeysLatest().get(i)){
+                            //TODO CODE OF POP UP
+
+
+
+
+                            //Depois que responder
+                            events.get(position).setKeysLatest(events.get(position).getKeys());
+                        }
+                    }
+
                 }
 
                 @Override

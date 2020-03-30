@@ -16,7 +16,7 @@ public class Event {
     private boolean isCheckInDone;
     private boolean isCheckOutDone;
     private String uIdTeacher;
-    private List<Keyword> keys;
+    private List<Keyword> keys,keysLatest;
     private String classEvent;
 
 
@@ -28,6 +28,7 @@ public class Event {
         for(DataSnapshot keys_dados:dados.child("keys").getChildren()){
             this.keys.add((Keyword) keys_dados.getValue());
         }
+        this.keysLatest=this.keys;//Para comparar qual palavra é diferente
         this.title =dados.child("title").getValue().toString();
         this.subject = dados.child("subject").getValue().toString();
         this.checkInTime = "";
@@ -136,5 +137,13 @@ public class Event {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public List<Keyword> getKeysLatest() {
+        return keysLatest;
+    }
+
+    public void setKeysLatest(List<Keyword> keysLatest) {
+        this.keysLatest = keysLatest;
     }
 }
