@@ -65,6 +65,7 @@ public class HomeActivity extends Activity {
     String serie;
     String curso;
     DatabaseReference teacherBase;
+    boolean correcao = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,6 +138,7 @@ public class HomeActivity extends Activity {
         events = new ArrayList<Event>();
         teachersUID = new ArrayList<>();
         // pegar uid professor
+        Log.d("Adoleta", "opa");
 
         teacherBase.addListenerForSingleValueEvent(new ValueEventListener() {
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -159,8 +161,6 @@ public class HomeActivity extends Activity {
 
             }
         });
-        Log.d("ARMANDO", String.valueOf(teachersUID.size()));
-
     }
 
     private List<Event> getEventsContinue() {
@@ -168,18 +168,16 @@ public class HomeActivity extends Activity {
         if (teachersUID.size() > 0) {
             int i;
             for (i = 0; i < teachersUID.size(); i++) {
-                Log.d("ARMANDO", "existe");
                 uidTeacherCurrent = teachersUID.get(i);
                 aux = teacherBase.child(uidTeacherCurrent).child("events").child(user.getTurma());// para verificar se
                 if (aux == null)
                     continue; // existe evento para
                 // sala única
                 // sala única ou para ano
+                SimpleDateFormat formataData = new SimpleDateFormat("dd/MM/yy");
                 Date data = new Date();
-                String dia = Integer.toString(data.getDay());
-                String mes = Integer.toString(data.getMonth());
-                String ano = Integer.toString(data.getYear());
-                String dataHoje = dia + "/" + mes + "/" + ano;
+                final String dataHoje = formataData.format(data);
+                Log.d("TESTE", dataHoje);
                 teacherBase.child(uidTeacherCurrent).child("events").child(user.getTurma())
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
@@ -211,7 +209,6 @@ public class HomeActivity extends Activity {
     }
 
     private List<Event> getCheckedEvents() {
-
         ImageView imgNoEvents = findViewById(R.id.activity_home_img_no_events);
         // AO ADICIONAR OS EVENTOS NO ATRIBUTO URL CONCATENAR À URL A STRING :
         // "https://"
@@ -270,10 +267,10 @@ public class HomeActivity extends Activity {
      */
     public void buildRecyclerView(List<Event> eventsList) {
 
+
         recyclerViewEvents = findViewById(R.id.home_recycler_view_events);
         recyclerViewEvents.setLayoutManager(new LinearLayoutManager(this));
         eventsAdapter = new MyRecyclerViewAdapter(eventsList);
-
         if (events != null && events.size() > 0) {
             recyclerViewEvents.setAdapter(eventsAdapter);
         }
@@ -330,7 +327,7 @@ public class HomeActivity extends Activity {
         });
     }
 
-    public void getKeyWordUpdates(boolean listen, int position) {// Veririfica as Keywords que foram adicionadas
+    public void getKeyWordUpdates(boolean listen, final int position) {// Veririfica as Keywords que foram adicionadas
         // Acessa parte dos professores
 
         // Acessa conta do professor que mandou o evento
@@ -338,86 +335,197 @@ public class HomeActivity extends Activity {
         if (!listen)
             return;// caso deu checkout, o aluno não pode saber quais palavras chaves
         else {
-            /**
-             * ATENÇÃO CASO OCORRA ERRO AQUI DEVIDO O ALÇO INFINITO, UTILIZEM THREAD,
-             * INSTACIEM UMA THREAD
-             * 
-             * 
-             * new Thread( while (true) { Date time = new Date(); String hora =
-             * Integer.toString(time.getHours()); String min =
-             * Integer.toString(time.getMinutes()); String fullHour = hora + ":" + min +
-             * "min";
-             * 
-             * switch (fullHour) { case events.get(position).getKeys().get(0).getTime():
-             * String key = events.get(position).getKeys().get(0).getKey(); // TODO CODE OF
-             * POP UP
-             * 
-             * Toast.makeText(HomeActivity.this, "Hora de adicionar uma nova Key: " + key +
-             * "", Toast.LENGTH_LONG).show();
-             * 
-             * break;
-             * 
-             * case events.get(position).getKeys().get(1).getTime(): String key =
-             * events.get(position).getKeys().get(1).getKey(); // TODO CODE OF POP UP
-             * 
-             * Toast.makeText(HomeActivity.this, "Hora de adicionar uma nova Key: " + key +
-             * "", Toast.LENGTH_LONG).show();
-             * 
-             * break; case events.get(position).getKeys().get(2).getTime(): String key =
-             * events.get(position).getKeys().get(2).getKey(); // TODO CODE OF POP UP
-             * 
-             * Toast.makeText(HomeActivity.this, "Hora de adicionar uma nova Key: " + key +
-             * "", Toast.LENGTH_LONG).show();
-             * 
-             * break;
-             * 
-             * }
-             * 
-             * }
-             * 
-             * ).start()
-             * 
-             * POIS COM A TRHEAD, ESSA AÇÃO ESTARÁ OCORRENDO SIMULTÂNEAMENTE ,0
-             */
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while (true) {
+                        Date time = new Date();
+                        String hora = Integer.toString(time.getHours());
+                        String min = Integer.toString(time.getMinutes());
+                        String fullHour = hora + "h" + min + "min";
+                        Log.d("ARLEY", fullHour);
 
-            while (true) {
+                        if (fullHour.equals(events.get(position).getKeys().get(0).getTime())) {
+                            String key = events.get(position).getKeys().get(0).getKey();
+                            // TODO CODE OF POP UP
+
+                            popUp();
+
+                        } else if (fullHour.equals(events.get(position).getKeys().get(1).getTime())) {
+                            String key = events.get(position).getKeys().get(1).getKey();
+                            // TODO CODE OF POP UP
+
+                            Toast.makeText(HomeActivity.this, "Hora de adicionar uma nova Key: " + key + "",
+                                    Toast.LENGTH_LONG).show();
+
+                        } else if (fullHour.equals(events.get(position).getKeys().get(2).getTime())) {
+                            String key = events.get(position).getKeys().get(2).getKey();
+                            // TODO CODE OF POP UP
+
+                            Toast.makeText(HomeActivity.this, "Hora de adicionar uma nova Key: " + key + "",
+                                    Toast.LENGTH_LONG).show();
+
+                        }
+                    }
+                }
+            }).start();
+            // KeyPopUpThread(position).start();
+            /*int para = 0;
+              new Thread({
+            while (para == 0) {
+                Date time = new Date();
+                String hora = Integer.toString(time.getHours());
+                String min = Integer.toString(time.getMinutes());
+                String fullHour = hora + ":" + min + "min";
+                Log.d("ARLEY", fullHour);
+
+                if (fullHour.equals(events.get(position).getKeys().get(0).getTime())) {
+                    String key = events.get(position).getKeys().get(0).getKey();
+                    // TODO CODE OF POP UP
+
+                    Toast.makeText(HomeActivity.this, "Hora de adicionar uma nova Key: " + key + "",
+                            Toast.LENGTH_LONG).show();
+                    para = 1;
+
+                } else if (fullHour.equals(events.get(position).getKeys().get(1).getTime())) {
+                    String key = events.get(position).getKeys().get(1).getKey();
+                    // TODO CODE OF POP UP
+
+                    Toast.makeText(HomeActivity.this, "Hora de adicionar uma nova Key: " + key + "",
+                            Toast.LENGTH_LONG).show();
+
+                } else if (fullHour.equals(events.get(position).getKeys().get(2).getTime())) {
+                    String key = events.get(position).getKeys().get(2).getKey();
+                    // TODO CODE OF POP UP
+
+                    Toast.makeText(HomeActivity.this, "Hora de adicionar uma nova Key: " + key + "",
+                            Toast.LENGTH_LONG).show();
+
+                }
+
+            }
+
+            }).start();
+*/
+
+
+            /*
+            while (para == 0) {
                 Date time = new Date();
                 String hora = Integer.toString(time.getHours());
                 String min = Integer.toString(time.getMinutes());
                 String fullHour = hora + "h" + min + "min";
+                Log.d("ARLEY",fullHour);
 
-                switch (fullHour) {
-                    case events.get(position).getKeys().get(0).getTime():
+                  if(fullHour.equals(events.get(position).getKeys().get(0).getTime())) {
+                      String key = events.get(position).getKeys().get(0).getKey();
+                      // TODO CODE OF POP UP
+
+                      Toast.makeText(HomeActivity.this, "Hora de adicionar uma nova Key: " + key + "",
+                              Toast.LENGTH_LONG).show();
+                      para = 1;
+
+                  }else if(fullHour.equals(events.get(position).getKeys().get(1).getTime())) {
+                    String key = events.get(position).getKeys().get(1).getKey();
+                    // TODO CODE OF POP UP
+
+                    Toast.makeText(HomeActivity.this, "Hora de adicionar uma nova Key: " + key + "",
+                            Toast.LENGTH_LONG).show();
+
+                    }else if(fullHour.equals(events.get(position).getKeys().get(2).getTime())) {
+                      String key = events.get(position).getKeys().get(2).getKey();
+                      // TODO CODE OF POP UP
+
+                      Toast.makeText(HomeActivity.this, "Hora de adicionar uma nova Key: " + key + "",
+                            Toast.LENGTH_LONG).show();
+
+                }
+
+                }*/
+
+            }
+
+        }
+
+        void popUp(){
+            AlertDialog.Builder mBuilder = new AlertDialog.Builder(HomeActivity.this);
+            View mView = getLayoutInflater().inflate(R.layout.dialog_teacher_key_word, null);
+            final EditText edtEmail = (EditText) mView.findViewById(R.id.editText);
+            Button btnConfirma = (Button) mView.findViewById(R.id.button);
+            mBuilder.setView(mView);
+            final AlertDialog dialog = mBuilder.create();
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+
+                            /*btnConfirma.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    if(!edtEmail.getText().toString().isEmpty() && edtEmail.getText().toString().contains("@")){
+                                        auth.sendPasswordResetEmail(edtEmail.getText().toString())
+                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                        dialog.dismiss();
+                                                        if (task.isSuccessful()) {
+                                                            Toast.makeText(getApplicationContext(), "Email para redefinição enviado!(Confira a caixa de spam)", Toast.LENGTH_LONG).show();
+                                                        } else
+                                                            Toast.makeText(getApplicationContext(), "Informe um email válido", Toast.LENGTH_LONG).show();
+                                                    }
+                                                });
+                                    }
+                                }
+                            });*/
+            dialog.show();
+
+        }
+
+
+        public class KeyPopUpThread extends Thread{
+            int position;
+
+            public KeyPopUpThread(int position) {
+                super();
+                this.position = position;
+            }
+
+            @Override
+            public void run() {
+                super.run();
+                while (true) {
+                    Date time = new Date();
+                    String hora = Integer.toString(time.getHours());
+                    String min = Integer.toString(time.getMinutes());
+                    String fullHour = hora + "h" + min + "min";
+                    Log.d("ARLEY", fullHour);
+
+                    if (fullHour.equals(events.get(position).getKeys().get(0).getTime())) {
                         String key = events.get(position).getKeys().get(0).getKey();
                         // TODO CODE OF POP UP
 
                         Toast.makeText(HomeActivity.this, "Hora de adicionar uma nova Key: " + key + "",
                                 Toast.LENGTH_LONG).show();
 
-                        break;
 
-                    case events.get(position).getKeys().get(1).getTime():
+                    } else if (fullHour.equals(events.get(position).getKeys().get(1).getTime())) {
                         String key = events.get(position).getKeys().get(1).getKey();
                         // TODO CODE OF POP UP
 
                         Toast.makeText(HomeActivity.this, "Hora de adicionar uma nova Key: " + key + "",
                                 Toast.LENGTH_LONG).show();
 
-                        break;
-                    case events.get(position).getKeys().get(2).getTime():
+                    } else if (fullHour.equals(events.get(position).getKeys().get(2).getTime())) {
                         String key = events.get(position).getKeys().get(2).getKey();
                         // TODO CODE OF POP UP
 
                         Toast.makeText(HomeActivity.this, "Hora de adicionar uma nova Key: " + key + "",
                                 Toast.LENGTH_LONG).show();
 
-                        break;
-
+                    }
                 }
-
             }
 
         }
 
     }
-}
+

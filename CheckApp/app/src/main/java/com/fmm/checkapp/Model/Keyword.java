@@ -18,4 +18,12 @@ public class Keyword {
     public void setKey(String key) {
         this.key = key;
     }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
 }
