@@ -44,6 +44,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 import static com.fmm.checkapp.LoginActivity.user;
 
@@ -168,56 +170,41 @@ public class HomeActivity extends Activity {
             for (i = 0; i < teachersUID.size(); i++) {
                 Log.d("ARMANDO", "existe");
                 uidTeacherCurrent = teachersUID.get(i);
-                aux = teacherBase.child(teachersUID.get(i)).child("events").child(user.getTurma());// para verificar se
-                                                                                                   // existe evento para
-                                                                                                   // sala única
-                if (teacherBase.child(teachersUID.get(i)).child("events")
-                        .child((aux != null ? user.getTurma() : serie + "ano")) != null) {// verifica se há evento para
-                                                                                          // sala única ou para ano
-
-                    teacherBase.child(teachersUID.get(i)).child("events")
-                            .child((aux != null ? user.getTurma() : serie + "ano"))
-                            .addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                    if (dataSnapshot.exists()) {
-                                        for (DataSnapshot dados : dataSnapshot.getChildren()) {
-                                            if (!dados.getKey().equals("evento0")) {
-                                                Event evento = new Event(dados, uidTeacherCurrent,
-                                                        (aux != null ? user.getTurma() : serie + "ano"));
+                aux = teacherBase.child(uidTeacherCurrent).child("events").child(user.getTurma());// para verificar se
+                if (aux == null)
+                    continue; // existe evento para
+                // sala única
+                // sala única ou para ano
+                Date data = new Date();
+                String dia = Integer.toString(data.getDay());
+                String mes = Integer.toString(data.getMonth());
+                String ano = Integer.toString(data.getYear());
+                String dataHoje = dia + "/" + mes + "/" + ano;
+                teacherBase.child(uidTeacherCurrent).child("events").child(user.getTurma())
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                if (dataSnapshot.exists()) {
+                                    for (DataSnapshot dados : dataSnapshot.getChildren()) {
+                                        if (!dados.getKey().equals("evento0")) {
+                                            if (dados.child("date").getValue().toString().equals(dataHoje)) {
+                                                Event evento = new Event(dados, uidTeacherCurrent, user.getTurma());
                                                 events.add(evento);
                                             } else {
-
+                                                continue;
                                             }
-
                                         }
-                                        events = getCheckedEvents();
                                     }
+                                    events = getCheckedEvents();
                                 }
+                            }
 
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError databaseError) {
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                                }
-                            });
-                } else {// Por curso
-                    teacherBase.child(teachersUID.get(i)).child("events").child((serie + curso + "ano"))
-                            .addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                    for (DataSnapshot dados : dataSnapshot.getChildren()) {
-                                        Event evento = new Event(dados, uidTeacherCurrent, (serie + curso + "ano"));
-                                        events.add(evento);
-                                    }
+                            }
+                        });
 
-                                }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                                }
-                            });
-                }
             }
         }
         return events;
@@ -319,6 +306,7 @@ public class HomeActivity extends Activity {
                     if (!events.get(position).isCheckOutDone()) {
                         events.get(position).setCheckOutDone(true);
                         Date time = new Date();
+
                         String hora = Integer.toString(time.getHours());
                         String min = Integer.toString(time.getMinutes());
                         events.get(position).setCheckInTime(hora + "h" + min);
@@ -389,7 +377,7 @@ public class HomeActivity extends Activity {
              * 
              * ).start()
              * 
-             * POIS COM A TRHEAD, ESSA AÇÃO ESTARÁ OCORRENDO SIMULTÂNEAMENTE
+             * POIS COM A TRHEAD, ESSA AÇÃO ESTARÁ OCORRENDO SIMULTÂNEAMENTE ,0
              */
 
             while (true) {
