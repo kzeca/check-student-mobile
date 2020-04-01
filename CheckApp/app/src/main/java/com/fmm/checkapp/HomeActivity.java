@@ -139,7 +139,10 @@ public class HomeActivity extends Activity {
 
                         if(events != null ){
                             for (Map.Entry<String, Events> m : events.entrySet()){
-                                firebaseEvents.add(m.getValue());
+                                if(!m.getKey().equals("evento0")){
+                                    firebaseEvents.add(m.getValue());
+                                }
+
                             }
                         }
                     }
