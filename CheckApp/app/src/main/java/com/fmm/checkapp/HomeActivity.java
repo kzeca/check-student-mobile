@@ -3,12 +3,9 @@ package com.fmm.checkapp;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
@@ -27,11 +24,8 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.fmm.checkapp.Model.Event;
-import com.fmm.checkapp.Model.Keyword;
 import com.fmm.checkapp.Model.MyRecyclerViewAdapter;
 import com.fmm.checkapp.Model.Professor;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -43,8 +37,6 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
-import java.util.Date;
 import java.text.SimpleDateFormat;
 
 import static com.fmm.checkapp.LoginActivity.user;
@@ -66,6 +58,7 @@ public class HomeActivity extends Activity {
     String curso;
     DatabaseReference teacherBase;
     boolean correcao = true;
+    int contador = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +68,6 @@ public class HomeActivity extends Activity {
         msgNoEvents = findViewById(R.id.msg_no_events);
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         uid = firebaseUser.getUid();
-        System.out.println("alo:" + user.getTurma());
         dataBase = FirebaseDatabase.getInstance().getReference();
         teacherBase = dataBase.child("professores");
         dataBase.child("salas").orderByChild(firebaseUser.getUid())
@@ -87,9 +79,6 @@ public class HomeActivity extends Activity {
                             user.setTurma(turma);
                             if (turma != null) {
                                 user.setTurma(turma);
-                                Log.d("ADOLETA", "" + user.getTurma());
-                                serie = turma.substring(0, 0);
-                                curso = turma.substring(2, 2);
                             }
                         }
                         onCreateContinue();
@@ -138,7 +127,6 @@ public class HomeActivity extends Activity {
         events = new ArrayList<Event>();
         teachersUID = new ArrayList<>();
         // pegar uid professor
-        Log.d("Adoleta", "opa");
 
         teacherBase.addListenerForSingleValueEvent(new ValueEventListener() {
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -149,10 +137,8 @@ public class HomeActivity extends Activity {
                         Professor teacher = new Professor();
                         teacher.setuId(dados.getKey());
                         teachersUID.add(teacher.getuId());
-                        Log.d("ARMANDO", String.valueOf(teachersUID.size()));
                     }
                 }
-
                 events = getEventsContinue();
             }
 
@@ -164,20 +150,20 @@ public class HomeActivity extends Activity {
     }
 
     private List<Event> getEventsContinue() {
-
         if (teachersUID.size() > 0) {
-            int i;
-            for (i = 0; i < teachersUID.size(); i++) {
-                uidTeacherCurrent = teachersUID.get(i);
-                aux = teacherBase.child(uidTeacherCurrent).child("events").child(user.getTurma());// para verificar se
-                if (aux == null)
-                    continue; // existe evento para
-                // sala única
-                // sala única ou para ano
-                SimpleDateFormat formataData = new SimpleDateFormat("dd/MM/yy");
-                Date data = new Date();
-                final String dataHoje = formataData.format(data);
-                Log.d("TESTE", dataHoje);
+                events = ourWhileCheckin(contador);
+            }
+        return events;
+    }
+
+    private List<Event> ourWhileCheckin(int i) {
+        if(i<teachersUID.size()) {
+            SimpleDateFormat formataData = new SimpleDateFormat("dd/MM/yy");
+            Date data = new Date();
+            final String dataHoje = formataData.format(data);
+            uidTeacherCurrent = teachersUID.get(contador);
+            aux = teacherBase.child(uidTeacherCurrent).child("events").child(user.getTurma());
+            if(aux!=null){
                 teacherBase.child(uidTeacherCurrent).child("events").child(user.getTurma())
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
@@ -188,10 +174,9 @@ public class HomeActivity extends Activity {
                                             if (dados.child("date").getValue().toString().equals(dataHoje)) {
                                                 Event evento = new Event(dados, uidTeacherCurrent, user.getTurma());
                                                 events.add(evento);
-                                            } else {
-                                                continue;
                                             }
                                         }
+                                        ourWhileCheckin(++contador);
                                     }
                                     events = getCheckedEvents();
                                 }
@@ -202,11 +187,11 @@ public class HomeActivity extends Activity {
 
                             }
                         });
-
             }
         }
         return events;
     }
+
 
     private List<Event> getCheckedEvents() {
         ImageView imgNoEvents = findViewById(R.id.activity_home_img_no_events);
@@ -285,14 +270,22 @@ public class HomeActivity extends Activity {
                 if (!events.get(position).isCheckInDone()) {
                     events.get(position).setCheckInDone(true);
                     Date time = new Date();
-                    String hora = Integer.toString(time.getHours());
-                    String min = Integer.toString(time.getMinutes());
+                    String hora;
+                    String min;
+
+                    if(time.getHours()<10) hora = "0"+Integer.toString(time.getHours());
+                    else hora = "0"+Integer.toString(time.getHours());
+                    if(time.getMinutes()<10) min = "0"+Integer.toString(time.getMinutes());
+                    else min = Integer.toString(time.getMinutes());
                     events.get(position).setCheckInTime(hora + "h" + min);
                     eventsAdapter.notifyItemChanged(position);
-                    checkInTime = hora + ":" + min;
+                    checkInTime = hora + "h" + min;
+                    events.get(position).setCheckInTime(checkInTime);
+
+
                     // Listener para verificar palavras chaves
 
-                    getKeyWordUpdates(events.get(position).isCheckInDone(), position);
+                    //getKeyWordUpdates(events.get(position).isCheckInDone(), position);
 
                 }
             }
@@ -334,41 +327,29 @@ public class HomeActivity extends Activity {
         // Precisa saber a turma do aluno e do 'nome' do evento
         if (!listen)
             return;// caso deu checkout, o aluno não pode saber quais palavras chaves
-        else {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while (true) {
-                        Date time = new Date();
-                        String hora = Integer.toString(time.getHours());
-                        String min = Integer.toString(time.getMinutes());
-                        String fullHour = hora + "h" + min + "min";
-                        Log.d("ARLEY", fullHour);
+        else {/*
+            int alarmeHora, alarmeMinuto;
+            Date time = new Date();
+            String hora = Integer.toString(time.getHours());
+            String min = Integer.toString(time.getMinutes());
+            String fullHour = hora + "h" + min + "min";
+            if(Integer.parseInt(hora)<10){
+                alarmeHora = Integer.parseInt(events.get(position).getKeys().get(0).getTime().substring(0,1));
+                alarmeMinuto = Integer.parseInt(events.get(position).getKeys().get(0).getTime().substring(3,5));
+            }
 
-                        if (fullHour.equals(events.get(position).getKeys().get(0).getTime())) {
-                            String key = events.get(position).getKeys().get(0).getKey();
-                            // TODO CODE OF POP UP
+            Log.d("Arley", events.get(position).getKeys().get(0).getTime().substring(0,2));
+            Log.d("Arley", events.get(position).getKeys().get(0).getTime().substring(3,5));
 
-                            popUp();
+            /*
+            for(int i = 0;i>3;i++) {
+                AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                Intent intent = new Intent(this, ReminderBroadcast.class);
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 1, intent, 0);
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, events.get(position).getKeys().get(0).getTime(), pendingIntent );
+            }*/
 
-                        } else if (fullHour.equals(events.get(position).getKeys().get(1).getTime())) {
-                            String key = events.get(position).getKeys().get(1).getKey();
-                            // TODO CODE OF POP UP
 
-                            Toast.makeText(HomeActivity.this, "Hora de adicionar uma nova Key: " + key + "",
-                                    Toast.LENGTH_LONG).show();
-
-                        } else if (fullHour.equals(events.get(position).getKeys().get(2).getTime())) {
-                            String key = events.get(position).getKeys().get(2).getKey();
-                            // TODO CODE OF POP UP
-
-                            Toast.makeText(HomeActivity.this, "Hora de adicionar uma nova Key: " + key + "",
-                                    Toast.LENGTH_LONG).show();
-
-                        }
-                    }
-                }
-            }).start();
             // KeyPopUpThread(position).start();
             /*int para = 0;
               new Thread({
@@ -480,7 +461,7 @@ public class HomeActivity extends Activity {
 
         }
 
-
+        /*
         public class KeyPopUpThread extends Thread{
             int position;
 
@@ -526,6 +507,6 @@ public class HomeActivity extends Activity {
             }
 
         }
-
-    }
+        */
+}
 

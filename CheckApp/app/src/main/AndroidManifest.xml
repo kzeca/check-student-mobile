@@ -36,6 +36,8 @@
     <activity
         android:name=".HomeActivity"
         android:screenOrientation="portrait" />
+
+        <receiver android:name=".ReminderBroadcast"/>
 </application>
 </manifest>
 

@@ -2,7 +2,11 @@ package com.fmm.checkapp.Model;
 
 import androidx.annotation.NonNull;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -21,12 +25,12 @@ public class Event {
     private String uIdTeacher;
     private List<Keyword> keys;
     private String classEvent;
+    private String eventId;
 
     public Event(DataSnapshot dados, String uid, String classEvent) {
         this.startTime = dados.child("begin").getValue().toString();
         this.date = dados.child("date").getValue().toString();
         this.endTime = dados.child("end").getValue().toString();
-        // pegar Keys
         this.keys = new ArrayList<>();
         for (DataSnapshot dadosAux : dados.child("keys").getChildren()) {
             Keyword key = dadosAux.getValue(Keyword.class);
@@ -40,7 +44,7 @@ public class Event {
         this.uIdTeacher = uid;
         this.classEvent = classEvent;
         this.url = dados.child("link").getValue().toString();
-
+        this.eventId = dados.getKey();
     }
 
     public boolean isCheckOutDone() {
@@ -96,6 +100,19 @@ public class Event {
     }
 
     public void setCheckInTime(String checkInTime) {
+
+        DatabaseReference reference = FirebaseDatabase.getInstance()
+                .getReference("professores")
+                .child(uIdTeacher)
+                .child("events")
+                .child(classEvent)
+                .child(eventId)
+                .child("students")
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .child("checkin");
+        reference.setValue(checkInTime);
+
+
         this.checkInTime = checkInTime;
     }
 
@@ -150,6 +167,6 @@ public class Event {
     @NonNull
     @Override
     public String toString() {
-        return this.getTitle() + "," + this.getUrl() + "," + this.getStartTime() + this.getEndTime();
+        return this.getuIdTeacher() + "," +this.eventId;
     }
 }
