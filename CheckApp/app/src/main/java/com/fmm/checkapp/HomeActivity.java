@@ -31,6 +31,8 @@ import com.fmm.checkapp.Model.Event;
 import com.fmm.checkapp.Model.Keyword;
 import com.fmm.checkapp.Model.MyRecyclerViewAdapter;
 import com.fmm.checkapp.Model.Professor;
+import com.fmm.checkapp.firebasemodel.Events;
+import com.fmm.checkapp.firebasemodel.Professores;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -43,8 +45,11 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import static com.fmm.checkapp.LoginActivity.user;
 
@@ -67,6 +72,7 @@ public class HomeActivity extends Activity {
     DatabaseReference teacherBase;
     static boolean firstTime = true;
 
+    String TAG = "HomeActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,9 +83,9 @@ public class HomeActivity extends Activity {
         msgNoEvents = findViewById(R.id.msg_no_events);
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         uid = firebaseUser.getUid();
-        System.out.println("alo:" + user.getTurma());
         dataBase = FirebaseDatabase.getInstance().getReference();
         teacherBase = dataBase.child("professores");
+
         dataBase.child("salas").orderByChild(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -88,12 +94,12 @@ public class HomeActivity extends Activity {
                     user.setTurma(turma);
                     if (turma != null) {
                         user.setTurma(turma);
-                        Log.d("ADOLETA", "" + user.getTurma());
+                        Log.d(TAG, "" + user.getTurma());
                         serie = turma.substring(0, 0);
                         curso = turma.substring(2, 2);
                     }
                 }
-                onCreateContinue();
+                getCurrentUserEvents(user.getTurma());
             }
 
             @Override
@@ -101,27 +107,6 @@ public class HomeActivity extends Activity {
 
             }
         });
-
-        dataBase.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                atualizaEventos();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
-    }
-
-    public void atualizaEventos(){
-        getEvents();
-    }
-
-    private void onCreateContinue() {
-        getEvents();
 
         btInfo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -137,28 +122,35 @@ public class HomeActivity extends Activity {
                 return true;
             }
         });
+
     }
 
-
-    public void getEvents() {
-        events = new ArrayList<Event>();
-        teachersUID = new ArrayList<>();
-        //pegar uid professor
+    private void getCurrentUserEvents(final String turma){
+        Log.d(TAG, " getCurrentUserEvents turma :: " + turma);
 
         teacherBase.addListenerForSingleValueEvent(new ValueEventListener() {
-            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
+                    List<Events> firebaseEvents = new ArrayList<Events>();
                     for (DataSnapshot dados : dataSnapshot.getChildren()) {
-                        Professor teacher = new Professor();
-                        teacher.setuId(dados.getKey());
-                        teachersUID.add(teacher.getuId());
-                        Log.d("ARMANDO", String.valueOf(teachersUID.size()));
+                        Professores profs = dados.getValue(Professores.class);
+                        HashMap <String, Events> events = profs.getEvents().get(turma);
+
+                        if(events != null ){
+                            for (Map.Entry<String, Events> m : events.entrySet()){
+                                firebaseEvents.add(m.getValue());
+                            }
+                        }
                     }
+                    List<Event> eventList = new ArrayList<>();
+                    for (Events e: firebaseEvents){
+                        eventList.add(new Event(e));
+                    }
+
+                    getCheckedEvents(eventList);
                 }
 
-                events = getEventsContinue();
             }
 
             @Override
@@ -166,68 +158,11 @@ public class HomeActivity extends Activity {
 
             }
         });
-        Log.d("ARMANDO", String.valueOf(teachersUID.size()));
 
     }
 
 
-    private List<Event> getEventsContinue() {
-
-        if (teachersUID.size() > 0) {
-            int i;
-            for (i = 0; i < teachersUID.size(); i++) {
-                Log.d("ARMANDO", "existe");
-                uidTeacherCurrent = teachersUID.get(i);
-                aux = teacherBase.child(teachersUID.get(i)).child("events").child(user.getTurma());//para verificar se existe evento para sala  única
-                if (teacherBase.child(teachersUID.get(i)).child("events").child((aux != null ? user.getTurma() : serie + "ano")) != null) {//verifica se há evento para sala única ou para ano
-
-                    teacherBase.child(teachersUID.get(i)).child("events").child((aux != null ? user.getTurma() : serie + "ano")).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            if (dataSnapshot.exists()) {
-                                for (DataSnapshot dados : dataSnapshot.getChildren()) {
-                                    if(!dados.getKey().equals("evento0")){
-                                        Event evento = new Event(dados, uidTeacherCurrent, (aux != null ? user.getTurma() : serie + "ano"));
-                                        events.add(evento);
-                                    }
-                                    else{
-
-                                    }
-
-
-                                }
-                                events = getCheckedEvents();
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                        }
-                    });
-                } else {//Por curso
-                    teacherBase.child(teachersUID.get(i)).child("events").child((serie + curso + "ano")).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            for (DataSnapshot dados : dataSnapshot.getChildren()) {
-                                Event evento = new Event(dados, uidTeacherCurrent, (serie + curso + "ano"));
-                                events.add(evento);
-                            }
-
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                        }
-                    });
-                }
-            }
-        }
-        return events;
-    }
-
-    private List<Event> getCheckedEvents() {
+    private void getCheckedEvents(List<Event> events) {
 
         //AO ADICIONAR OS EVENTOS NO ATRIBUTO URL CONCATENAR À URL A STRING : "https://"
         if (events.size() > 0) {
@@ -238,7 +173,6 @@ public class HomeActivity extends Activity {
 
         }
         buildRecyclerView(events);
-        return events;
     }
 
 
@@ -287,13 +221,13 @@ public class HomeActivity extends Activity {
         return keywords;
     }
 
-    public void buildRecyclerView(List<Event> eventsList) {
+    public void buildRecyclerView(final List<Event> eventsList) {
 
         recyclerViewEvents = findViewById(R.id.home_recycler_view_events);
         recyclerViewEvents.setLayoutManager(new LinearLayoutManager(this));
         eventsAdapter = new MyRecyclerViewAdapter(eventsList);
 
-        if (events != null && events.size() > 0) {
+        if (eventsList != null && eventsList.size() > 0) {
             recyclerViewEvents.setAdapter(eventsAdapter);
         }
 
@@ -302,52 +236,42 @@ public class HomeActivity extends Activity {
             String checkOutTime;
             String checkInTime;
 
-
             @Override
             public void onCheckInClick(int position) {
-                if (!events.get(position).isCheckInDone()) {
-                    events.get(position).setCheckInDone(true);
+                if (!eventsList.get(position).isCheckInDone()) {
+                    eventsList.get(position).setCheckInDone(true);
                     Date time = new Date();
                     String hora = Integer.toString(time.getHours());
                     String min = Integer.toString(time.getMinutes());
-                    events.get(position).setCheckInTime(hora + "h" + min);
+                    eventsList.get(position).setCheckInTime(hora + "h" + min);
                     eventsAdapter.notifyItemChanged(position);
                     checkInTime = hora + ":" + min;
-                    //Listener para verificar palavras chaves
-
-                    //getKeyWordUpdates(events.get(position).isCheckInDone(), position);
-
                 }
             }
 
             @Override
             public void onCheckOutClick(int position) {
-                if (events.get(position).isCheckInDone()) {
-                    if (!events.get(position).isCheckOutDone()) {
-                        events.get(position).setCheckOutDone(true);
+                if (eventsList.get(position).isCheckInDone()) {
+                    if (!eventsList.get(position).isCheckOutDone()) {
+                        eventsList.get(position).setCheckOutDone(true);
                         Date time = new Date();
                         String hora = Integer.toString(time.getHours());
                         String min = Integer.toString(time.getMinutes());
-                        events.get(position).setCheckInTime(hora + "h" + min);
-                        events.get(position).setCheckOutTime(hora + "h" + min);
+                        eventsList.get(position).setCheckInTime(hora + "h" + min);
+                        eventsList.get(position).setCheckOutTime(hora + "h" + min);
                         eventsAdapter.notifyItemChanged(position);
                         checkOutTime = hora + ":" + min;
-                        //getKeyWordUpdates(!events.get(position).isCheckOutDone(), position);
                     }
-
-
                 }
 
             }
 
             @Override
             public void onGoLiveClick(int position) {
-                Uri uri = Uri.parse(events.get(position).getUrl());
+                Uri uri = Uri.parse(eventsList.get(position).getUrl());
                 Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                 startActivity(intent);
             }
-
-
         });
     }
 

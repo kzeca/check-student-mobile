@@ -2,6 +2,7 @@ package com.fmm.checkapp.Model;
 
 import androidx.annotation.NonNull;
 
+import com.fmm.checkapp.firebasemodel.Events;
 import com.google.firebase.database.DataSnapshot;
 
 import java.util.List;
@@ -40,6 +41,16 @@ public class Event {
 
     }
 
+    public Event(Events events) {
+        this.startTime = events.getBegin();
+        this.date = events.getDate();
+        this.endTime = events.getEnd();
+        this.title = events.getTitle();
+        this.subject = events.getSubject();
+        this.checkInTime = "";
+        this.checkOutTime = "";
+        this.url = events.getLink();
+    }
 
     public boolean isCheckOutDone() {
         return isCheckOutDone;
