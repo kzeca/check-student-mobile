@@ -11,6 +11,16 @@ public class Events {
     String link;
     String subject;
     String title;
+    HashMap<String, Key > keys;
+
+
+    public HashMap<String, Key> getKeys() {
+        return keys;
+    }
+
+    public void setKeys(HashMap<String, Key> keys) {
+        this.keys = keys;
+    }
 
     public String getBegin() {
         return begin;
@@ -43,8 +53,6 @@ public class Events {
     public void setEnd(String end) {
         this.end = end;
     }
-
-
 
     public String getLink() {
         return link;

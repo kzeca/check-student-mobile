@@ -21,6 +21,21 @@ public class Event {
     private String uIdTeacher;
     private List<Keyword> keys, keysLatest;
     private String classEvent;
+    private String uid;
+
+
+    public Event(Events events,String uid, String uIdTeacher) {
+        this.startTime = events.getBegin();
+        this.date = events.getDate();
+        this.endTime = events.getEnd();
+        this.title = events.getTitle();
+        this.subject = events.getSubject();
+        this.checkInTime = "";
+        this.checkOutTime = "";
+        this.url = events.getLink();
+        this.uid = uid;
+        this.uIdTeacher = uIdTeacher;
+    }
 
 
     public Event(DataSnapshot dados, String uid, String classEvent) {
@@ -41,15 +56,12 @@ public class Event {
 
     }
 
-    public Event(Events events) {
-        this.startTime = events.getBegin();
-        this.date = events.getDate();
-        this.endTime = events.getEnd();
-        this.title = events.getTitle();
-        this.subject = events.getSubject();
-        this.checkInTime = "";
-        this.checkOutTime = "";
-        this.url = events.getLink();
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public boolean isCheckOutDone() {

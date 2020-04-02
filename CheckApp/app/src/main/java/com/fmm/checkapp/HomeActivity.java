@@ -32,6 +32,7 @@ import com.fmm.checkapp.Model.Keyword;
 import com.fmm.checkapp.Model.MyRecyclerViewAdapter;
 import com.fmm.checkapp.Model.Professor;
 import com.fmm.checkapp.firebasemodel.Events;
+import com.fmm.checkapp.firebasemodel.Key;
 import com.fmm.checkapp.firebasemodel.Professores;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -65,12 +66,11 @@ public class HomeActivity extends Activity {
     DatabaseReference dataBase;
     DatabaseReference aux;
     List<String> teachersUID;
-    String uid, uidTeacherCurrent;
+    String userUid, uidTeacherCurrent;
     ImageView imgNoEvents;
     String serie;
     String curso;
     DatabaseReference teacherBase;
-    static boolean firstTime = true;
 
     String TAG = "HomeActivity";
 
@@ -82,7 +82,7 @@ public class HomeActivity extends Activity {
         imgNoEvents = findViewById(R.id.activity_home_img_no_events);
         msgNoEvents = findViewById(R.id.msg_no_events);
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        uid = firebaseUser.getUid();
+        userUid = firebaseUser.getUid();
         dataBase = FirebaseDatabase.getInstance().getReference();
         teacherBase = dataBase.child("professores");
 
@@ -125,7 +125,7 @@ public class HomeActivity extends Activity {
 
     }
 
-    private void getCurrentUserEvents(final String turma){
+    private void getCurrentUserEvents(final String turma) {
         Log.d(TAG, " getCurrentUserEvents turma :: " + turma);
 
         teacherBase.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -133,23 +133,34 @@ public class HomeActivity extends Activity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     List<Events> firebaseEvents = new ArrayList<Events>();
+                    List<Event> eventList = new ArrayList<Event>();
+
                     for (DataSnapshot dados : dataSnapshot.getChildren()) {
+                        dados.getKey();
                         Professores profs = dados.getValue(Professores.class);
-                        HashMap <String, Events> events = profs.getEvents().get(turma);
+                        HashMap<String, Events> events = profs.getEvents().get(turma);
 
-                        if(events != null ){
-                            for (Map.Entry<String, Events> m : events.entrySet()){
-                                if(!m.getKey().equals("evento0")){
+                        if (events != null) {
+                            for (Map.Entry<String, Events> m : events.entrySet()) {
+                                if (!m.getKey().equals("evento0")) {
                                     firebaseEvents.add(m.getValue());
-                                }
+                                    eventList.add(new Event(m.getValue(), m.getKey(), dados.getKey()));
+                                    m.getKey();
+                                    HashMap<String, Key> keys = m.getValue().getKeys();
+                                    if (keys != null) {
+                                        for (Map.Entry<String, Key> k : keys.entrySet()) {
+                                            Log.d(TAG, "key: " + k.getKey());
+                                            Log.d(TAG, "key name: " + k.getValue().getKey());
+                                            Log.d(TAG, "key time: " + k.getValue().getTime());
+                                        }
+                                    }
 
+
+                                }
                             }
                         }
                     }
-                    List<Event> eventList = new ArrayList<>();
-                    for (Events e: firebaseEvents){
-                        eventList.add(new Event(e));
-                    }
+
 
                     getCheckedEvents(eventList);
                 }
@@ -176,6 +187,41 @@ public class HomeActivity extends Activity {
 
         }
         buildRecyclerView(events);
+    }
+
+    public void setCheckInTime(List<Event> events, int position) {
+        if (!events.get(position).isCheckInDone()) {
+            events.get(position).setCheckInDone(true);
+            Date time = new Date();
+            String hora = Integer.toString(time.getHours());
+            String min = Integer.toString(time.getMinutes());
+
+            teacherBase.child(events.get(position).getuIdTeacher()).child("events").child(user.getTurma()).child(events.get(position).getUid()).child("students").child(userUid).child("checkin").setValue(hora+"h"+min);
+
+
+            events.get(position).setCheckInTime(hora + "h" + min);
+            eventsAdapter.notifyItemChanged(position);
+        }
+    }
+
+    public void setCheckOutTime(List<Event> events, int position) {
+        if (events.get(position).isCheckInDone()) {
+            if (!events.get(position).isCheckOutDone()) {
+                events.get(position).setCheckOutDone(true);
+                Date time = new Date();
+                String hora = Integer.toString(time.getHours());
+                String min = Integer.toString(time.getMinutes());
+
+
+                teacherBase.child(events.get(position).getuIdTeacher()).child("events").child(user.getTurma())
+                        .child(events.get(position).getUid()).child("students").child(userUid).child("checkout").setValue(hora + "h" + min);
+
+
+                events.get(position).setCheckInTime(hora + "h" + min);
+                events.get(position).setCheckOutTime(hora + "h" + min);
+                eventsAdapter.notifyItemChanged(position);
+            }
+        }
     }
 
 
@@ -236,36 +282,16 @@ public class HomeActivity extends Activity {
 
         eventsAdapter.setOnItemClickListener(new MyRecyclerViewAdapter.OnItemClickListener() {
 
-            String checkOutTime;
-            String checkInTime;
 
             @Override
             public void onCheckInClick(int position) {
-                if (!eventsList.get(position).isCheckInDone()) {
-                    eventsList.get(position).setCheckInDone(true);
-                    Date time = new Date();
-                    String hora = Integer.toString(time.getHours());
-                    String min = Integer.toString(time.getMinutes());
-                    eventsList.get(position).setCheckInTime(hora + "h" + min);
-                    eventsAdapter.notifyItemChanged(position);
-                    checkInTime = hora + ":" + min;
-                }
+                setCheckInTime(eventsList, position);
+
             }
 
             @Override
             public void onCheckOutClick(int position) {
-                if (eventsList.get(position).isCheckInDone()) {
-                    if (!eventsList.get(position).isCheckOutDone()) {
-                        eventsList.get(position).setCheckOutDone(true);
-                        Date time = new Date();
-                        String hora = Integer.toString(time.getHours());
-                        String min = Integer.toString(time.getMinutes());
-                        eventsList.get(position).setCheckInTime(hora + "h" + min);
-                        eventsList.get(position).setCheckOutTime(hora + "h" + min);
-                        eventsAdapter.notifyItemChanged(position);
-                        checkOutTime = hora + ":" + min;
-                    }
-                }
+                setCheckOutTime(eventsList, position);
 
             }
 
