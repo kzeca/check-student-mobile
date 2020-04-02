@@ -1,27 +1,15 @@
 package com.fmm.checkapp;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
-import android.app.Activity;
-import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -30,12 +18,10 @@ import android.widget.Toast;
 import com.fmm.checkapp.Model.Event;
 import com.fmm.checkapp.Model.Keyword;
 import com.fmm.checkapp.Model.MyRecyclerViewAdapter;
-import com.fmm.checkapp.Model.Professor;
 import com.fmm.checkapp.firebasemodel.Events;
-import com.fmm.checkapp.firebasemodel.Key;
+import com.fmm.checkapp.firebasemodel.Keys;
 import com.fmm.checkapp.firebasemodel.Professores;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.fmm.checkapp.firebasemodel.Students;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -49,8 +35,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 
 import static com.fmm.checkapp.LoginActivity.user;
 
@@ -65,8 +49,7 @@ public class HomeActivity extends Activity {
     FirebaseUser firebaseUser;
     DatabaseReference dataBase;
     DatabaseReference aux;
-    List<String> teachersUID;
-    String userUid, uidTeacherCurrent;
+    String userUid;
     ImageView imgNoEvents;
     String serie;
     String curso;
@@ -95,10 +78,19 @@ public class HomeActivity extends Activity {
                     if (turma != null) {
                         user.setTurma(turma);
                         Log.d(TAG, "" + user.getTurma());
-                        serie = turma.substring(0, 0);
-                        curso = turma.substring(2, 2);
                     }
                 }
+                getCurrentUserEvents(user.getTurma());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        dataBase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 getCurrentUserEvents(user.getTurma());
             }
 
@@ -126,8 +118,6 @@ public class HomeActivity extends Activity {
     }
 
     private void getCurrentUserEvents(final String turma) {
-        Log.d(TAG, " getCurrentUserEvents turma :: " + turma);
-
         teacherBase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -136,32 +126,37 @@ public class HomeActivity extends Activity {
                     List<Event> eventList = new ArrayList<Event>();
 
                     for (DataSnapshot dados : dataSnapshot.getChildren()) {
-                        dados.getKey();
                         Professores profs = dados.getValue(Professores.class);
                         HashMap<String, Events> events = profs.getEvents().get(turma);
-
                         if (events != null) {
                             for (Map.Entry<String, Events> m : events.entrySet()) {
+                                String checkin = "", checkout = "";
                                 if (!m.getKey().equals("evento0")) {
                                     firebaseEvents.add(m.getValue());
-                                    eventList.add(new Event(m.getValue(), m.getKey(), dados.getKey()));
-                                    m.getKey();
-                                    HashMap<String, Key> keys = m.getValue().getKeys();
+                                    HashMap<String, Keys> keys = m.getValue().getKeys();
                                     if (keys != null) {
-                                        for (Map.Entry<String, Key> k : keys.entrySet()) {
+                                        for (Map.Entry<String, Keys> k : keys.entrySet()) {
                                             Log.d(TAG, "key: " + k.getKey());
                                             Log.d(TAG, "key name: " + k.getValue().getKey());
                                             Log.d(TAG, "key time: " + k.getValue().getTime());
                                         }
                                     }
-
-
+                                    HashMap<String, Students> students = m.getValue().getStudents();
+                                    if(students != null){
+                                        for(Map.Entry<String, Students> s : students.entrySet()){
+                                            if(s.getKey().equals(userUid)){
+                                                checkin = (s.getValue().getCheckin());
+                                                checkout = (s.getValue().getCheckout());
+                                                Log.d("CUOLHO", "Checkin: "+checkin);
+                                                Log.d("CUOLHO", "Checkout: "+checkout);
+                                            }
+                                        }
+                                    }
+                                    eventList.add(new Event(m.getValue(), m.getKey(), dados.getKey(), checkin, checkout));
                                 }
                             }
                         }
                     }
-
-
                     getCheckedEvents(eventList);
                 }
 
@@ -189,13 +184,14 @@ public class HomeActivity extends Activity {
     }
 
     public void setCheckInTime(List<Event> events, int position) {
-        if (!events.get(position).isCheckInDone()) {
-            events.get(position).setCheckInDone(true);
+        if (events.get(position).getCheckInTime() == null || events.get(position).getCheckInTime().isEmpty()) {
             Date time = new Date();
             String hora = Integer.toString(time.getHours());
             String min = Integer.toString(time.getMinutes());
 
-            teacherBase.child(events.get(position).getuIdTeacher()).child("events").child(user.getTurma()).child(events.get(position).getUid()).child("students").child(userUid).child("checkin").setValue(hora+"h"+min);
+            teacherBase.child(events.get(position).getuIdTeacher()).child("events")
+                    .child(user.getTurma()).child(events.get(position).getUid())
+                    .child("students").child(userUid).child("checkin").setValue(hora+"h"+min);
 
 
             events.get(position).setCheckInTime(hora + "h" + min);
@@ -204,16 +200,16 @@ public class HomeActivity extends Activity {
     }
 
     public void setCheckOutTime(List<Event> events, int position) {
-        if (events.get(position).isCheckInDone()) {
+        if (events.get(position).getCheckInTime() != null && !events.get(position).getCheckInTime().isEmpty()) {
             if (!events.get(position).isCheckOutDone()) {
-                events.get(position).setCheckOutDone(true);
                 Date time = new Date();
                 String hora = Integer.toString(time.getHours());
                 String min = Integer.toString(time.getMinutes());
 
 
                 teacherBase.child(events.get(position).getuIdTeacher()).child("events").child(user.getTurma())
-                        .child(events.get(position).getUid()).child("students").child(userUid).child("checkout").setValue(hora + "h" + min);
+                        .child(events.get(position).getUid()).child("students").child(userUid)
+                        .child("checkout").setValue(hora + "h" + min);
 
 
                 events.get(position).setCheckInTime(hora + "h" + min);
@@ -285,7 +281,6 @@ public class HomeActivity extends Activity {
             @Override
             public void onCheckInClick(int position) {
                 setCheckInTime(eventsList, position);
-
             }
 
             @Override

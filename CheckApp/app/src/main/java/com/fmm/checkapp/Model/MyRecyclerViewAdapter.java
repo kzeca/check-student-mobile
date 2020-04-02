@@ -113,7 +113,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         holder.tvTitle.setText(eventList.get(position).getTitle());
         holder.tvStartTime.setText("Início: "+eventList.get(position).getStartTime());
         holder.tvEndTime.setText("Fim: "+ eventList.get(position).getEndTime());
-        if(!eventList.get(position).getCheckInTime().isEmpty() && eventList.get(position).getCheckInTime() != null){
+        if(eventList.get(position).getCheckInTime() != null && !eventList.get(position).getCheckInTime().isEmpty()){
             holder.tvCheckInTime.setText("Check in realizado às "+eventList.get(position).getCheckInTime());
             holder.tvCheckInTime.setVisibility(View.VISIBLE);
             holder.btnCheckIn.setBackgroundTintList(holder.btnCheckIn.getResources().getColorStateList(R.color.cinza_botao));
@@ -125,8 +125,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
             holder.tvCheckInTime.setVisibility(View.GONE);
             holder.tvCheckInTime.setText("");
         }
-
-        if(!eventList.get(position).getCheckOutTime().isEmpty() && eventList.get(position).getCheckOutTime() != null){
+        if(eventList.get(position).getCheckOutTime() != null && !eventList.get(position).getCheckOutTime().isEmpty()){
             holder.tvCheckOutTime.setText("Check out realizado às "+eventList.get(position).getCheckOutTime());
             holder.tvCheckOutTime.setVisibility(View.VISIBLE);
             holder.btnCheckOut.setBackgroundTintList(holder.btnCheckIn.getResources().getColorStateList(R.color.cinza_botao));

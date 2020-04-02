@@ -11,14 +11,22 @@ public class Events {
     String link;
     String subject;
     String title;
-    HashMap<String, Key > keys;
+    HashMap<String, Keys> keys;
+    HashMap<String, Students> students;
 
+    public HashMap<String, Students> getStudents() {
+        return students;
+    }
 
-    public HashMap<String, Key> getKeys() {
+    public void setStudents(HashMap<String, Students> students) {
+        this.students = students;
+    }
+
+    public HashMap<String, Keys> getKeys() {
         return keys;
     }
 
-    public void setKeys(HashMap<String, Key> keys) {
+    public void setKeys(HashMap<String, Keys> keys) {
         this.keys = keys;
     }
 

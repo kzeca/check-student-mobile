@@ -1,6 +1,6 @@
 package com.fmm.checkapp.firebasemodel;
 
-public class Key {
+public class Keys {
     String key;
     String time;
 

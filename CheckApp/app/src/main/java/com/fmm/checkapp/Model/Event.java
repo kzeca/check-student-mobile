@@ -16,35 +16,35 @@ public class Event {
     private String checkInTime;
     private String checkOutTime;
     private String url;
-    private boolean isCheckInDone;
-    private boolean isCheckOutDone;
+    private boolean isCheckInDone = false;
+    private boolean isCheckOutDone = false;
     private String uIdTeacher;
     private List<Keyword> keys, keysLatest;
     private String classEvent;
     private String uid;
 
 
-    public Event(Events events,String uid, String uIdTeacher) {
+    public Event(Events events,String uid, String uIdTeacher, String checkin, String checkout) {
         this.startTime = events.getBegin();
         this.date = events.getDate();
         this.endTime = events.getEnd();
         this.title = events.getTitle();
         this.subject = events.getSubject();
-        this.checkInTime = "";
-        this.checkOutTime = "";
+        this.checkInTime = checkin;
+        this.checkOutTime = checkout;
         this.url = events.getLink();
         this.uid = uid;
         this.uIdTeacher = uIdTeacher;
     }
 
 
-    public Event(DataSnapshot dados, String uid, String classEvent) {
+    /*public Event(DataSnapshot dados, String uid, String classEvent) {
         this.startTime = dados.child("begin").getValue().toString();
         this.date = dados.child("date").getValue().toString();
         this.endTime = dados.child("end").getValue().toString();
-        /*for (DataSnapshot keys_dados : dados.child("keys").getChildren()) {
+        for (DataSnapshot keys_dados : dados.child("keys").getChildren()) {
             this.keys.add((Keyword)keys_dados.getValue());
-        }*/
+        }
         this.keysLatest = this.keys;//Para comparar qual palavra é diferente
         this.title = dados.child("title").getValue().toString();
         this.subject = dados.child("subject").getValue().toString();
@@ -54,7 +54,7 @@ public class Event {
         this.classEvent = classEvent;
         this.url = dados.child("link").getValue().toString();
 
-    }
+    }*/
 
     public String getUid() {
         return uid;
