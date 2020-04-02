@@ -178,7 +178,6 @@ public class HomeActivity extends Activity {
 
     private void getCheckedEvents(List<Event> events) {
 
-        //AO ADICIONAR OS EVENTOS NO ATRIBUTO URL CONCATENAR À URL A STRING : "https://"
         if (events.size() > 0) {
             msgNoEvents.setVisibility(View.INVISIBLE);
         } else {
