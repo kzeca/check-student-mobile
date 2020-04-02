@@ -1,12 +1,14 @@
 package com.fmm.checkapp;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -30,6 +32,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -54,13 +57,15 @@ public class HomeActivity extends Activity {
     String serie;
     String curso;
     DatabaseReference teacherBase;
-
+    String datahoje;
     String TAG = "HomeActivity";
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT_WATCH)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        NotificationHelper.displayNotification(getApplicationContext(), "Adoleta", "Armando");
         btInfo = findViewById(R.id.activity_home_bt_about_us);
         imgNoEvents = findViewById(R.id.activity_home_img_no_events);
         msgNoEvents = findViewById(R.id.msg_no_events);
@@ -68,7 +73,9 @@ public class HomeActivity extends Activity {
         userUid = firebaseUser.getUid();
         dataBase = FirebaseDatabase.getInstance().getReference();
         teacherBase = dataBase.child("professores");
-
+        SimpleDateFormat formataData = new SimpleDateFormat("dd/MM/yy");
+        Date data = new Date();
+        datahoje = formataData.format(data);
         dataBase.child("salas").orderByChild(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -132,28 +139,28 @@ public class HomeActivity extends Activity {
                             for (Map.Entry<String, Events> m : events.entrySet()) {
                                 String checkin = "", checkout = "";
                                 if (!m.getKey().equals("evento0")) {
-                                    firebaseEvents.add(m.getValue());
-                                    HashMap<String, Keys> keys = m.getValue().getKeys();
-                                    if (keys != null) {
-                                        for (Map.Entry<String, Keys> k : keys.entrySet()) {
-                                            Log.d(TAG, "key: " + k.getKey());
-                                            Log.d(TAG, "key name: " + k.getValue().getKey());
-                                            Log.d(TAG, "key time: " + k.getValue().getTime());
+                                    if (m.getValue().getDate().equals(datahoje)){
+                                        firebaseEvents.add(m.getValue());
+                                        HashMap<String, Keys> keys = m.getValue().getKeys();
+                                        if (keys != null) {
+                                            for (Map.Entry<String, Keys> k : keys.entrySet()) {
+                                                Log.d(TAG, "key: " + k.getKey());
+                                                Log.d(TAG, "key name: " + k.getValue().getKey());
+                                                Log.d(TAG, "key time: " + k.getValue().getTime());
+                                            }
                                         }
-                                    }
-                                    HashMap<String, Students> students = m.getValue().getStudents();
-                                    if(students != null){
-                                        for(Map.Entry<String, Students> s : students.entrySet()){
-                                            if(s.getKey().equals(userUid)){
+                                        HashMap<String, Students> students = m.getValue().getStudents();
+                                        if (students != null) {
+                                        for (Map.Entry<String, Students> s : students.entrySet()) {
+                                            if (s.getKey().equals(userUid)) {
                                                 checkin = (s.getValue().getCheckin());
                                                 checkout = (s.getValue().getCheckout());
-                                                Log.d("CUOLHO", "Checkin: "+checkin);
-                                                Log.d("CUOLHO", "Checkout: "+checkout);
                                             }
                                         }
                                     }
                                     eventList.add(new Event(m.getValue(), m.getKey(), dados.getKey(), checkin, checkout));
                                 }
+                            }
                             }
                         }
                     }

@@ -1,5 +1,7 @@
 package com.fmm.checkapp;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Context;
 
 import androidx.core.app.NotificationCompat;
