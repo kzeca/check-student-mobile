@@ -54,6 +54,8 @@ public class HomeActivity extends Activity {
     String serie;
     String curso;
     DatabaseReference teacherBase;
+    Thread th;
+    String minH;
 
     String TAG = "HomeActivity";
 
@@ -68,6 +70,9 @@ public class HomeActivity extends Activity {
         userUid = firebaseUser.getUid();
         dataBase = FirebaseDatabase.getInstance().getReference();
         teacherBase = dataBase.child("professores");
+                
+        Date hora = new Date();
+        minH = Integer.toString(hora.getMinutes());
 
         dataBase.child("salas").orderByChild(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -195,6 +200,7 @@ public class HomeActivity extends Activity {
 
 
             events.get(position).setCheckInTime(hora + "h" + min);
+            getKeyWordUpdates(true,position);
             eventsAdapter.notifyItemChanged(position);
         }
     }
@@ -214,55 +220,10 @@ public class HomeActivity extends Activity {
 
                 events.get(position).setCheckInTime(hora + "h" + min);
                 events.get(position).setCheckOutTime(hora + "h" + min);
+                getKeyWordUpdates(false,position);
                 eventsAdapter.notifyItemChanged(position);
             }
         }
-    }
-
-
-    public List<Keyword> getKeyWords(String uIdTeacher) {//Recupera as Keywords que já estavam registradas
-        final List<Keyword> keywords = new ArrayList<>();
-
-        //Acessa parte dos professores
-        DatabaseReference teachersBase = dataBase.child("professores");
-
-        //Pegar palavras do banco
-
-
-        if (teacherBase.child(uIdTeacher).child("events").child((aux != null ? turma : serie + "ano")) != null) {//verifica se há evento para sala única ou para ano
-
-            teacherBase.child(uIdTeacher).child("events").child((aux != null ? turma : serie + "ano")).child("keys").addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    for (DataSnapshot dados : dataSnapshot.getChildren()) {
-                        Keyword key = dados.getValue(Keyword.class);
-                        keywords.add(key);
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
-            });
-        } else {//Por curso
-            teacherBase.child(uIdTeacher).child("events").child((serie + curso + "ano")).child("keys").addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    for (DataSnapshot dados : dataSnapshot.getChildren()) {
-                        Keyword key = dados.getValue(Keyword.class);
-                        keywords.add(key);
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
-            });
-        }
-
-        return keywords;
     }
 
     public void buildRecyclerView(final List<Event> eventsList) {
@@ -298,40 +259,95 @@ public class HomeActivity extends Activity {
         });
     }
 
-    public void getKeyWordUpdates(boolean listen, final int position) {//Veririfica as Keywords que foram adicionadas
-        //Acessa parte dos professores
-        DatabaseReference teachersBase = dataBase.child("professores");
+    public void getKeyWordUpdates(boolean listen, final int position) {
 
-        //Acessa conta do professor que mandou o evento
-        //Precisa saber a turma do aluno e do 'nome' do evento
-        if (!listen) return;//caso deu checkout, o aluno não pode saber quais palavras chaves
-        teachersBase.child(events.get(position).getuIdTeacher()).child("events").child(events.get(position).getClassEvent()).child("keys").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                List<Keyword> keysAux = new ArrayList<Keyword>();
-                for (DataSnapshot dados : dataSnapshot.getChildren()) {
-                    keysAux.add((Keyword) dados.getValue());//atualiza as palavras chaves lançadas
+        if (!listen) {
+            th.stop();
+            return;// caso deu checkout, o aluno não pode saber quais palavras chaves
+        } else {
 
-                }
-                events.get(position).setKeys(keysAux);
-                System.out.println("TEM PALAVRA CHAVE NOVA");
-                for (int i = 0; i < events.size(); i++) {
-                    if (events.get(position).getKeys().get(i) != events.get(position).getKeysLatest().get(i)) {
-                        //TODO CODE OF POP UP
+            final Handler handle = new Handler();
 
+            Runnable runnable = new Runnable() {
 
-                        //Depois que responder
-                        events.get(position).setKeysLatest(events.get(position).getKeys());
+                @Override
+                public void run() {
+
+                    while (true) {
+                        synchronized (this) {
+                            try {
+                                wait(500);
+                            } catch (InterruptedException ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                        handle.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Date time = new Date();
+                                String hora = Integer.toString(time.getHours());
+                                String min = Integer.toString(time.getMinutes());
+                                String fullHour = hora + "h" + min + "min";
+
+                                Log.d("AQUI", "Vai verificar se solta o Toast");
+                                if (!minH.equals(min)) {
+                                    Log.d("AQUI", "Vai soltar o Toast");
+                                    givePop(fullHour);
+                                    minH = min;
+                                }
+                                Log.d("AQUI", "Soltou a mensagem");
+                                try {
+                                    Thread.sleep(1000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+
+                            }
+                        });
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
+
                 }
+            };
+            th = new Thread(runnable);
+            Log.d("AQUI", "Vai executar a Thread");
+            th.start();
+            Log.d("AQUI", "Já executou a Thread");
 
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+        }
 
     }
+
+    private void givePop(String fullHour) {
+
+        if (fullHour.equals(events.get(position).getKeys().get(0).getTime())) {
+            String key = events.get(position).getKeys().get(0).getKey();
+            // TODO CODE OF POP UP
+                //TODO CODE NOTIFICATION
+            // popUp();
+            Toast.makeText(getApplicationContext(), "Hora de adicionar uma nova Key: " + key + "", Toast.LENGTH_LONG)
+                    .show();
+
+        } else if (fullHour.equals(events.get(position).getKeys().get(1).getTime())) {
+            String key = events.get(position).getKeys().get(1).getKey();
+            // TODO CODE OF POP UP
+
+            Toast.makeText(getApplicationContext(), "Hora de adicionar uma nova Key: " + key + "", Toast.LENGTH_LONG)
+                    .show();
+
+        } else if (fullHour.equals(events.get(position).getKeys().get(2).getTime())) {
+            String key = events.get(position).getKeys().get(2).getKey();
+            // TODO CODE OF POP UP
+
+            Toast.makeText(getApplicationContext(), "Hora de adicionar uma nova Key: " + key + "", Toast.LENGTH_LONG)
+                    .show();
+
+        }
+
+    }
+
 }
