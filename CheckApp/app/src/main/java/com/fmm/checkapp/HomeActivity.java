@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -140,7 +141,7 @@ public class HomeActivity extends Activity {
                                 if (!m.getKey().equals("evento0")) {
                                     firebaseEvents.add(m.getValue());
                                     HashMap<String, Keys> keys = m.getValue().getKeys();
-                                    List<Keys> keysTemp = new ArrayLis<Keys>();
+                                    List<Keys> keysTemp = new ArrayList<Keys>();
                                     if (keys != null) {
                                         for (Map.Entry<String, Keys> k : keys.entrySet()) {
                                             Log.d(TAG, "key: " + k.getKey());
@@ -163,6 +164,9 @@ public class HomeActivity extends Activity {
                                     }
                                     eventList.add(new Event(m.getValue(), m.getKey(), dados.getKey(), checkin, checkout,
                                             keysTemp));
+                                    Log.d("CUOLHO", "TIME 0: " + keysTemp.get(0).getTime());
+                                    Log.d("CUOLHO", "TIME 1: " + keysTemp.get(1).getTime());
+                                    Log.d("CUOLHO", "TIME 2: " + keysTemp.get(2).getTime());
                                 }
                             }
                         }
@@ -292,7 +296,7 @@ public class HomeActivity extends Activity {
                                 Log.d("AQUI", "Vai verificar se solta o Toast");
                                 if (!minH.equals(min)) {
                                     Log.d("AQUI", "Vai soltar o Toast");
-                                    givePop(fullHour);
+                                    givePop(fullHour, position);
                                     minH = min;
                                 }
                                 Log.d("AQUI", "Soltou a mensagem");
