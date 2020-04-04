@@ -143,12 +143,16 @@ public class HomeActivity extends Activity {
                                     HashMap<String, Keys> keys = m.getValue().getKeys();
                                     List<Keys> keysTemp = new ArrayList<Keys>();
                                     if (keys != null) {
+                                        int i=0;
                                         for (Map.Entry<String, Keys> k : keys.entrySet()) {
                                             Log.d(TAG, "key: " + k.getKey());
                                             Log.d(TAG, "key name: " + k.getValue().getKey());
                                             Log.d(TAG, "key time: " + k.getValue().getTime());
-                                            keysTemp.add(new Keys(k.getValue().getKey(), k.getValue().getTime()));
-
+                                            Keys keyTemp =  new  Keys(k.getValue().getKey(), k.getValue().getTime())
+                                            Log.d(TAG, "key Class: Key-->" + keyTemp.getKey()+"       Time----->"+keyTemp.getTime());
+                                            keysTemp.add(keyTemp);
+                                            Log.d(TAG, "key Array : ---->" + keysTemp.get(i).getTime());
+                                            i++;
                                         }
                                     }
                                     HashMap<String, Students> students = m.getValue().getStudents();
