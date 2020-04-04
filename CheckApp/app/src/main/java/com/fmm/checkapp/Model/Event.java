@@ -3,6 +3,7 @@ package com.fmm.checkapp.Model;
 import androidx.annotation.NonNull;
 
 import com.fmm.checkapp.firebasemodel.Events;
+import com.fmm.checkapp.firebasemodel.Keys;
 import com.google.firebase.database.DataSnapshot;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public class Event {
     private boolean isCheckInDone = false;
     private boolean isCheckOutDone = false;
     private String uIdTeacher;
-    private List<Keyword> keys, keysLatest;
+    private List<Keys> keys;
     private String classEvent;
     private String uid;
 
@@ -38,23 +39,6 @@ public class Event {
     }
 
 
-    /*public Event(DataSnapshot dados, String uid, String classEvent) {
-        this.startTime = dados.child("begin").getValue().toString();
-        this.date = dados.child("date").getValue().toString();
-        this.endTime = dados.child("end").getValue().toString();
-        for (DataSnapshot keys_dados : dados.child("keys").getChildren()) {
-            this.keys.add((Keyword)keys_dados.getValue());
-        }
-        this.keysLatest = this.keys;//Para comparar qual palavra é diferente
-        this.title = dados.child("title").getValue().toString();
-        this.subject = dados.child("subject").getValue().toString();
-        this.checkInTime = "";
-        this.checkOutTime = "";
-        this.uIdTeacher = uid;
-        this.classEvent = classEvent;
-        this.url = dados.child("link").getValue().toString();
-
-    }*/
 
     public String getUid() {
         return uid;
@@ -136,11 +120,11 @@ public class Event {
         this.uIdTeacher = uIdTeacher;
     }
 
-    public List<Keyword> getKeys() {
+    public List<Keys> getKeys() {
         return keys;
     }
 
-    public void setKeys(List<Keyword> keys) {
+    public void setKeys(List<Keys> keys) {
         this.keys = keys;
     }
 
@@ -168,13 +152,6 @@ public class Event {
         this.url = url;
     }
 
-    public List<Keyword> getKeysLatest() {
-        return keysLatest;
-    }
-
-    public void setKeysLatest(List<Keyword> keysLatest) {
-        this.keysLatest = keysLatest;
-    }
 
     @NonNull
     @Override

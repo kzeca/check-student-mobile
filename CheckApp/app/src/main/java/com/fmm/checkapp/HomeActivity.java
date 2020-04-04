@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -292,7 +293,7 @@ public class HomeActivity extends Activity {
                                 Log.d("AQUI", "Vai verificar se solta o Toast");
                                 if (!minH.equals(min)) {
                                     Log.d("AQUI", "Vai soltar o Toast");
-                                    givePop(fullHour);
+                                    givePop(fullHour, position);
                                     minH = min;
                                 }
                                 Log.d("AQUI", "Soltou a mensagem");
@@ -322,7 +323,7 @@ public class HomeActivity extends Activity {
 
     }
 
-    private void givePop(String fullHour) {
+    private void givePop(String fullHour, int position) {
 
         if (fullHour.equals(events.get(position).getKeys().get(0).getTime())) {
             String key = events.get(position).getKeys().get(0).getKey();
