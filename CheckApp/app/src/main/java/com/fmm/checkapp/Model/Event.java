@@ -1,5 +1,7 @@
 package com.fmm.checkapp.Model;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.fmm.checkapp.firebasemodel.Events;

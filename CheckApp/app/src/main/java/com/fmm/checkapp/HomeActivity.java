@@ -1,16 +1,22 @@
 package com.fmm.checkapp;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -135,21 +141,21 @@ public class HomeActivity extends Activity {
                         Professores profs = dados.getValue(Professores.class);
                         HashMap<String, Events> events = profs.getEvents().get(turma);
                         if (events != null) {
-                            int j=0;
+                            int j = 0;
                             for (Map.Entry<String, Events> m : events.entrySet()) {
                                 String checkin = "", checkout = "";
                                 if (!m.getKey().equals("evento0")) {
                                     firebaseEvents.add(m.getValue());
                                     HashMap<String, Keys> keys = m.getValue().getKeys();
-                                   List<Keys> keysTemp = new ArrayList<Keys>();
+                                    List<Keys> keysTemp = new ArrayList<Keys>();
                                     if (keys != null) {
-                                        int i=0;
+                                        int i = 0;
                                         for (Map.Entry<String, Keys> k : keys.entrySet()) {
                                             Log.d(TAG, "key: " + k.getKey());
                                             Log.d(TAG, "key name: " + k.getValue().getKey());
                                             Log.d(TAG, "key time: " + k.getValue().getTime());
-                                            Keys keyTemp =  new  Keys(k.getValue().getKey(), k.getValue().getTime());
-                                            Log.d(TAG, "key Class: Key-->" + keyTemp.getKey()+"       Time----->"+keyTemp.getTime());
+                                            Keys keyTemp = new Keys(k.getValue().getKey(), k.getValue().getTime());
+                                            Log.d(TAG, "key Class: Key-->" + keyTemp.getKey() + "       Time----->" + keyTemp.getTime());
                                             keysTemp.add(keyTemp);
                                             Log.d(TAG, "key Array : ---->" + keysTemp.get(i).getTime());
                                             i++;
@@ -166,9 +172,10 @@ public class HomeActivity extends Activity {
                                             }
                                         }
                                     }
-                                    eventList.add(new Event(m.getValue(), m.getKey(), dados.getKey(), checkin, checkout,keysTemp));
-                                    
-                                    Log.d("CUOLHO", "EVENTLIST"+eventList.get(j).getKeys().get(0).getTime());
+                                    eventList.add(new Event(m.getValue(), m.getKey(), dados.getKey(), checkin, checkout, keysTemp));
+
+                                    Log.d("CUOLHO", "EVENTLIST" + eventList.get(j).getKeys().get(0).getTime());
+                                    j++;
                                     Log.d("CUOLHO", "TIME 0: " + keysTemp.get(0).getTime());
                                     Log.d("CUOLHO", "TIME 1: " + keysTemp.get(1).getTime());
                                     Log.d("CUOLHO", "TIME 2: " + keysTemp.get(2).getTime());
@@ -198,7 +205,7 @@ public class HomeActivity extends Activity {
             imgNoEvents.setVisibility(View.VISIBLE);
 
         }
-        Log.d("CUOLHO", "GETCHECKEDEVENTS"+events.get(0).getKeys().get(0).getTime());
+        Log.d("CUOLHO", "GETCHECKEDEVENTS" + events.get(0).getKeys().get(0).getTime());
         buildRecyclerView(events);
     }
 
@@ -213,7 +220,7 @@ public class HomeActivity extends Activity {
                     .setValue(hora + "h" + min);
 
             events.get(position).setCheckInTime(hora + "h" + min);
-            getKeyWordUpdates(true, position);
+            getKeyWordUpdates(true, position, events);
             eventsAdapter.notifyItemChanged(position);
         }
     }
@@ -231,7 +238,7 @@ public class HomeActivity extends Activity {
 
                 events.get(position).setCheckInTime(hora + "h" + min);
                 events.get(position).setCheckOutTime(hora + "h" + min);
-                getKeyWordUpdates(false, position);
+                getKeyWordUpdates(false, position, events);
                 eventsAdapter.notifyItemChanged(position);
             }
         }
@@ -269,8 +276,7 @@ public class HomeActivity extends Activity {
         });
     }
 
-    public void getKeyWordUpdates(boolean listen, final int position) {
-
+    public void getKeyWordUpdates(boolean listen, final int position, final List<Event> eventsHere) {
         if (!listen) {
             th.stop();
             return;// caso deu checkout, o aluno não pode saber quais palavras chaves
@@ -302,7 +308,7 @@ public class HomeActivity extends Activity {
                                 Log.d("AQUI", "Vai verificar se solta o Toast");
                                 if (!minH.equals(min)) {
                                     Log.d("AQUI", "Vai soltar o Toast");
-                                    givePop(fullHour, position);
+                                    givePop(fullHour, position, eventsHere);
                                     minH = min;
                                 }
                                 Log.d("AQUI", "Soltou a mensagem");
@@ -332,37 +338,41 @@ public class HomeActivity extends Activity {
 
     }
 
-    private void givePop(String fullHour, int position) {
+    private void givePop(String fullHour, int position, List<Event> events) {
 
-        if(events.get(position).getKeys().get(0)!=null){
+        if (events.get(position).getKeys().get(0) != null) {
             if (fullHour.equals(events.get(position).getKeys().get(0).getTime())) {
                 String key = events.get(position).getKeys().get(0).getKey();
-                // TODO CODE OF POP UP
+                popUp();
                 // TODO CODE NOTIFICATION
-                // popUp();
-                Toast.makeText(getApplicationContext(), "Hora de adicionar uma nova Key: " + key + "", Toast.LENGTH_LONG)
-                        .show();
-    
+
             } else if (fullHour.equals(events.get(position).getKeys().get(1).getTime())) {
                 String key = events.get(position).getKeys().get(1).getKey();
-                // TODO CODE OF POP UP
-    
-                Toast.makeText(getApplicationContext(), "Hora de adicionar uma nova Key: " + key + "", Toast.LENGTH_LONG)
-                        .show();
-    
+                popUp();
+
+
             } else if (fullHour.equals(events.get(position).getKeys().get(2).getTime())) {
                 String key = events.get(position).getKeys().get(2).getKey();
-                // TODO CODE OF POP UP
-    
-                Toast.makeText(getApplicationContext(), "Hora de adicionar uma nova Key: " + key + "", Toast.LENGTH_LONG)
-                        .show();
-    
+                popUp();
+
             }
-        }else{
+        } else {
             Toast.makeText(getApplicationContext(), "ERROR AO BUSCAR KEY DESTE EVENTO", Toast.LENGTH_LONG)
-                        .show();
+                    .show();
         }
 
+    }
+
+    private void popUp() {
+        AlertDialog.Builder mBuilder = new AlertDialog.Builder(HomeActivity.this);
+        View mView = getLayoutInflater().inflate(R.layout.dialog_teacher_key_word, null);
+        final EditText edtEmail = (EditText) mView.findViewById(R.id.dialog_key_word_edt_password);
+        Button btnConfirma = (Button) mView.findViewById(R.id.dialog_key_word_bt_confirma);
+        mBuilder.setView(mView);
+        final AlertDialog dialog = mBuilder.create();
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.show();
     }
 
 }
