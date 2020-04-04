@@ -21,11 +21,11 @@ public class Event {
     private boolean isCheckInDone = false;
     private boolean isCheckOutDone = false;
     private String uIdTeacher;
-    private ArrayList<Keys> keys;
+    private List<Keys> keys;
     private String classEvent;
     private String uid;
 
-    public Event(Events events, String uid, String uIdTeacher, String checkin, String checkout, ArrayList<Keys> keys) {
+    public Event(Events events, String uid, String uIdTeacher, String checkin, String checkout, List<Keys> keys) {
         this.startTime = events.getBegin();
         this.date = events.getDate();
         this.endTime = events.getEnd();
@@ -36,7 +36,9 @@ public class Event {
         this.url = events.getLink();
         this.uid = uid;
         this.uIdTeacher = uIdTeacher;
+        this.keys=new ArrayList<Keys>();
         this.keys = keys;
+        Log.d("AQUI","Keys no construtor:  KEY----> "+this.keys.get(0).getKey()+"     TIME---------> "+this.keys.get(0).getTime());
     }
 
     public String getUid() {
@@ -123,7 +125,7 @@ public class Event {
         return keys;
     }
 
-    public void setKeys(ArrayList<Keys> keys) {
+    public void setKeys(List<Keys> keys) {
         this.keys = keys;
     }
 
