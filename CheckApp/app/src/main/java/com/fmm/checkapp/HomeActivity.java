@@ -17,7 +17,6 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.fmm.checkapp.Model.Event;
-import com.fmm.checkapp.Model.Keyword;
 import com.fmm.checkapp.Model.MyRecyclerViewAdapter;
 import com.fmm.checkapp.firebasemodel.Events;
 import com.fmm.checkapp.firebasemodel.Keys;
@@ -129,8 +128,8 @@ public class HomeActivity extends Activity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    List<Events> firebaseEvents = new ArrayList<Events>();
-                    List<Event> eventList = new ArrayList<Event>();
+                    ArrayList<Events> firebaseEvents = new ArrayList<Events>();
+                    ArrayList<Event> eventList = new ArrayList<Event>();
 
                     for (DataSnapshot dados : dataSnapshot.getChildren()) {
                         Professores profs = dados.getValue(Professores.class);
@@ -141,14 +140,14 @@ public class HomeActivity extends Activity {
                                 if (!m.getKey().equals("evento0")) {
                                     firebaseEvents.add(m.getValue());
                                     HashMap<String, Keys> keys = m.getValue().getKeys();
-                                    List<Keys> keysTemp = new ArrayList<Keys>();
+                                    ArrayList<Keys> keysTemp = new ArrayList<Keys>();
                                     if (keys != null) {
                                         int i=0;
                                         for (Map.Entry<String, Keys> k : keys.entrySet()) {
                                             Log.d(TAG, "key: " + k.getKey());
                                             Log.d(TAG, "key name: " + k.getValue().getKey());
                                             Log.d(TAG, "key time: " + k.getValue().getTime());
-                                            Keys keyTemp =  new  Keys(k.getValue().getKey(), k.getValue().getTime())
+                                            Keys keyTemp =  new  Keys(k.getValue().getKey(), k.getValue().getTime());
                                             Log.d(TAG, "key Class: Key-->" + keyTemp.getKey()+"       Time----->"+keyTemp.getTime());
                                             keysTemp.add(keyTemp);
                                             Log.d(TAG, "key Array : ---->" + keysTemp.get(i).getTime());
@@ -168,6 +167,7 @@ public class HomeActivity extends Activity {
                                     }
                                     eventList.add(new Event(m.getValue(), m.getKey(), dados.getKey(), checkin, checkout,
                                             keysTemp));
+                                    Log.d("CUOLHO", "EVENTLIST"+eventList.get(0).getKeys().get(0).getTime());
                                     Log.d("CUOLHO", "TIME 0: " + keysTemp.get(0).getTime());
                                     Log.d("CUOLHO", "TIME 1: " + keysTemp.get(1).getTime());
                                     Log.d("CUOLHO", "TIME 2: " + keysTemp.get(2).getTime());
@@ -188,7 +188,7 @@ public class HomeActivity extends Activity {
 
     }
 
-    private void getCheckedEvents(List<Event> events) {
+    private void getCheckedEvents(ArrayList<Event> events) {
 
         if (events.size() > 0) {
             msgNoEvents.setVisibility(View.INVISIBLE);
@@ -197,6 +197,7 @@ public class HomeActivity extends Activity {
             imgNoEvents.setVisibility(View.VISIBLE);
 
         }
+        Log.d("CUOLHO", "GETCHECKEDEVENTS"+events.get(0).getKeys().get(0).getTime());
         buildRecyclerView(events);
     }
 

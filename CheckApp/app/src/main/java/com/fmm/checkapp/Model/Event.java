@@ -6,6 +6,7 @@ import com.fmm.checkapp.firebasemodel.Events;
 import com.fmm.checkapp.firebasemodel.Keys;
 import com.google.firebase.database.DataSnapshot;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Event {
@@ -20,11 +21,11 @@ public class Event {
     private boolean isCheckInDone = false;
     private boolean isCheckOutDone = false;
     private String uIdTeacher;
-    private List<Keys> keys;
+    private ArrayList<Keys> keys;
     private String classEvent;
     private String uid;
 
-    public Event(Events events, String uid, String uIdTeacher, String checkin, String checkout, List<Keys> keys) {
+    public Event(Events events, String uid, String uIdTeacher, String checkin, String checkout, ArrayList<Keys> keys) {
         this.startTime = events.getBegin();
         this.date = events.getDate();
         this.endTime = events.getEnd();
@@ -122,7 +123,7 @@ public class Event {
         return keys;
     }
 
-    public void setKeys(List<Keys> keys) {
+    public void setKeys(ArrayList<Keys> keys) {
         this.keys = keys;
     }
 
