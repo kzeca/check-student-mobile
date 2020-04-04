@@ -135,6 +135,7 @@ public class HomeActivity extends Activity {
                         Professores profs = dados.getValue(Professores.class);
                         HashMap<String, Events> events = profs.getEvents().get(turma);
                         if (events != null) {
+                            int j=0;
                             for (Map.Entry<String, Events> m : events.entrySet()) {
                                 String checkin = "", checkout = "";
                                 if (!m.getKey().equals("evento0")) {
@@ -166,7 +167,8 @@ public class HomeActivity extends Activity {
                                         }
                                     }
                                     eventList.add(new Event(m.getValue(), m.getKey(), dados.getKey(), checkin, checkout,keysTemp));
-                                    Log.d("CUOLHO", "EVENTLIST"+eventList.get(0).getKeys().get(0).getTime());
+                                    
+                                    Log.d("CUOLHO", "EVENTLIST"+eventList.get(j).getKeys().get(0).getTime());
                                     Log.d("CUOLHO", "TIME 0: " + keysTemp.get(0).getTime());
                                     Log.d("CUOLHO", "TIME 1: " + keysTemp.get(1).getTime());
                                     Log.d("CUOLHO", "TIME 2: " + keysTemp.get(2).getTime());
