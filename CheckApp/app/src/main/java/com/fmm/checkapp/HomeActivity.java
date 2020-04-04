@@ -8,7 +8,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -71,29 +70,30 @@ public class HomeActivity extends Activity {
         userUid = firebaseUser.getUid();
         dataBase = FirebaseDatabase.getInstance().getReference();
         teacherBase = dataBase.child("professores");
-                
+
         Date hora = new Date();
         minH = Integer.toString(hora.getMinutes());
 
-        dataBase.child("salas").orderByChild(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
-                    String turma = childSnapshot.getKey();
-                    user.setTurma(turma);
-                    if (turma != null) {
-                        user.setTurma(turma);
-                        Log.d(TAG, "" + user.getTurma());
+        dataBase.child("salas").orderByChild(firebaseUser.getUid())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+                            String turma = childSnapshot.getKey();
+                            user.setTurma(turma);
+                            if (turma != null) {
+                                user.setTurma(turma);
+                                Log.d(TAG, "" + user.getTurma());
+                            }
+                        }
+                        getCurrentUserEvents(user.getTurma());
                     }
-                }
-                getCurrentUserEvents(user.getTurma());
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            }
-        });
+                    }
+                });
         dataBase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -140,25 +140,29 @@ public class HomeActivity extends Activity {
                                 if (!m.getKey().equals("evento0")) {
                                     firebaseEvents.add(m.getValue());
                                     HashMap<String, Keys> keys = m.getValue().getKeys();
+                                    List<Keys> keysTemp = new ArrayLis<Keys>();
                                     if (keys != null) {
                                         for (Map.Entry<String, Keys> k : keys.entrySet()) {
                                             Log.d(TAG, "key: " + k.getKey());
                                             Log.d(TAG, "key name: " + k.getValue().getKey());
                                             Log.d(TAG, "key time: " + k.getValue().getTime());
+                                            keysTemp.add(new Keys(k.getValue().getKey(), k.getValue().getTime()));
+
                                         }
                                     }
                                     HashMap<String, Students> students = m.getValue().getStudents();
-                                    if(students != null){
-                                        for(Map.Entry<String, Students> s : students.entrySet()){
-                                            if(s.getKey().equals(userUid)){
+                                    if (students != null) {
+                                        for (Map.Entry<String, Students> s : students.entrySet()) {
+                                            if (s.getKey().equals(userUid)) {
                                                 checkin = (s.getValue().getCheckin());
                                                 checkout = (s.getValue().getCheckout());
-                                                Log.d("CUOLHO", "Checkin: "+checkin);
-                                                Log.d("CUOLHO", "Checkout: "+checkout);
+                                                Log.d("CUOLHO", "Checkin: " + checkin);
+                                                Log.d("CUOLHO", "Checkout: " + checkout);
                                             }
                                         }
                                     }
-                                    eventList.add(new Event(m.getValue(), m.getKey(), dados.getKey(), checkin, checkout));
+                                    eventList.add(new Event(m.getValue(), m.getKey(), dados.getKey(), checkin, checkout,
+                                            keysTemp));
                                 }
                             }
                         }
@@ -175,7 +179,6 @@ public class HomeActivity extends Activity {
         });
 
     }
-
 
     private void getCheckedEvents(List<Event> events) {
 
@@ -195,13 +198,12 @@ public class HomeActivity extends Activity {
             String hora = Integer.toString(time.getHours());
             String min = Integer.toString(time.getMinutes());
 
-            teacherBase.child(events.get(position).getuIdTeacher()).child("events")
-                    .child(user.getTurma()).child(events.get(position).getUid())
-                    .child("students").child(userUid).child("checkin").setValue(hora+"h"+min);
-
+            teacherBase.child(events.get(position).getuIdTeacher()).child("events").child(user.getTurma())
+                    .child(events.get(position).getUid()).child("students").child(userUid).child("checkin")
+                    .setValue(hora + "h" + min);
 
             events.get(position).setCheckInTime(hora + "h" + min);
-            getKeyWordUpdates(true,position);
+            getKeyWordUpdates(true, position);
             eventsAdapter.notifyItemChanged(position);
         }
     }
@@ -213,15 +215,13 @@ public class HomeActivity extends Activity {
                 String hora = Integer.toString(time.getHours());
                 String min = Integer.toString(time.getMinutes());
 
-
                 teacherBase.child(events.get(position).getuIdTeacher()).child("events").child(user.getTurma())
-                        .child(events.get(position).getUid()).child("students").child(userUid)
-                        .child("checkout").setValue(hora + "h" + min);
-
+                        .child(events.get(position).getUid()).child("students").child(userUid).child("checkout")
+                        .setValue(hora + "h" + min);
 
                 events.get(position).setCheckInTime(hora + "h" + min);
                 events.get(position).setCheckOutTime(hora + "h" + min);
-                getKeyWordUpdates(false,position);
+                getKeyWordUpdates(false, position);
                 eventsAdapter.notifyItemChanged(position);
             }
         }
@@ -238,7 +238,6 @@ public class HomeActivity extends Activity {
         }
 
         eventsAdapter.setOnItemClickListener(new MyRecyclerViewAdapter.OnItemClickListener() {
-
 
             @Override
             public void onCheckInClick(int position) {
@@ -293,7 +292,7 @@ public class HomeActivity extends Activity {
                                 Log.d("AQUI", "Vai verificar se solta o Toast");
                                 if (!minH.equals(min)) {
                                     Log.d("AQUI", "Vai soltar o Toast");
-                                    givePop(fullHour, position);
+                                    givePop(fullHour);
                                     minH = min;
                                 }
                                 Log.d("AQUI", "Soltou a mensagem");
@@ -328,7 +327,7 @@ public class HomeActivity extends Activity {
         if (fullHour.equals(events.get(position).getKeys().get(0).getTime())) {
             String key = events.get(position).getKeys().get(0).getKey();
             // TODO CODE OF POP UP
-                //TODO CODE NOTIFICATION
+            // TODO CODE NOTIFICATION
             // popUp();
             Toast.makeText(getApplicationContext(), "Hora de adicionar uma nova Key: " + key + "", Toast.LENGTH_LONG)
                     .show();

@@ -4,6 +4,14 @@ public class Keys {
     String key;
     String time;
 
+    public Keys() {
+
+    }
+
+    public Keys(String key, String time) {
+        this.key = key;
+        this.time = time;
+    }
 
     public String getKey() {
         return key;

@@ -24,8 +24,7 @@ public class Event {
     private String classEvent;
     private String uid;
 
-
-    public Event(Events events,String uid, String uIdTeacher, String checkin, String checkout) {
+    public Event(Events events, String uid, String uIdTeacher, String checkin, String checkout, List<Keys> keys) {
         this.startTime = events.getBegin();
         this.date = events.getDate();
         this.endTime = events.getEnd();
@@ -36,9 +35,8 @@ public class Event {
         this.url = events.getLink();
         this.uid = uid;
         this.uIdTeacher = uIdTeacher;
+        this.keys = keys;
     }
-
-
 
     public String getUid() {
         return uid;
@@ -152,10 +150,9 @@ public class Event {
         this.url = url;
     }
 
-
     @NonNull
     @Override
     public String toString() {
-        return this.getTitle() + "," + this.getUrl() +","+this.getStartTime() + this.getEndTime();
+        return this.getTitle() + "," + this.getUrl() + "," + this.getStartTime() + this.getEndTime();
     }
 }

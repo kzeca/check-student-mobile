@@ -4,21 +4,12 @@ public class Keyword {
     private String key;
     private String time;
 
-    public Keyword(){
+    public Keyword() {
 
     }
 
-    public String getTime() {
-        return time;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
-    }
-
-    public Keyword(String key, String time) {
+    public Keyword(String key) {
         this.key = key;
-        this.time = time;
     }
 
     public String getKey() {
@@ -26,6 +17,14 @@ public class Keyword {
     }
 
     public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getTime() {
+        return key;
+    }
+
+    public void setTime(String key) {
         this.key = key;
     }
 }
