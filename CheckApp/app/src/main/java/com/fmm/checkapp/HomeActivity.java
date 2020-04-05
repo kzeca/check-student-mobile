@@ -151,13 +151,6 @@ public class HomeActivity extends Activity {
                                     if (keys != null) {
                                         int i = 0;
                                         for (Map.Entry<String, Keys> k : keys.entrySet()) {
-                                            Log.d(TAG, "key: " + k.getKey());
-                                            Log.d(TAG, "key name: " + k.getValue().getKey());
-                                            Log.d(TAG, "key time: " + k.getValue().getTime());
-                                            Keys keyTemp = new Keys(k.getValue().getKey(), k.getValue().getTime());
-                                            Log.d(TAG, "key Class: Key-->" + keyTemp.getKey() + "       Time----->" + keyTemp.getTime());
-                                            keysTemp.add(keyTemp);
-                                            Log.d(TAG, "key Array : ---->" + keysTemp.get(i).getTime());
                                             i++;
                                         }
                                     }
@@ -167,18 +160,12 @@ public class HomeActivity extends Activity {
                                             if (s.getKey().equals(userUid)) {
                                                 checkin = (s.getValue().getCheckin());
                                                 checkout = (s.getValue().getCheckout());
-                                                Log.d("CUOLHO", "Checkin: " + checkin);
-                                                Log.d("CUOLHO", "Checkout: " + checkout);
                                             }
                                         }
                                     }
                                     eventList.add(new Event(m.getValue(), m.getKey(), dados.getKey(), checkin, checkout, keysTemp));
-
-                                    Log.d("CUOLHO", "EVENTLIST" + eventList.get(j).getKeys().get(0).getTime());
                                     j++;
-                                    Log.d("CUOLHO", "TIME 0: " + keysTemp.get(0).getTime());
-                                    Log.d("CUOLHO", "TIME 1: " + keysTemp.get(1).getTime());
-                                    Log.d("CUOLHO", "TIME 2: " + keysTemp.get(2).getTime());
+
                                 }
                             }
                         }
@@ -205,7 +192,6 @@ public class HomeActivity extends Activity {
             imgNoEvents.setVisibility(View.VISIBLE);
 
         }
-        Log.d("CUOLHO", "GETCHECKEDEVENTS" + events.get(0).getKeys().get(0).getTime());
         buildRecyclerView(events);
     }
 
@@ -292,7 +278,7 @@ public class HomeActivity extends Activity {
                     while (true) {
                         synchronized (this) {
                             try {
-                                wait(500);
+                                wait(5000);
                             } catch (InterruptedException ex) {
                                 ex.printStackTrace();
                             }
@@ -313,7 +299,7 @@ public class HomeActivity extends Activity {
                                 }
                                 Log.d("AQUI", "Soltou a mensagem");
                                 try {
-                                    Thread.sleep(1000);
+                                    Thread.sleep(1500);
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
@@ -321,7 +307,7 @@ public class HomeActivity extends Activity {
                             }
                         });
                         try {
-                            Thread.sleep(1000);
+                            Thread.sleep(1500);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -341,19 +327,20 @@ public class HomeActivity extends Activity {
     private void givePop(String fullHour, int position, List<Event> events) {
 
         if (events.get(position).getKeys().get(0) != null) {
+            Log.d(TAG, "fullhour"+fullHour  + "    compara com: "+ events.get(position).getKeys().get(0).getTime());
             if (fullHour.equals(events.get(position).getKeys().get(0).getTime())) {
                 String key = events.get(position).getKeys().get(0).getKey();
-                popUp();
+                popUp(position, events, 0);
                 // TODO CODE NOTIFICATION
 
             } else if (fullHour.equals(events.get(position).getKeys().get(1).getTime())) {
                 String key = events.get(position).getKeys().get(1).getKey();
-                popUp();
+                popUp(position, events, 1);
 
 
             } else if (fullHour.equals(events.get(position).getKeys().get(2).getTime())) {
                 String key = events.get(position).getKeys().get(2).getKey();
-                popUp();
+                popUp(position, events, 2);
 
             }
         } else {
@@ -363,7 +350,7 @@ public class HomeActivity extends Activity {
 
     }
 
-    private void popUp() {
+    private void popUp(final int position, final List<Event> events, final int keyPosition) {
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(HomeActivity.this);
         View mView = getLayoutInflater().inflate(R.layout.dialog_teacher_key_word, null);
         final EditText edtEmail = (EditText) mView.findViewById(R.id.dialog_key_word_edt_password);
@@ -372,6 +359,29 @@ public class HomeActivity extends Activity {
         final AlertDialog dialog = mBuilder.create();
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        btnConfirma.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (edtEmail.getText().toString().equals(events.get(position).getKeys().get(keyPosition).getKey())) {
+                    teacherBase.child(events.get(position).getuIdTeacher()).child("events").child(user.getTurma())
+                            .child(events.get(position).getUid()).child("students").child(userUid).child("keys").child("key" + Integer.toString(keyPosition + 1))
+                            .setValue("ok");
+                    dialog.dismiss();
+
+                    Toast.makeText(HomeActivity.this, "Você acertou a palavra chave", Toast.LENGTH_SHORT);
+                } else {
+                    teacherBase.child(events.get(position).getuIdTeacher()).child("events").child(user.getTurma())
+                            .child(events.get(position).getUid()).child("students").child(userUid).child("keys").child("key" + Integer.toString(keyPosition + 1))
+                            .setValue("HUMMMMMMMMMMMMMMMMMM PARECE QUE VC ERROU");
+                    dialog.dismiss();
+
+                    Toast.makeText(HomeActivity.this, "HUMMMMMMMMMMMMMMMMMM PARECE QUE VC ERROU", Toast.LENGTH_SHORT);
+                }
+
+            }
+        });
+
         dialog.show();
     }
 

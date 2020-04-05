@@ -53,7 +53,10 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/linha" />
+                android:background="@drawable/linha"
+                android:elevation="5dp"
+                android:shadowColor="#666666"
+                android:shadowRadius="100" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -74,7 +77,8 @@
                         android:layout_marginTop="10dp"
                         android:text="Início: 07h10"
                         android:textColor="#3D3B3B"
-                        android:textSize="21sp" />
+                        android:textSize="21sp"
+                        android:shadowRadius="3"/>
 
                     <TextView
                         android:id="@+id/event_tv_class_ends_at"
@@ -92,7 +96,8 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:layout_marginLeft="20dp">
 
                     <ImageButton
                         android:id="@+id/event_bt_go_live"
