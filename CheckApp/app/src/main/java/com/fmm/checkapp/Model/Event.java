@@ -40,7 +40,6 @@ public class Event {
         this.uIdTeacher = uIdTeacher;
         this.keys=new ArrayList<Keys>();
         this.keys = keys;
-        Log.d("AQUI","Keys no construtor:  KEY----> "+this.keys.get(0).getKey()+"     TIME---------> "+this.keys.get(0).getTime());
     }
 
     public String getUid() {

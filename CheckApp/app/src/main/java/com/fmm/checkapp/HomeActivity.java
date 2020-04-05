@@ -89,7 +89,6 @@ public class HomeActivity extends Activity {
                             user.setTurma(turma);
                             if (turma != null) {
                                 user.setTurma(turma);
-                                Log.d(TAG, "" + user.getTurma());
                             }
                         }
                         getCurrentUserEvents(user.getTurma());
@@ -151,6 +150,8 @@ public class HomeActivity extends Activity {
                                     if (keys != null) {
                                         int i = 0;
                                         for (Map.Entry<String, Keys> k : keys.entrySet()) {
+                                            Keys keyTemp = new Keys(k.getValue().getKey(), k.getValue().getTime());
+                                            keysTemp.add(keyTemp);
                                             i++;
                                         }
                                     }
@@ -165,7 +166,6 @@ public class HomeActivity extends Activity {
                                     }
                                     eventList.add(new Event(m.getValue(), m.getKey(), dados.getKey(), checkin, checkout, keysTemp));
                                     j++;
-
                                 }
                             }
                         }
@@ -278,7 +278,7 @@ public class HomeActivity extends Activity {
                     while (true) {
                         synchronized (this) {
                             try {
-                                wait(5000);
+                                wait(10000);
                             } catch (InterruptedException ex) {
                                 ex.printStackTrace();
                             }
@@ -290,16 +290,13 @@ public class HomeActivity extends Activity {
                                 String hora = Integer.toString(time.getHours());
                                 String min = Integer.toString(time.getMinutes());
                                 String fullHour = hora + "h" + min + "min";
-
-                                Log.d("AQUI", "Vai verificar se solta o Toast");
                                 if (!minH.equals(min)) {
                                     Log.d("AQUI", "Vai soltar o Toast");
                                     givePop(fullHour, position, eventsHere);
                                     minH = min;
                                 }
-                                Log.d("AQUI", "Soltou a mensagem");
                                 try {
-                                    Thread.sleep(1500);
+                                    Thread.sleep(10000);
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
@@ -307,7 +304,7 @@ public class HomeActivity extends Activity {
                             }
                         });
                         try {
-                            Thread.sleep(1500);
+                            Thread.sleep(10000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -316,10 +313,7 @@ public class HomeActivity extends Activity {
                 }
             };
             th = new Thread(runnable);
-            Log.d("AQUI", "Vai executar a Thread");
             th.start();
-            Log.d("AQUI", "Já executou a Thread");
-
         }
 
     }
@@ -327,7 +321,6 @@ public class HomeActivity extends Activity {
     private void givePop(String fullHour, int position, List<Event> events) {
 
         if (events.get(position).getKeys().get(0) != null) {
-            Log.d(TAG, "fullhour"+fullHour  + "    compara com: "+ events.get(position).getKeys().get(0).getTime());
             if (fullHour.equals(events.get(position).getKeys().get(0).getTime())) {
                 String key = events.get(position).getKeys().get(0).getKey();
                 popUp(position, events, 0);
@@ -369,14 +362,14 @@ public class HomeActivity extends Activity {
                             .setValue("ok");
                     dialog.dismiss();
 
-                    Toast.makeText(HomeActivity.this, "Você acertou a palavra chave", Toast.LENGTH_SHORT);
+                    Toast.makeText(HomeActivity.this, "Você acertou a palavra chave", Toast.LENGTH_SHORT).show();
                 } else {
                     teacherBase.child(events.get(position).getuIdTeacher()).child("events").child(user.getTurma())
                             .child(events.get(position).getUid()).child("students").child(userUid).child("keys").child("key" + Integer.toString(keyPosition + 1))
                             .setValue("HUMMMMMMMMMMMMMMMMMM PARECE QUE VC ERROU");
                     dialog.dismiss();
 
-                    Toast.makeText(HomeActivity.this, "HUMMMMMMMMMMMMMMMMMM PARECE QUE VC ERROU", Toast.LENGTH_SHORT);
+                    Toast.makeText(HomeActivity.this, "HUMMMMMMMMMMMMMMMMMM PARECE QUE VC ERROU", Toast.LENGTH_SHORT).show();
                 }
 
             }
