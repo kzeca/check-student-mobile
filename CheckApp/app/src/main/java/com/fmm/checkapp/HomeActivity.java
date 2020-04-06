@@ -36,6 +36,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -43,6 +44,8 @@ import java.util.List;
 import java.util.Map;
 
 import static com.fmm.checkapp.LoginActivity.user;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class HomeActivity extends Activity {
 
@@ -62,7 +65,7 @@ public class HomeActivity extends Activity {
     DatabaseReference teacherBase;
     Thread th;
     String minH;
-
+    boolean stop;
     String TAG = "HomeActivity";
 
     @Override
@@ -79,6 +82,7 @@ public class HomeActivity extends Activity {
 
         Date hora = new Date();
         minH = Integer.toString(hora.getMinutes());
+        minH = (hora.getMinutes()>=0&&hora.getMinutes()<=9 ? "0"+minH:minH);
 
         dataBase.child("salas").orderByChild(firebaseUser.getUid())
                 .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -141,9 +145,12 @@ public class HomeActivity extends Activity {
                         HashMap<String, Events> events = profs.getEvents().get(turma);
                         if (events != null) {
                             int j = 0;
+                            Date time = new Date();
+                            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
+                            String fullDate = sdf.format(time);
                             for (Map.Entry<String, Events> m : events.entrySet()) {
                                 String checkin = "", checkout = "";
-                                if (!m.getKey().equals("evento0")) {
+                                if (!m.getKey().equals("evento0")&&m.getValue().getDate().equals(fullDate)) {
                                     firebaseEvents.add(m.getValue());
                                     HashMap<String, Keys> keys = m.getValue().getKeys();
                                     List<Keys> keysTemp = new ArrayList<Keys>();
@@ -168,11 +175,11 @@ public class HomeActivity extends Activity {
                                     j++;
                                 }
                             }
+
                         }
                     }
                     getCheckedEvents(eventList);
                 }
-
             }
 
             @Override
@@ -206,6 +213,7 @@ public class HomeActivity extends Activity {
                     .setValue(hora + "h" + min);
 
             events.get(position).setCheckInTime(hora + "h" + min);
+            stop=false;
             getKeyWordUpdates(true, position, events);
             eventsAdapter.notifyItemChanged(position);
         }
@@ -224,7 +232,7 @@ public class HomeActivity extends Activity {
 
                 events.get(position).setCheckInTime(hora + "h" + min);
                 events.get(position).setCheckOutTime(hora + "h" + min);
-                getKeyWordUpdates(false, position, events);
+               stop=true;
                 eventsAdapter.notifyItemChanged(position);
             }
         }
@@ -264,7 +272,7 @@ public class HomeActivity extends Activity {
 
     public void getKeyWordUpdates(boolean listen, final int position, final List<Event> eventsHere) {
         if (!listen) {
-            th.stop();
+            th.interrupt();
             return;// caso deu checkout, o aluno não pode saber quais palavras chaves
         } else {
 
@@ -275,10 +283,11 @@ public class HomeActivity extends Activity {
                 @Override
                 public void run() {
 
-                    while (true) {
+                    while (!stop) {
+                        Log.d("AQUI", "Na Thread.....");
                         synchronized (this) {
                             try {
-                                wait(10000);
+                                wait(500);
                             } catch (InterruptedException ex) {
                                 ex.printStackTrace();
                             }
@@ -289,14 +298,24 @@ public class HomeActivity extends Activity {
                                 Date time = new Date();
                                 String hora = Integer.toString(time.getHours());
                                 String min = Integer.toString(time.getMinutes());
+                                min = (time.getMinutes()>=0&&time.getMinutes()<=9 ? "0"+min:min);
                                 String fullHour = hora + "h" + min + "min";
+                                Log.d("AQUI", "Hora atual"+fullHour);
                                 if (!minH.equals(min)) {
-                                    Log.d("AQUI", "Vai soltar o Toast");
-                                    givePop(fullHour, position, eventsHere);
-                                    minH = min;
+                                    Log.d("AQUI", "Mudou o Minuto: "+fullHour);
+                                    try {
+                                        Thread.sleep(500);
+                                        Log.d("AQUI", "Verificando se lança a key......");
+                                        givePop(fullHour, position, eventsHere);
+                                        Thread.sleep(500);
+                                        minH = min;
+                                    } catch (InterruptedException ex) {
+                                        ex.printStackTrace();
+                                    }
+                                    
                                 }
                                 try {
-                                    Thread.sleep(10000);
+                                    Thread.sleep(500);
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
@@ -304,7 +323,7 @@ public class HomeActivity extends Activity {
                             }
                         });
                         try {
-                            Thread.sleep(10000);
+                            Thread.sleep(500);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -314,32 +333,46 @@ public class HomeActivity extends Activity {
             };
             th = new Thread(runnable);
             th.start();
+            
         }
 
     }
 
-    private void givePop(String fullHour, int position, List<Event> events) {
+    private void givePop(String fullHour, int position, List<Event> events)  {
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-        if (events.get(position).getKeys().get(0) != null) {
+
             if (fullHour.equals(events.get(position).getKeys().get(0).getTime())) {
                 String key = events.get(position).getKeys().get(0).getKey();
+                //th.interrupt();
+                Log.d("AQUI", "Vai soltar o POP-UP");
                 popUp(position, events, 0);
+                //th.start();
                 // TODO CODE NOTIFICATION
 
             } else if (fullHour.equals(events.get(position).getKeys().get(1).getTime())) {
                 String key = events.get(position).getKeys().get(1).getKey();
+                Log.d("AQUI", "Vai soltar o POP-UP");
                 popUp(position, events, 1);
 
 
             } else if (fullHour.equals(events.get(position).getKeys().get(2).getTime())) {
                 String key = events.get(position).getKeys().get(2).getKey();
+                Log.d("AQUI", "Vai soltar o POP-UP");
                 popUp(position, events, 2);
 
             }
-        } else {
-            Toast.makeText(getApplicationContext(), "ERROR AO BUSCAR KEY DESTE EVENTO", Toast.LENGTH_LONG)
-                    .show();
+
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+
 
     }
 
@@ -376,6 +409,7 @@ public class HomeActivity extends Activity {
         });
 
         dialog.show();
+        Log.d("AQUI", "POP-UP Lançado!!!!");
     }
 
 }
