@@ -9,6 +9,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -382,6 +383,7 @@ public class HomeActivity extends Activity {
     }
 
     private void popUp(final int position, final List<Event> events, final int keyPosition) {
+        MediaPlayer popup = MediaPlayer.create(this, R.raw.popup);
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(HomeActivity.this);
         View mView = getLayoutInflater().inflate(R.layout.dialog_teacher_key_word, null);
         final EditText edtEmail = (EditText) mView.findViewById(R.id.dialog_key_word_edt_password);
@@ -415,6 +417,7 @@ public class HomeActivity extends Activity {
 
         dialog.show();
         Log.d("AQUI", "POP-UP Lançado!!!!");
+        popup.start();
     }
 
 }
