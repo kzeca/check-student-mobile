@@ -20,6 +20,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.fmm.checkapp.Model.Event;
@@ -43,6 +44,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 import static com.fmm.checkapp.LoginActivity.user;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -60,6 +62,7 @@ public class HomeActivity extends Activity {
     DatabaseReference aux;
     String userUid;
     ImageView imgNoEvents;
+    ProgressBar progressBar;
     String serie;
     String curso;
     DatabaseReference teacherBase;
@@ -79,6 +82,7 @@ public class HomeActivity extends Activity {
         userUid = firebaseUser.getUid();
         dataBase = FirebaseDatabase.getInstance().getReference();
         teacherBase = dataBase.child("professores");
+        progressBar = findViewById(R.id.activity_home_progressBar);
 
         Date hora = new Date();
         minH = Integer.toString(hora.getMinutes());
@@ -246,6 +250,7 @@ public class HomeActivity extends Activity {
 
         if (eventsList != null && eventsList.size() > 0) {
             recyclerViewEvents.setAdapter(eventsAdapter);
+            progressBar.setVisibility(View.GONE);
         }
 
         eventsAdapter.setOnItemClickListener(new MyRecyclerViewAdapter.OnItemClickListener() {
