@@ -145,7 +145,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
                 android:gravity="center"
-                android:text="Débora Colyer"
+                android:text="Débora Colhyer"
                 android:textColor="#043F5F"
                 android:textSize="17sp"
                 android:textStyle="normal" />
