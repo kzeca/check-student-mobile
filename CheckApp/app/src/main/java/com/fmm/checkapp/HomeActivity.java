@@ -60,12 +60,9 @@ public class HomeActivity extends Activity {
     LinearLayout msgNoEvents;
     FirebaseUser firebaseUser;
     DatabaseReference dataBase;
-    DatabaseReference aux;
     String userUid;
     ImageView imgNoEvents;
     ProgressBar progressBar;
-    String serie;
-    String curso;
     DatabaseReference teacherBase;
     Thread th;
     String minH;
@@ -145,7 +142,7 @@ public class HomeActivity extends Activity {
                     List<Events> firebaseEvents = new ArrayList<Events>();
                     List<Event> eventList = new ArrayList<Event>();
 
-                    for (DataSnapshot dados : dataSnapshot.getChildren()) {
+                    for (final DataSnapshot dados : dataSnapshot.getChildren()) {
                         Professores profs = dados.getValue(Professores.class);
                         HashMap<String, Events> events = profs.getEvents().get(turma);
                         if (events != null) {
@@ -153,12 +150,12 @@ public class HomeActivity extends Activity {
                             Date time = new Date();
                             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy");
                             String fullDate = sdf.format(time);
-                            for (Map.Entry<String, Events> m : events.entrySet()) {
+                            for (final Map.Entry<String, Events> m : events.entrySet()) {
                                 String checkin = "", checkout = "";
                                 if (!m.getKey().equals("evento0")&&m.getValue().getDate().equals(fullDate)) {
                                     firebaseEvents.add(m.getValue());
                                     HashMap<String, Keys> keys = m.getValue().getKeys();
-                                    List<Keys> keysTemp = new ArrayList<Keys>();
+                                    final List<Keys> keysTemp = new ArrayList<Keys>();
                                     if (keys != null) {
                                         int i = 0;
                                         for (Map.Entry<String, Keys> k : keys.entrySet()) {
@@ -173,6 +170,76 @@ public class HomeActivity extends Activity {
                                             if (s.getKey().equals(userUid)) {
                                                 checkin = (s.getValue().getCheckin());
                                                 checkout = (s.getValue().getCheckout());
+                                                if(!checkin.equals("")&&checkout.equals("")){
+                                                    final Handler handle = new Handler();
+                                                    final String checkinF =checkin;
+                                                    final String checkoutF =checkout;
+                                                    final Events  ev_th = m.getValue();
+                                                    final String uidEv = m.getKey();
+                                                    final String uidTeacher = dados.getKey();
+                                                    Runnable runnable = new Runnable() {
+
+                                                        @Override
+                                                        public void run() {
+
+                                                            while (!stop) {
+                                                                Log.d("AQUI", "Na Thread.....");
+                                                                synchronized (this) {
+                                                                    try {
+                                                                        wait(500);
+                                                                        handle.post(new Runnable() {
+                                                                            @Override
+                                                                            public void run() {
+                                                                                Date time = new Date();
+                                                                                String hora = Integer.toString(time.getHours());
+                                                                                String min = Integer.toString(time.getMinutes());
+                                                                                min = (time.getMinutes()>=0&&time.getMinutes()<=9 ? "0"+min:min);
+                                                                                hora = (time.getHours()>=0&&time.getHours()<=9 ? "0"+hora:hora);
+                                                                                String fullHour = hora + "h" + min + "min";
+                                                                                Log.d("AQUI", "Hora atual: "+fullHour);
+                                                                                if (!minH.equals(min)) {
+                                                                                    Log.d("AQUI", "Mudou o Minuto, novo horário: "+fullHour);
+                                                                                  //  try {
+                                                                                      //  Thread.sleep(500);
+                                                                                        Log.d("AQUI", "Verificando se lança a key......");
+
+                                                                                        givePop(fullHour, new Event(ev_th, uidEv, uidTeacher, checkinF, checkoutF, keysTemp));
+                                                                                    //    Thread.sleep(500);
+                                                                                        minH = min;
+                                                                                  //  } catch (InterruptedException ex) {
+                                                                                  //      ex.printStackTrace();
+                                                                                 //   }
+
+                                                                                }
+                                                                                /*
+                                                                                try {
+                                                                                    Thread.sleep(500);
+                                                                                } catch (InterruptedException e) {
+                                                                                    e.printStackTrace();
+                                                                                }
+
+                                                                                 */
+
+                                                                            }
+                                                                        });
+                                                                    } catch (InterruptedException ex) {
+                                                                        ex.printStackTrace();
+                                                                    }
+                                                                }
+
+                                                              //  try {
+                                                             //       Thread.sleep(500);
+                                                              //  } catch (InterruptedException e) {
+                                                              //      e.printStackTrace();
+                                                              //  }
+                                                            }
+
+                                                        }
+                                                    };
+                                                    th = new Thread(runnable);
+                                                    th.start();
+
+                                                }
                                             }
                                         }
                                     }
@@ -294,45 +361,52 @@ public class HomeActivity extends Activity {
                         synchronized (this) {
                             try {
                                 wait(500);
+                                handle.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Date time = new Date();
+                                        String hora = Integer.toString(time.getHours());
+                                        String min = Integer.toString(time.getMinutes());
+                                        min = (time.getMinutes()>=0&&time.getMinutes()<=9 ? "0"+min:min);
+                                        hora = (time.getHours()>=0&&time.getHours()<=9 ? "0"+hora:hora);
+                                        String fullHour = hora + "h" + min + "min";
+                                        Log.d("AQUI", "Hora atual: "+fullHour);
+                                        if (!minH.equals(min)) {
+                                            Log.d("AQUI", "Mudou o Minuto, novo horário: "+fullHour);
+                                           // try {
+                                            //    Thread.sleep(500);
+                                                Log.d("AQUI", "Verificando se lança a key......");
+                                                givePop(fullHour, position, eventsHere);
+                                              //  Thread.sleep(500);
+                                                minH = min;
+                                         //   } catch (InterruptedException ex) {
+                                           //     ex.printStackTrace();
+                                           // }
+
+                                        }
+                                        /*
+                                        try {
+                                            Thread.sleep(500);
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
+                                        }
+                                        */
+
+
+                                    }
+                                });
                             } catch (InterruptedException ex) {
                                 ex.printStackTrace();
                             }
                         }
-                        handle.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                Date time = new Date();
-                                String hora = Integer.toString(time.getHours());
-                                String min = Integer.toString(time.getMinutes());
-                                min = (time.getMinutes()>=0&&time.getMinutes()<=9 ? "0"+min:min);
-                                String fullHour = hora + "h" + min + "min";
-                                Log.d("AQUI", "Hora atual"+fullHour);
-                                if (!minH.equals(min)) {
-                                    Log.d("AQUI", "Mudou o Minuto: "+fullHour);
-                                    try {
-                                        Thread.sleep(500);
-                                        Log.d("AQUI", "Verificando se lança a key......");
-                                        givePop(fullHour, position, eventsHere);
-                                        Thread.sleep(500);
-                                        minH = min;
-                                    } catch (InterruptedException ex) {
-                                        ex.printStackTrace();
-                                    }
-                                    
-                                }
-                                try {
-                                    Thread.sleep(500);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-
-                            }
-                        });
+/*
                         try {
                             Thread.sleep(500);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
+
+ */
                     }
 
                 }
@@ -345,11 +419,14 @@ public class HomeActivity extends Activity {
     }
 
     private void givePop(String fullHour, int position, List<Event> events)  {
+        /*
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+         */
 
 
             if (fullHour.equals(events.get(position).getKeys().get(0).getTime())) {
@@ -372,12 +449,54 @@ public class HomeActivity extends Activity {
                 popUp(position, events, 2);
 
             }
-
+/*
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+*/
+
+    }
+    private void givePop(String fullHour, Event events)  {
+       /*
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        */
+
+
+        if (fullHour.equals(events.getKeys().get(0).getTime())) {
+
+            //th.interrupt();
+            Log.d("AQUI", "Vai soltar o POP-UP");
+            popUp( events, 0);
+            //th.start();
+            // TODO CODE NOTIFICATION
+
+        } else if (fullHour.equals(events.getKeys().get(1).getTime())) {
+
+            Log.d("AQUI", "Vai soltar o POP-UP");
+            popUp( events, 1);
+
+
+        } else if (fullHour.equals(events.getKeys().get(2).getTime())) {
+
+            Log.d("AQUI", "Vai soltar o POP-UP");
+            popUp( events, 2);
+
+        }
+/*
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+ */
 
 
     }
@@ -406,6 +525,44 @@ public class HomeActivity extends Activity {
                 } else {
                     teacherBase.child(events.get(position).getuIdTeacher()).child("events").child(user.getTurma())
                             .child(events.get(position).getUid()).child("students").child(userUid).child("keys").child("key" + Integer.toString(keyPosition + 1))
+                            .setValue("HUMMMMMMMMMMMMMMMMMM PARECE QUE VC ERROU");
+                    dialog.dismiss();
+
+                    Toast.makeText(HomeActivity.this, "HUMMMMMMMMMMMMMMMMMM PARECE QUE VC ERROU", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+
+        dialog.show();
+        Log.d("AQUI", "POP-UP Lançado!!!!");
+        popup.start();
+    }
+
+    private void popUp(final Event events, final int keyPosition) {
+        MediaPlayer popup = MediaPlayer.create(this, R.raw.popup);
+        AlertDialog.Builder mBuilder = new AlertDialog.Builder(HomeActivity.this);
+        View mView = getLayoutInflater().inflate(R.layout.dialog_teacher_key_word, null);
+        final EditText edtEmail = (EditText) mView.findViewById(R.id.dialog_key_word_edt_password);
+        Button btnConfirma = (Button) mView.findViewById(R.id.dialog_key_word_bt_confirma);
+        mBuilder.setView(mView);
+        final AlertDialog dialog = mBuilder.create();
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        btnConfirma.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (edtEmail.getText().toString().equals(events.getKeys().get(keyPosition).getKey())) {
+                    teacherBase.child(events.getuIdTeacher()).child("events").child(user.getTurma())
+                            .child(events.getUid()).child("students").child(userUid).child("keys").child("key" + Integer.toString(keyPosition + 1))
+                            .setValue("ok");
+                    dialog.dismiss();
+
+                    Toast.makeText(HomeActivity.this, "Você acertou a palavra chave", Toast.LENGTH_SHORT).show();
+                } else {
+                    teacherBase.child(events.getuIdTeacher()).child("events").child(user.getTurma())
+                            .child(events.getUid()).child("students").child(userUid).child("keys").child("key" + Integer.toString(keyPosition + 1))
                             .setValue("HUMMMMMMMMMMMMMMMMMM PARECE QUE VC ERROU");
                     dialog.dismiss();
 
