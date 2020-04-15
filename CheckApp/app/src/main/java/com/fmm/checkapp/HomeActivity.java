@@ -2,15 +2,25 @@ package com.fmm.checkapp;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.core.app.TaskStackBuilder;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.media.MediaPlayer;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -68,6 +78,8 @@ public class HomeActivity extends Activity {
     String minH;
     boolean stop;
     String TAG = "HomeActivity";
+    boolean appHidden,firstTime;
+    final static String CHANNEL_ID="simplified_coding";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,10 +93,13 @@ public class HomeActivity extends Activity {
         dataBase = FirebaseDatabase.getInstance().getReference();
         teacherBase = dataBase.child("professores");
         progressBar = findViewById(R.id.activity_home_progressBar);
-
+        appHidden =false;
+        firstTime=true;
         Date hora = new Date();
         minH = Integer.toString(hora.getMinutes());
         minH = (hora.getMinutes()>=0&&hora.getMinutes()<=9 ? "0"+minH:minH);
+
+        createNotificationChannel(getApplicationContext());
 
         dataBase.child("salas").orderByChild(firebaseUser.getUid())
                 .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -131,6 +146,38 @@ public class HomeActivity extends Activity {
                 return true;
             }
         });
+
+    }
+    //Visiveis
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        appHidden = false;
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        appHidden = false;
+
+    }
+    //Oculto - Segundo Plano
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        appHidden = true;
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        appHidden = true;
 
     }
 
@@ -197,7 +244,8 @@ public class HomeActivity extends Activity {
                                                                                 hora = (time.getHours()>=0&&time.getHours()<=9 ? "0"+hora:hora);
                                                                                 String fullHour = hora + "h" + min + "min";
                                                                                 Log.d("AQUI", "Hora atual: "+fullHour);
-                                                                                if (!minH.equals(min)) {
+                                                                                if (!minH.equals(min)||firstTime) {
+
                                                                                     Log.d("AQUI", "Mudou o Minuto, novo horário: "+fullHour);
                                                                                   //  try {
                                                                                       //  Thread.sleep(500);
@@ -371,7 +419,8 @@ public class HomeActivity extends Activity {
                                         hora = (time.getHours()>=0&&time.getHours()<=9 ? "0"+hora:hora);
                                         String fullHour = hora + "h" + min + "min";
                                         Log.d("AQUI", "Hora atual: "+fullHour);
-                                        if (!minH.equals(min)) {
+                                        if (!minH.equals(min)||firstTime) {
+
                                             Log.d("AQUI", "Mudou o Minuto, novo horário: "+fullHour);
                                            // try {
                                             //    Thread.sleep(500);
@@ -428,11 +477,12 @@ public class HomeActivity extends Activity {
 
          */
 
-
+        Log.d("AQUI", "APPHIDDEN: "+appHidden);
             if (fullHour.equals(events.get(position).getKeys().get(0).getTime())) {
                 String key = events.get(position).getKeys().get(0).getKey();
                 //th.interrupt();
                 Log.d("AQUI", "Vai soltar o POP-UP");
+
                 popUp(position, events, 0);
                 //th.start();
                 // TODO CODE NOTIFICATION
@@ -440,12 +490,14 @@ public class HomeActivity extends Activity {
             } else if (fullHour.equals(events.get(position).getKeys().get(1).getTime())) {
                 String key = events.get(position).getKeys().get(1).getKey();
                 Log.d("AQUI", "Vai soltar o POP-UP");
+
                 popUp(position, events, 1);
 
 
             } else if (fullHour.equals(events.get(position).getKeys().get(2).getTime())) {
                 String key = events.get(position).getKeys().get(2).getKey();
                 Log.d("AQUI", "Vai soltar o POP-UP");
+
                 popUp(position, events, 2);
 
             }
@@ -456,7 +508,7 @@ public class HomeActivity extends Activity {
             e.printStackTrace();
         }
 */
-
+        firstTime=false;
     }
     private void givePop(String fullHour, Event events)  {
        /*
@@ -468,11 +520,12 @@ public class HomeActivity extends Activity {
 
         */
 
-
+        Log.d("AQUI", "APPHIDDEN: "+appHidden);
         if (fullHour.equals(events.getKeys().get(0).getTime())) {
 
             //th.interrupt();
             Log.d("AQUI", "Vai soltar o POP-UP");
+
             popUp( events, 0);
             //th.start();
             // TODO CODE NOTIFICATION
@@ -480,12 +533,15 @@ public class HomeActivity extends Activity {
         } else if (fullHour.equals(events.getKeys().get(1).getTime())) {
 
             Log.d("AQUI", "Vai soltar o POP-UP");
+
             popUp( events, 1);
+
 
 
         } else if (fullHour.equals(events.getKeys().get(2).getTime())) {
 
             Log.d("AQUI", "Vai soltar o POP-UP");
+
             popUp( events, 2);
 
         }
@@ -497,13 +553,14 @@ public class HomeActivity extends Activity {
         }
 
  */
-
+        firstTime=false;
 
     }
 
     private void popUp(final int position, final List<Event> events, final int keyPosition) {
         MediaPlayer popup = MediaPlayer.create(this, R.raw.popup);
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(HomeActivity.this);
+        mBuilder.setCancelable(false);
         View mView = getLayoutInflater().inflate(R.layout.dialog_teacher_key_word, null);
         final EditText edtEmail = (EditText) mView.findViewById(R.id.dialog_key_word_edt_password);
         Button btnConfirma = (Button) mView.findViewById(R.id.dialog_key_word_bt_confirma);
@@ -515,33 +572,40 @@ public class HomeActivity extends Activity {
         btnConfirma.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (edtEmail.getText().toString().equals(events.get(position).getKeys().get(keyPosition).getKey())) {
-                    teacherBase.child(events.get(position).getuIdTeacher()).child("events").child(user.getTurma())
-                            .child(events.get(position).getUid()).child("students").child(userUid).child("keys").child("key" + Integer.toString(keyPosition + 1))
-                            .setValue("ok");
-                    dialog.dismiss();
+                if(!edtEmail.getText().toString().equals("")||!edtEmail.getText().toString().isEmpty()) {
+                    if (edtEmail.getText().toString().equals(events.get(position).getKeys().get(keyPosition).getKey())) {
+                        teacherBase.child(events.get(position).getuIdTeacher()).child("events").child(user.getTurma())
+                                .child(events.get(position).getUid()).child("students").child(userUid).child("keys").child("key" + Integer.toString(keyPosition + 1))
+                                .setValue("ok");
+                        dialog.dismiss();
 
-                    Toast.makeText(HomeActivity.this, "Você acertou a palavra chave", Toast.LENGTH_SHORT).show();
-                } else {
-                    teacherBase.child(events.get(position).getuIdTeacher()).child("events").child(user.getTurma())
-                            .child(events.get(position).getUid()).child("students").child(userUid).child("keys").child("key" + Integer.toString(keyPosition + 1))
-                            .setValue("HUMMMMMMMMMMMMMMMMMM PARECE QUE VC ERROU");
-                    dialog.dismiss();
+                        Toast.makeText(HomeActivity.this, "Você acertou a palavra chave", Toast.LENGTH_SHORT).show();
+                    } else {
+                        teacherBase.child(events.get(position).getuIdTeacher()).child("events").child(user.getTurma())
+                                .child(events.get(position).getUid()).child("students").child(userUid).child("keys").child("key" + Integer.toString(keyPosition + 1))
+                                .setValue("HUMMMMMMMMMMMMMMMMMM PARECE QUE VC ERROU");
+                        dialog.dismiss();
 
-                    Toast.makeText(HomeActivity.this, "HUMMMMMMMMMMMMMMMMMM PARECE QUE VC ERROU", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(HomeActivity.this, "HUMMMMMMMMMMMMMMMMMM PARECE QUE VC ERROU", Toast.LENGTH_SHORT).show();
+                    }
+                    NotificationManagerCompat mNotificationMgr = NotificationManagerCompat.from(getApplicationContext());
+                    mNotificationMgr.cancel(1);
+                }else{
+                    Toast.makeText(HomeActivity.this, "PREENCHA O CAMPO", Toast.LENGTH_SHORT).show();
                 }
 
             }
         });
-
+        if(!firstTime)displayNotification("Frequência FMM","Olá, como está a aula? Você deve inserir a palavra-passe para notificar o professor que você está acompanhando a aula!!!");
         dialog.show();
         Log.d("AQUI", "POP-UP Lançado!!!!");
         popup.start();
-    }
 
+    }
     private void popUp(final Event events, final int keyPosition) {
         MediaPlayer popup = MediaPlayer.create(this, R.raw.popup);
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(HomeActivity.this);
+        mBuilder.setCancelable(false);
         View mView = getLayoutInflater().inflate(R.layout.dialog_teacher_key_word, null);
         final EditText edtEmail = (EditText) mView.findViewById(R.id.dialog_key_word_edt_password);
         Button btnConfirma = (Button) mView.findViewById(R.id.dialog_key_word_bt_confirma);
@@ -553,28 +617,83 @@ public class HomeActivity extends Activity {
         btnConfirma.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (edtEmail.getText().toString().equals(events.getKeys().get(keyPosition).getKey())) {
-                    teacherBase.child(events.getuIdTeacher()).child("events").child(user.getTurma())
-                            .child(events.getUid()).child("students").child(userUid).child("keys").child("key" + Integer.toString(keyPosition + 1))
-                            .setValue("ok");
-                    dialog.dismiss();
+                if(!edtEmail.getText().toString().equals("")||!edtEmail.getText().toString().isEmpty()){
+                    if (edtEmail.getText().toString().equals(events.getKeys().get(keyPosition).getKey())) {
+                        teacherBase.child(events.getuIdTeacher()).child("events").child(user.getTurma())
+                                .child(events.getUid()).child("students").child(userUid).child("keys").child("key" + Integer.toString(keyPosition + 1))
+                                .setValue("ok");
+                        dialog.dismiss();
 
-                    Toast.makeText(HomeActivity.this, "Você acertou a palavra chave", Toast.LENGTH_SHORT).show();
-                } else {
-                    teacherBase.child(events.getuIdTeacher()).child("events").child(user.getTurma())
-                            .child(events.getUid()).child("students").child(userUid).child("keys").child("key" + Integer.toString(keyPosition + 1))
-                            .setValue("HUMMMMMMMMMMMMMMMMMM PARECE QUE VC ERROU");
-                    dialog.dismiss();
+                        Toast.makeText(HomeActivity.this, "Você acertou a palavra chave", Toast.LENGTH_SHORT).show();
+                    } else {
+                        teacherBase.child(events.getuIdTeacher()).child("events").child(user.getTurma())
+                                .child(events.getUid()).child("students").child(userUid).child("keys").child("key" + Integer.toString(keyPosition + 1))
+                                .setValue("HUMMMMMMMMMMMMMMMMMM PARECE QUE VC ERROU");
+                        dialog.dismiss();
 
-                    Toast.makeText(HomeActivity.this, "HUMMMMMMMMMMMMMMMMMM PARECE QUE VC ERROU", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(HomeActivity.this, "HUMMMMMMMMMMMMMMMMMM PARECE QUE VC ERROU", Toast.LENGTH_SHORT).show();
+                    }
+                    NotificationManagerCompat mNotificationMgr = NotificationManagerCompat.from(getApplicationContext());
+                    mNotificationMgr.cancel(1);
+                }else{
+                    Toast.makeText(HomeActivity.this, "PREENCHA O CAMPO", Toast.LENGTH_SHORT).show();
                 }
 
             }
         });
-
+        if(!firstTime)displayNotification("Frequência FMM","Olá, como está a aula? Você deve inserir a palavra-passe para notificar o professor que você está acompanhando a aula!!!");
         dialog.show();
         Log.d("AQUI", "POP-UP Lançado!!!!");
         popup.start();
+
+    }
+    public void displayNotification( String title, String body){
+
+
+        Log.d("AQUI","Entrou pra lançar notificação......");
+        Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
+        stackBuilder.addParentStack(intent.getComponent());
+        stackBuilder.addNextIntent(intent);
+
+        PendingIntent p = stackBuilder.getPendingIntent(1, PendingIntent.FLAG_UPDATE_CURRENT);
+        //PendingIntent p = PendingIntent.getActivity(getApplicationContext(),0,intent,0);
+
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(getApplicationContext(), "simplified_coding")
+                        .setTicker("Frequência FMM")
+                        .setSmallIcon(R.drawable.logo_main)
+                        .setContentTitle(title)
+                        .setContentText(body)
+                        .setContentIntent(p)
+                        .setVibrate(new long[]{150,300,150,300,150})
+                        .setShowWhen(true)
+                        .setAutoCancel(true)
+                        .setStyle(new NotificationCompat.BigTextStyle().bigText(body))
+                        .setPriority(NotificationCompat.PRIORITY_HIGH);;
+
+        Log.d("AQUI","Criou o Builder......");
+
+        NotificationManagerCompat mNotificationMgr = NotificationManagerCompat.from(getApplicationContext());
+        mNotificationMgr.notify(1, mBuilder.build());
+
+        Log.d("AQUI","Lançou a notificação......");
+
+    }
+    public static void createNotificationChannel(Context context) {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Frequência FMM";
+            String description = "Notificação APP";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager =  context.getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 
 }
