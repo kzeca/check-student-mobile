@@ -64,7 +64,6 @@ public class HomeActivity extends Activity {
 
     List<Event> events;
     RecyclerView recyclerViewEvents;
-    String turma;
     MyRecyclerViewAdapter eventsAdapter;
     ImageButton btInfo;
     LinearLayout msgNoEvents;
@@ -80,6 +79,7 @@ public class HomeActivity extends Activity {
     String TAG = "HomeActivity";
     boolean appHidden,firstTime;
     final static String CHANNEL_ID="simplified_coding";
+    int id=1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +89,7 @@ public class HomeActivity extends Activity {
         imgNoEvents = findViewById(R.id.activity_home_img_no_events);
         msgNoEvents = findViewById(R.id.msg_no_events);
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+
         userUid = firebaseUser.getUid();
         dataBase = FirebaseDatabase.getInstance().getReference();
         teacherBase = dataBase.child("professores");
@@ -101,36 +102,37 @@ public class HomeActivity extends Activity {
 
         createNotificationChannel(getApplicationContext());
 
-        dataBase.child("salas").orderByChild(firebaseUser.getUid())
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
-                            String turma = childSnapshot.getKey();
-                            user.setTurma(turma);
-                            if (turma != null) {
-                                user.setTurma(turma);
-                            }
-                        }
-                        getCurrentUserEvents(user.getTurma());
-                    }
+           dataBase.child("salas").orderByChild(userUid)
+                   .addListenerForSingleValueEvent(new ValueEventListener() {
+                       @Override
+                       public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                           for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+                               String turma = childSnapshot.getKey();
+                               user.setTurma(turma);
+                               if (turma != null) {
+                                   user.setTurma(turma);
+                               }
+                           }
+                           getCurrentUserEvents(user.getTurma());
+                       }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                       @Override
+                       public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                    }
-                });
-        dataBase.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                getCurrentUserEvents(user.getTurma());
-            }
+                       }
+                   });
+           dataBase.addValueEventListener(new ValueEventListener() {
+               @Override
+               public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                   getCurrentUserEvents(user.getTurma());
+               }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+               @Override
+               public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            }
-        });
+               }
+           });
+
 
         btInfo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -589,14 +591,14 @@ public class HomeActivity extends Activity {
                         Toast.makeText(HomeActivity.this, "HUMMMMMMMMMMMMMMMMMM PARECE QUE VC ERROU", Toast.LENGTH_SHORT).show();
                     }
                     NotificationManagerCompat mNotificationMgr = NotificationManagerCompat.from(getApplicationContext());
-                    mNotificationMgr.cancel(1);
+                    mNotificationMgr.cancel(id-1);
                 }else{
                     Toast.makeText(HomeActivity.this, "PREENCHA O CAMPO", Toast.LENGTH_SHORT).show();
                 }
 
             }
         });
-        if(!firstTime)displayNotification("Frequência FMM","Olá, como está a aula? Você deve inserir a palavra-passe para notificar o professor que você está acompanhando a aula!!!");
+        if(!firstTime||appHidden)displayNotification("Frequência FMM","Olá, como está a aula? Você deve inserir a palavra-passe para notificar o professor que você está acompanhando a aula!!!");
         dialog.show();
         Log.d("AQUI", "POP-UP Lançado!!!!");
         popup.start();
@@ -634,14 +636,14 @@ public class HomeActivity extends Activity {
                         Toast.makeText(HomeActivity.this, "HUMMMMMMMMMMMMMMMMMM PARECE QUE VC ERROU", Toast.LENGTH_SHORT).show();
                     }
                     NotificationManagerCompat mNotificationMgr = NotificationManagerCompat.from(getApplicationContext());
-                    mNotificationMgr.cancel(1);
+                    mNotificationMgr.cancel(id-1);
                 }else{
                     Toast.makeText(HomeActivity.this, "PREENCHA O CAMPO", Toast.LENGTH_SHORT).show();
                 }
 
             }
         });
-        if(!firstTime)displayNotification("Frequência FMM","Olá, como está a aula? Você deve inserir a palavra-passe para notificar o professor que você está acompanhando a aula!!!");
+        if(!firstTime||appHidden)displayNotification("Frequência FMM","Olá, como está a aula? Você deve inserir a palavra-passe para notificar o professor que você está acompanhando a aula!!!");
         dialog.show();
         Log.d("AQUI", "POP-UP Lançado!!!!");
         popup.start();
@@ -651,13 +653,14 @@ public class HomeActivity extends Activity {
 
 
         Log.d("AQUI","Entrou pra lançar notificação......");
+        /*
         Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
         stackBuilder.addParentStack(intent.getComponent());
         stackBuilder.addNextIntent(intent);
 
-        PendingIntent p = stackBuilder.getPendingIntent(1, PendingIntent.FLAG_UPDATE_CURRENT);
-        //PendingIntent p = PendingIntent.getActivity(getApplicationContext(),0,intent,0);
+        PendingIntent p = stackBuilder.getPendingIntent(id, PendingIntent.FLAG_UPDATE_CURRENT);
+        */
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(getApplicationContext(), "simplified_coding")
@@ -665,7 +668,6 @@ public class HomeActivity extends Activity {
                         .setSmallIcon(R.drawable.logo_main)
                         .setContentTitle(title)
                         .setContentText(body)
-                        .setContentIntent(p)
                         .setVibrate(new long[]{150,300,150,300,150})
                         .setShowWhen(true)
                         .setAutoCancel(true)
@@ -675,9 +677,10 @@ public class HomeActivity extends Activity {
         Log.d("AQUI","Criou o Builder......");
 
         NotificationManagerCompat mNotificationMgr = NotificationManagerCompat.from(getApplicationContext());
-        mNotificationMgr.notify(1, mBuilder.build());
+        mNotificationMgr.notify(id, mBuilder.build());
 
         Log.d("AQUI","Lançou a notificação......");
+        id++;
 
     }
     public static void createNotificationChannel(Context context) {

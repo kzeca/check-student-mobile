@@ -22,17 +22,17 @@ public class NotificationHelper {
         createNotificationChannel(context);
 
         Log.d("AQUI","Entrou pra laçar notificação......");
+        /*
         Intent intent = new Intent(context, HomeActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent p = PendingIntent.getActivity(context,0,intent,0);
-
+        */
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context, CHANNEL_ID)
                         .setTicker("Frequência FMM")
                         .setSmallIcon(R.drawable.logo_main)
                         .setContentTitle(title)
                         .setContentText(body)
-                        .setContentIntent(p)
                         .setVibrate(new long[]{150,300,150,300,150})
                         .setShowWhen(true)
                         .setAutoCancel(true)
