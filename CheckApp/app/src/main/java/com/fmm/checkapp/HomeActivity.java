@@ -591,14 +591,14 @@ public class HomeActivity extends Activity {
                         Toast.makeText(HomeActivity.this, "HUMMMMMMMMMMMMMMMMMM PARECE QUE VC ERROU", Toast.LENGTH_SHORT).show();
                     }
                     NotificationManagerCompat mNotificationMgr = NotificationManagerCompat.from(getApplicationContext());
-                    mNotificationMgr.cancel(id-1);
+                    mNotificationMgr.cancel(1);
                 }else{
                     Toast.makeText(HomeActivity.this, "PREENCHA O CAMPO", Toast.LENGTH_SHORT).show();
                 }
 
             }
         });
-        if(!firstTime||appHidden)displayNotification("Frequência FMM","Olá, como está a aula? Você deve inserir a palavra-passe para notificar o professor que você está acompanhando a aula!!!");
+        if(!firstTime||appHidden)displayNotification("Frequência FMM","Olá, como está a aula? Você deve inserir a palavra-passe para notificar o professor que você está acompanhando a aula!!! ABRA O APLICATIVO!!!");
         dialog.show();
         Log.d("AQUI", "POP-UP Lançado!!!!");
         popup.start();
@@ -636,14 +636,14 @@ public class HomeActivity extends Activity {
                         Toast.makeText(HomeActivity.this, "HUMMMMMMMMMMMMMMMMMM PARECE QUE VC ERROU", Toast.LENGTH_SHORT).show();
                     }
                     NotificationManagerCompat mNotificationMgr = NotificationManagerCompat.from(getApplicationContext());
-                    mNotificationMgr.cancel(id-1);
+                    mNotificationMgr.cancel(1);
                 }else{
                     Toast.makeText(HomeActivity.this, "PREENCHA O CAMPO", Toast.LENGTH_SHORT).show();
                 }
 
             }
         });
-        if(!firstTime||appHidden)displayNotification("Frequência FMM","Olá, como está a aula? Você deve inserir a palavra-passe para notificar o professor que você está acompanhando a aula!!!");
+        if(!firstTime||appHidden)displayNotification("Frequência FMM","Olá, como está a aula? Você deve inserir a palavra-passe para notificar o professor que você está acompanhando a aula!!! ABRA O APLICATIVO!!!");
         dialog.show();
         Log.d("AQUI", "POP-UP Lançado!!!!");
         popup.start();
@@ -677,10 +677,10 @@ public class HomeActivity extends Activity {
         Log.d("AQUI","Criou o Builder......");
 
         NotificationManagerCompat mNotificationMgr = NotificationManagerCompat.from(getApplicationContext());
-        mNotificationMgr.notify(id, mBuilder.build());
+        mNotificationMgr.notify(1, mBuilder.build());
 
         Log.d("AQUI","Lançou a notificação......");
-        id++;
+
 
     }
     public static void createNotificationChannel(Context context) {
