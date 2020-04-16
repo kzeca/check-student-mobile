@@ -36,20 +36,22 @@ public class NotificationServiceScheduler extends JobService {
     }
 
     private void keyWordsUpdate(final JobParameters params){
+        if(CURRENT_EVENT==null)return;
+        Date hora = new Date();
+        minH = Integer.toString(hora.getMinutes());
+        minH = (hora.getMinutes()>=0&&hora.getMinutes()<=9 ? "0"+minH:minH);
 
+        final Handler handle = new Handler();
         final Event eventsHere=CURRENT_EVENT;
+
         new Thread(new Runnable() {
 
             @Override
             public void run() {
-                Date hora = new Date();
-                minH = Integer.toString(hora.getMinutes());
-                minH = (hora.getMinutes()>=0&&hora.getMinutes()<=9 ? "0"+minH:minH);
 
-                final Handler handle = new Handler();
                 while (!jobCancelled) {
 
-                    Log.d("AQUI", "Na Thread.....");
+                    Log.d("AQUI", "Na Thread Scheduler.....");
                     synchronized (this) {
                         try {
                             wait(500);
@@ -92,7 +94,7 @@ public class NotificationServiceScheduler extends JobService {
 
 
         if (fullHour.equals(events.getKeys().get(0).getTime())||fullHour.equals(events.getKeys().get(1).getTime())||fullHour.equals(events.getKeys().get(2).getTime())) {
-
+            Log.d("AQUI", "Vai lançar a Notificação....");
             displayNotification("Frequência FMM","Olá, como está a aula? Você deve inserir a palavra-passe para notificar o professor que você está acompanhando a aula!!! ABRA O APLICATIVO!!!");
         }
 

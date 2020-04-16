@@ -80,7 +80,7 @@ public class HomeActivity extends Activity {
     String minH;
     boolean stop;
     String TAG = "HomeActivity";
-    boolean appHidden,firstTime;
+    boolean appHidden,firstTime,cancellThread;
     public static Event CURRENT_EVENT;
     final static String CHANNEL_ID="simplified_coding";
 
@@ -93,18 +93,20 @@ public class HomeActivity extends Activity {
         imgNoEvents = findViewById(R.id.activity_home_img_no_events);
         msgNoEvents = findViewById(R.id.msg_no_events);
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-
+        th=null;
         userUid = firebaseUser.getUid();
         dataBase = FirebaseDatabase.getInstance().getReference();
         teacherBase = dataBase.child("professores");
         progressBar = findViewById(R.id.activity_home_progressBar);
         appHidden =false;
         firstTime=true;
+        cancellThread=false;
         Date hora = new Date();
         minH = Integer.toString(hora.getMinutes());
         minH = (hora.getMinutes()>=0&&hora.getMinutes()<=9 ? "0"+minH:minH);
-
+        CURRENT_EVENT=null;
         createNotificationChannel(getApplicationContext());
+        createNotificationChannelFIREBASE(getApplicationContext());
 
            dataBase.child("salas").orderByChild(userUid)
                    .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -125,9 +127,10 @@ public class HomeActivity extends Activity {
 
                        }
                    });
-           dataBase.addValueEventListener(new ValueEventListener() {
+           teacherBase.addValueEventListener(new ValueEventListener() {
                @Override
                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
                    getCurrentUserEvents(user.getTurma());
                }
 
@@ -189,6 +192,7 @@ public class HomeActivity extends Activity {
     }
 
     private void getCurrentUserEvents(final String turma) {
+
         teacherBase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -231,13 +235,15 @@ public class HomeActivity extends Activity {
                                                     final Events  ev_th = m.getValue();
                                                     final String uidEv = m.getKey();
                                                     final String uidTeacher = dados.getKey();
+                                                    CURRENT_EVENT=new Event(ev_th, uidEv, uidTeacher, checkinF, checkoutF, keysTemp);
+
                                                     Runnable runnable = new Runnable() {
 
                                                         @Override
                                                         public void run() {
 
                                                             while (!stop) {
-                                                                Log.d("AQUI", "Na Thread.....");
+                                                                Log.d("AQUI", "Na Thread Current Events.....");
                                                                 synchronized (this) {
                                                                     try {
                                                                         wait(500);
@@ -254,26 +260,15 @@ public class HomeActivity extends Activity {
                                                                                 if (!minH.equals(min)||firstTime) {
 
                                                                                     Log.d("AQUI", "Mudou o Minuto, novo horário: "+fullHour);
-                                                                                  //  try {
-                                                                                      //  Thread.sleep(500);
+
                                                                                         Log.d("AQUI", "Verificando se lança a key......");
 
                                                                                         givePop(fullHour, new Event(ev_th, uidEv, uidTeacher, checkinF, checkoutF, keysTemp));
-                                                                                    //    Thread.sleep(500);
+
                                                                                         minH = min;
-                                                                                  //  } catch (InterruptedException ex) {
-                                                                                  //      ex.printStackTrace();
-                                                                                 //   }
 
                                                                                 }
-                                                                                /*
-                                                                                try {
-                                                                                    Thread.sleep(500);
-                                                                                } catch (InterruptedException e) {
-                                                                                    e.printStackTrace();
-                                                                                }
 
-                                                                                 */
 
                                                                             }
                                                                         });
@@ -282,11 +277,7 @@ public class HomeActivity extends Activity {
                                                                     }
                                                                 }
 
-                                                              //  try {
-                                                             //       Thread.sleep(500);
-                                                              //  } catch (InterruptedException e) {
-                                                              //      e.printStackTrace();
-                                                              //  }
+
                                                             }
 
                                                         }
@@ -294,7 +285,9 @@ public class HomeActivity extends Activity {
                                                     th = new Thread(runnable);
                                                     th.start();
 
+
                                                 }
+
                                             }
                                         }
                                     }
@@ -341,6 +334,7 @@ public class HomeActivity extends Activity {
 
             events.get(position).setCheckInTime(hora + "h" + min);
             stop=false;
+            CURRENT_EVENT=events.get(position);
             ComponentName componentName = new ComponentName(this,NotificationServiceScheduler.class);
             JobInfo info = new JobInfo.Builder(123,componentName)
                     .setRequiresCharging(false)
@@ -374,6 +368,7 @@ public class HomeActivity extends Activity {
                 events.get(position).setCheckInTime(hora + "h" + min);
                 events.get(position).setCheckOutTime(hora + "h" + min);
                stop=true;
+                CURRENT_EVENT=null;
                 JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
                 scheduler.cancel(123);
                 Log.d("AQUI", "Job Schedular Cancelled");
@@ -414,9 +409,9 @@ public class HomeActivity extends Activity {
             }
         });
     }
-
+/*
     public void getKeyWordUpdates( final Event eventsHere) {
-        CURRENT_EVENT=eventsHere;
+            CURRENT_EVENT=eventsHere;
 
             final Handler handle = new Handler();
 
@@ -458,9 +453,7 @@ public class HomeActivity extends Activity {
                                 ex.printStackTrace();
                             }
                         }
-/*
 
- */
                     }
 
                 }
@@ -472,7 +465,7 @@ public class HomeActivity extends Activity {
 
     }
 
-
+*/
     private void givePop(String fullHour, Event events)  {
 
 
@@ -595,6 +588,21 @@ public class HomeActivity extends Activity {
             String description = "Notificação APP";
             int importance = NotificationManager.IMPORTANCE_HIGH;
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager =  context.getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+    public static void createNotificationChannelFIREBASE(Context context) {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Serviços - Frequência FMM";
+            String description = "Serviços - Notificação APP";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel channel = new NotificationChannel("simplified_coding_2", name, importance);
             channel.setDescription(description);
             // Register the channel with the system; you can't change the importance
             // or other notification behaviors after this
