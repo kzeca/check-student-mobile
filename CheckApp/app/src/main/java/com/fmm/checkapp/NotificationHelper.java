@@ -37,7 +37,7 @@ public class NotificationHelper {
                         .setShowWhen(true)
                         .setAutoCancel(true)
                         .setStyle(new NotificationCompat.BigTextStyle().bigText(body))
-                        .setPriority(NotificationCompat.PRIORITY_HIGH);;
+                        .setPriority(NotificationCompat.PRIORITY_HIGH);
 
         Log.d("AQUI","Criou o Builder......");
 
@@ -49,7 +49,7 @@ public class NotificationHelper {
 
 
     }
-    public static void createNotificationChannel(Context context) {
+    private static void createNotificationChannel(Context context) {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

@@ -1,6 +1,7 @@
 package com.fmm.checkapp;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -12,6 +13,9 @@ import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -62,7 +66,6 @@ import java.util.logging.Logger;
 
 public class HomeActivity extends Activity {
 
-    List<Event> events;
     RecyclerView recyclerViewEvents;
     MyRecyclerViewAdapter eventsAdapter;
     ImageButton btInfo;
@@ -78,8 +81,9 @@ public class HomeActivity extends Activity {
     boolean stop;
     String TAG = "HomeActivity";
     boolean appHidden,firstTime;
+    public static Event CURRENT_EVENT;
     final static String CHANNEL_ID="simplified_coding";
-    int id=1;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -180,6 +184,7 @@ public class HomeActivity extends Activity {
         super.onStop();
 
         appHidden = true;
+
 
     }
 
@@ -336,7 +341,21 @@ public class HomeActivity extends Activity {
 
             events.get(position).setCheckInTime(hora + "h" + min);
             stop=false;
-            getKeyWordUpdates(true, position, events);
+            ComponentName componentName = new ComponentName(this,NotificationServiceScheduler.class);
+            JobInfo info = new JobInfo.Builder(123,componentName)
+                    .setRequiresCharging(false)
+                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
+                    .setPersisted(true)
+                    .setPeriodic(15*60*100)
+                    .build();
+            JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
+            int resultCode = scheduler.schedule(info);
+            if(resultCode==JobScheduler.RESULT_SUCCESS){
+                Log.d("AQUI", "Job scheduled");
+            }else{
+                Log.d("AQUI", "Job scheduled failed");
+            }
+                    //getKeyWordUpdates(  events.get(position));
             eventsAdapter.notifyItemChanged(position);
         }
     }
@@ -355,6 +374,9 @@ public class HomeActivity extends Activity {
                 events.get(position).setCheckInTime(hora + "h" + min);
                 events.get(position).setCheckOutTime(hora + "h" + min);
                stop=true;
+                JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
+                scheduler.cancel(123);
+                Log.d("AQUI", "Job Schedular Cancelled");
                 eventsAdapter.notifyItemChanged(position);
             }
         }
@@ -393,11 +415,8 @@ public class HomeActivity extends Activity {
         });
     }
 
-    public void getKeyWordUpdates(boolean listen, final int position, final List<Event> eventsHere) {
-        if (!listen) {
-            th.interrupt();
-            return;// caso deu checkout, o aluno não pode saber quais palavras chaves
-        } else {
+    public void getKeyWordUpdates( final Event eventsHere) {
+        CURRENT_EVENT=eventsHere;
 
             final Handler handle = new Handler();
 
@@ -424,24 +443,13 @@ public class HomeActivity extends Activity {
                                         if (!minH.equals(min)||firstTime) {
 
                                             Log.d("AQUI", "Mudou o Minuto, novo horário: "+fullHour);
-                                           // try {
-                                            //    Thread.sleep(500);
+
                                                 Log.d("AQUI", "Verificando se lança a key......");
-                                                givePop(fullHour, position, eventsHere);
-                                              //  Thread.sleep(500);
+                                                givePop(fullHour,  eventsHere);
+
                                                 minH = min;
-                                         //   } catch (InterruptedException ex) {
-                                           //     ex.printStackTrace();
-                                           // }
 
                                         }
-                                        /*
-                                        try {
-                                            Thread.sleep(500);
-                                        } catch (InterruptedException e) {
-                                            e.printStackTrace();
-                                        }
-                                        */
 
 
                                     }
@@ -451,11 +459,6 @@ public class HomeActivity extends Activity {
                             }
                         }
 /*
-                        try {
-                            Thread.sleep(500);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
 
  */
                     }
@@ -465,72 +468,22 @@ public class HomeActivity extends Activity {
             th = new Thread(runnable);
             th.start();
             
-        }
+
 
     }
 
-    private void givePop(String fullHour, int position, List<Event> events)  {
-        /*
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
-         */
-
-        Log.d("AQUI", "APPHIDDEN: "+appHidden);
-            if (fullHour.equals(events.get(position).getKeys().get(0).getTime())) {
-                String key = events.get(position).getKeys().get(0).getKey();
-                //th.interrupt();
-                Log.d("AQUI", "Vai soltar o POP-UP");
-
-                popUp(position, events, 0);
-                //th.start();
-                // TODO CODE NOTIFICATION
-
-            } else if (fullHour.equals(events.get(position).getKeys().get(1).getTime())) {
-                String key = events.get(position).getKeys().get(1).getKey();
-                Log.d("AQUI", "Vai soltar o POP-UP");
-
-                popUp(position, events, 1);
-
-
-            } else if (fullHour.equals(events.get(position).getKeys().get(2).getTime())) {
-                String key = events.get(position).getKeys().get(2).getKey();
-                Log.d("AQUI", "Vai soltar o POP-UP");
-
-                popUp(position, events, 2);
-
-            }
-/*
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-*/
-        firstTime=false;
-    }
     private void givePop(String fullHour, Event events)  {
-       /*
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
-        */
 
-        Log.d("AQUI", "APPHIDDEN: "+appHidden);
         if (fullHour.equals(events.getKeys().get(0).getTime())) {
 
-            //th.interrupt();
+
             Log.d("AQUI", "Vai soltar o POP-UP");
 
             popUp( events, 0);
-            //th.start();
-            // TODO CODE NOTIFICATION
+
+
 
         } else if (fullHour.equals(events.getKeys().get(1).getTime())) {
 
@@ -547,64 +500,13 @@ public class HomeActivity extends Activity {
             popUp( events, 2);
 
         }
-/*
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
- */
         firstTime=false;
 
     }
 
-    private void popUp(final int position, final List<Event> events, final int keyPosition) {
-        MediaPlayer popup = MediaPlayer.create(this, R.raw.popup);
-        AlertDialog.Builder mBuilder = new AlertDialog.Builder(HomeActivity.this);
-        mBuilder.setCancelable(false);
-        View mView = getLayoutInflater().inflate(R.layout.dialog_teacher_key_word, null);
-        final EditText edtEmail = (EditText) mView.findViewById(R.id.dialog_key_word_edt_password);
-        Button btnConfirma = (Button) mView.findViewById(R.id.dialog_key_word_bt_confirma);
-        mBuilder.setView(mView);
-        final AlertDialog dialog = mBuilder.create();
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-        btnConfirma.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(!edtEmail.getText().toString().equals("")||!edtEmail.getText().toString().isEmpty()) {
-                    if (edtEmail.getText().toString().equals(events.get(position).getKeys().get(keyPosition).getKey())) {
-                        teacherBase.child(events.get(position).getuIdTeacher()).child("events").child(user.getTurma())
-                                .child(events.get(position).getUid()).child("students").child(userUid).child("keys").child("key" + Integer.toString(keyPosition + 1))
-                                .setValue("ok");
-                        dialog.dismiss();
-
-                        Toast.makeText(HomeActivity.this, "Você acertou a palavra chave", Toast.LENGTH_SHORT).show();
-                    } else {
-                        teacherBase.child(events.get(position).getuIdTeacher()).child("events").child(user.getTurma())
-                                .child(events.get(position).getUid()).child("students").child(userUid).child("keys").child("key" + Integer.toString(keyPosition + 1))
-                                .setValue("HUMMMMMMMMMMMMMMMMMM PARECE QUE VC ERROU");
-                        dialog.dismiss();
-
-                        Toast.makeText(HomeActivity.this, "HUMMMMMMMMMMMMMMMMMM PARECE QUE VC ERROU", Toast.LENGTH_SHORT).show();
-                    }
-                    NotificationManagerCompat mNotificationMgr = NotificationManagerCompat.from(getApplicationContext());
-                    mNotificationMgr.cancel(1);
-                }else{
-                    Toast.makeText(HomeActivity.this, "PREENCHA O CAMPO", Toast.LENGTH_SHORT).show();
-                }
-
-            }
-        });
-        if(!firstTime||appHidden)displayNotification("Frequência FMM","Olá, como está a aula? Você deve inserir a palavra-passe para notificar o professor que você está acompanhando a aula!!! ABRA O APLICATIVO!!!");
-        dialog.show();
-        Log.d("AQUI", "POP-UP Lançado!!!!");
-        popup.start();
-
-    }
     private void popUp(final Event events, final int keyPosition) {
+
         MediaPlayer popup = MediaPlayer.create(this, R.raw.popup);
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(HomeActivity.this);
         mBuilder.setCancelable(false);
@@ -627,6 +529,7 @@ public class HomeActivity extends Activity {
                         dialog.dismiss();
 
                         Toast.makeText(HomeActivity.this, "Você acertou a palavra chave", Toast.LENGTH_SHORT).show();
+
                     } else {
                         teacherBase.child(events.getuIdTeacher()).child("events").child(user.getTurma())
                                 .child(events.getUid()).child("students").child(userUid).child("keys").child("key" + Integer.toString(keyPosition + 1))
@@ -653,14 +556,15 @@ public class HomeActivity extends Activity {
 
 
         Log.d("AQUI","Entrou pra lançar notificação......");
-        /*
-        Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
-        stackBuilder.addParentStack(intent.getComponent());
-        stackBuilder.addNextIntent(intent);
 
-        PendingIntent p = stackBuilder.getPendingIntent(id, PendingIntent.FLAG_UPDATE_CURRENT);
-        */
+       // Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+       // Intent intent = getIntent();
+        //TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
+        //stackBuilder.addParentStack(intent.getComponent());
+       // stackBuilder.addNextIntent(intent);
+
+      //  PendingIntent p = PendingIntent.getActivity(getApplicationContext(),1,intent,PendingIntent.FLAG_NO_CREATE);
+
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(getApplicationContext(), "simplified_coding")
@@ -672,7 +576,7 @@ public class HomeActivity extends Activity {
                         .setShowWhen(true)
                         .setAutoCancel(true)
                         .setStyle(new NotificationCompat.BigTextStyle().bigText(body))
-                        .setPriority(NotificationCompat.PRIORITY_HIGH);;
+                        .setPriority(NotificationCompat.PRIORITY_HIGH);
 
         Log.d("AQUI","Criou o Builder......");
 
