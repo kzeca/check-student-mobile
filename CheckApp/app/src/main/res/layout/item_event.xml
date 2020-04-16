@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="10dp"
@@ -11,169 +13,194 @@
         android:layout_height="wrap_content"
         >
 
-        <LinearLayout
+
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="20dp"
-            android:background="@drawable/borda_event"
-            >
+            android:layout_height="match_parent">
+
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline46"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.05"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                >
-
-                <TextView
-                    android:id="@+id/event_tv_class_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/noto_sans"
-                    android:gravity="bottom"
-                    android:text="Reta e Ponto"
-                    android:textColor="#000"
-                    android:textSize="23sp" />
-
-                <TextView
-                    android:id="@+id/event_tv_subject"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/noto_sans"
-                    android:gravity="bottom|end"
-                    android:text="Matemática"
-                    android:textColor="#3D3B3B"
-                    android:textSize="17sp" />
-
-
-            </LinearLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/linha"
-                android:elevation="5dp"
-                android:shadowColor="#666666"
-                android:shadowRadius="100" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                >
+                android:layout_height="match_parent"
+                android:background="@drawable/borda_event"
+                android:orientation="vertical"
+                android:padding="20dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/guideline46">
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_weight="1">
+                    android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/event_tv_class_starts_at"
+                        android:id="@+id/event_tv_class_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="Início: 07h10"
-                        android:textColor="#3D3B3B"
-                        android:textSize="21sp"
-                        android:shadowRadius="3"/>
+                        android:layout_weight="1"
+                        android:fontFamily="@font/noto_sans"
+                        android:gravity="bottom"
+                        android:text="Reta e Ponto"
+                        android:textColor="#000"
+                        android:textSize="23sp" />
 
-                    <TextView
-                        android:id="@+id/event_tv_class_ends_at"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="Fim: 8h00"
-                        android:textColor="#3D3B3B"
-                        android:textSize="21sp" />
+
 
 
                 </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/linha"
+                    android:elevation="5dp"
+                    android:shadowColor="#666666"
+                    android:shadowRadius="100" />
 
                 <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginLeft="20dp">
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
 
-                    <ImageButton
-                        android:id="@+id/event_bt_go_live"
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="6"
-                        android:layout_marginTop="10dp"
-                        android:src="@drawable/ic_live"
-                        android:background="@android:color/transparent"
-                        android:scaleType="fitCenter"/>
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:textColor="#3D3B3B"
-                        android:text="Ir para a live"
-                        android:gravity="center"
-                        android:layout_weight="3"/>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/event_tv_class_starts_at"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:shadowRadius="3"
+                            android:text="Início: 07h10"
+                            android:textColor="#3D3B3B"
+                            android:textSize="21sp" />
+
+                        <TextView
+                            android:id="@+id/event_tv_class_ends_at"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:text="Fim: 8h00"
+                            android:textColor="#3D3B3B"
+                            android:textSize="21sp" />
+
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="20dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <ImageButton
+                            android:id="@+id/event_bt_go_live"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_marginTop="10dp"
+                            android:layout_weight="6"
+                            android:background="@android:color/transparent"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/ic_live" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="3"
+                            android:gravity="center"
+                            android:text="Ir para a live"
+                            android:textColor="#3D3B3B" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
-            </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="25dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/event_bt_check_in"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="15dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/borda_botao"
+                        android:backgroundTint="@color/azul_botao"
+                        android:text="CHECK IN"
+                        android:textColor="#fff"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <Button
+                        android:id="@+id/event_bt_check_out"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/borda_botao"
+                        android:backgroundTint="#B5B5B5"
+                        android:text="CHECK OUT"
+                        android:textColor="#000"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
 
 
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="25dp"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/event_bt_check_in"
+                <TextView
+                    android:id="@+id/event_tv_check_in_at"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="15dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/borda_botao"
-                    android:backgroundTint="@color/azul_botao"
-                    android:text="CHECK IN"
-                    android:textColor="#fff"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
+                    android:layout_marginTop="15dp"
+                    android:textColor="#635E5E"
+                    android:textSize="13sp" />
 
-                <Button
-                    android:id="@+id/event_bt_check_out"
+                <TextView
+                    android:id="@+id/event_tv_check_out_at"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/borda_botao"
-                    android:backgroundTint="#B5B5B5"
-                    android:text="CHECK OUT"
-                    android:textColor="#000"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
+                    android:layout_marginTop="10dp"
+                    android:textColor="#635E5E"
+                    android:textSize="13sp" />
+
+
             </LinearLayout>
 
-
             <TextView
-                android:id="@+id/event_tv_check_in_at"
-                android:layout_width="wrap_content"
+                android:id="@+id/event_tv_subject"
+                android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                android:textColor="#635E5E"
-                android:textSize="13sp" />
+                android:background="@drawable/caixa_subject"
+                android:padding="5dp"
+                android:text="L. Portuguesa"
+                android:textAlignment="center"
+                android:textColor="#fff"
+                android:textSize="17sp"
+                app:layout_constraintBottom_toTopOf="@+id/guideline46"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.9"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/guideline46"
+                app:layout_constraintVertical_bias="0.5" />
 
-            <TextView
-                android:id="@+id/event_tv_check_out_at"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:textColor="#635E5E"
-                android:textSize="13sp" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-
-        </LinearLayout>
     </FrameLayout>
 
 
