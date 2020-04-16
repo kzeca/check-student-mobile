@@ -104,6 +104,8 @@ public class HomeActivity extends Activity {
         minH = Integer.toString(hora.getMinutes());
         minH = (hora.getMinutes()>=0&&hora.getMinutes()<=9 ? "0"+minH:minH);
 
+        CURRENT_EVENT=null;
+
         createNotificationChannel(getApplicationContext());
 
            dataBase.child("salas").orderByChild(userUid)
@@ -231,68 +233,8 @@ public class HomeActivity extends Activity {
                                                     final Events  ev_th = m.getValue();
                                                     final String uidEv = m.getKey();
                                                     final String uidTeacher = dados.getKey();
-                                                    Runnable runnable = new Runnable() {
 
-                                                        @Override
-                                                        public void run() {
-
-                                                            while (!stop) {
-                                                                Log.d("AQUI", "Na Thread.....");
-                                                                synchronized (this) {
-                                                                    try {
-                                                                        wait(500);
-                                                                        handle.post(new Runnable() {
-                                                                            @Override
-                                                                            public void run() {
-                                                                                Date time = new Date();
-                                                                                String hora = Integer.toString(time.getHours());
-                                                                                String min = Integer.toString(time.getMinutes());
-                                                                                min = (time.getMinutes()>=0&&time.getMinutes()<=9 ? "0"+min:min);
-                                                                                hora = (time.getHours()>=0&&time.getHours()<=9 ? "0"+hora:hora);
-                                                                                String fullHour = hora + "h" + min + "min";
-                                                                                Log.d("AQUI", "Hora atual: "+fullHour);
-                                                                                if (!minH.equals(min)||firstTime) {
-
-                                                                                    Log.d("AQUI", "Mudou o Minuto, novo horário: "+fullHour);
-                                                                                  //  try {
-                                                                                      //  Thread.sleep(500);
-                                                                                        Log.d("AQUI", "Verificando se lança a key......");
-
-                                                                                        givePop(fullHour, new Event(ev_th, uidEv, uidTeacher, checkinF, checkoutF, keysTemp));
-                                                                                    //    Thread.sleep(500);
-                                                                                        minH = min;
-                                                                                  //  } catch (InterruptedException ex) {
-                                                                                  //      ex.printStackTrace();
-                                                                                 //   }
-
-                                                                                }
-                                                                                /*
-                                                                                try {
-                                                                                    Thread.sleep(500);
-                                                                                } catch (InterruptedException e) {
-                                                                                    e.printStackTrace();
-                                                                                }
-
-                                                                                 */
-
-                                                                            }
-                                                                        });
-                                                                    } catch (InterruptedException ex) {
-                                                                        ex.printStackTrace();
-                                                                    }
-                                                                }
-
-                                                              //  try {
-                                                             //       Thread.sleep(500);
-                                                              //  } catch (InterruptedException e) {
-                                                              //      e.printStackTrace();
-                                                              //  }
-                                                            }
-
-                                                        }
-                                                    };
-                                                    th = new Thread(runnable);
-                                                    th.start();
+                                                    CURRENT_EVENT=new Event(ev_th, uidEv, uidTeacher, checkinF, checkoutF, keysTemp);
 
                                                 }
                                             }
@@ -377,13 +319,29 @@ public class HomeActivity extends Activity {
                 JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
                 scheduler.cancel(123);
                 Log.d("AQUI", "Job Schedular Cancelled");
+                NotificationServiceScheduler.jobCancelled=true;
                 eventsAdapter.notifyItemChanged(position);
             }
         }
     }
 
     public void buildRecyclerView(final List<Event> eventsList) {
-
+        if(CURRENT_EVENT!=null){
+            ComponentName componentName = new ComponentName(this,NotificationServiceScheduler.class);
+            JobInfo info = new JobInfo.Builder(123,componentName)
+                    .setRequiresCharging(false)
+                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
+                    .setPersisted(true)
+                    .setPeriodic(15*60*100)
+                    .build();
+            JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
+            int resultCode = scheduler.schedule(info);
+            if(resultCode==JobScheduler.RESULT_SUCCESS){
+                Log.d("AQUI", "Job scheduled");
+            }else{
+                Log.d("AQUI", "Job scheduled failed");
+            }
+        }
         recyclerViewEvents = findViewById(R.id.home_recycler_view_events);
         recyclerViewEvents.setLayoutManager(new LinearLayoutManager(this));
         eventsAdapter = new MyRecyclerViewAdapter(eventsList);
@@ -414,7 +372,7 @@ public class HomeActivity extends Activity {
             }
         });
     }
-
+/*
     public void getKeyWordUpdates( final Event eventsHere) {
         CURRENT_EVENT=eventsHere;
 
@@ -458,9 +416,7 @@ public class HomeActivity extends Activity {
                                 ex.printStackTrace();
                             }
                         }
-/*
-
- */
+/
                     }
 
                 }
@@ -587,6 +543,9 @@ public class HomeActivity extends Activity {
 
 
     }
+
+
+ */
     public static void createNotificationChannel(Context context) {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
@@ -602,5 +561,7 @@ public class HomeActivity extends Activity {
             notificationManager.createNotificationChannel(channel);
         }
     }
+
+
 
 }

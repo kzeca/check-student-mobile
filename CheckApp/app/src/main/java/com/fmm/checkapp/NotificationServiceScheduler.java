@@ -10,7 +10,11 @@ import androidx.core.app.NotificationManagerCompat;
 
 import com.fmm.checkapp.Model.Event;
 
+import org.joda.time.DateTimeZone;
+
 import java.util.Date;
+import java.util.TimeZone;
+
 
 import static com.fmm.checkapp.HomeActivity.CURRENT_EVENT;
 
@@ -18,6 +22,7 @@ public class NotificationServiceScheduler extends JobService {
 
     public static boolean jobCancelled =false;
     private  String minH;
+    private static final String TIME_ZONE = "America/Manaus";
 
 
     @Override
@@ -42,6 +47,9 @@ public class NotificationServiceScheduler extends JobService {
 
             @Override
             public void run() {
+                TimeZone.setDefault(TimeZone.getTimeZone(TIME_ZONE));
+                DateTimeZone.setDefault(DateTimeZone.forID(TIME_ZONE));
+
                 Date hora = new Date();
                 minH = Integer.toString(hora.getMinutes());
                 minH = (hora.getMinutes()>=0&&hora.getMinutes()<=9 ? "0"+minH:minH);
