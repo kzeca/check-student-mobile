@@ -61,8 +61,6 @@ import java.util.Map;
 
 
 import static com.fmm.checkapp.LoginActivity.user;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class HomeActivity extends Activity {
 
@@ -127,6 +125,7 @@ public class HomeActivity extends Activity {
 
                        }
                    });
+
            teacherBase.addValueEventListener(new ValueEventListener() {
                @Override
                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -144,14 +143,16 @@ public class HomeActivity extends Activity {
         btInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(HomeActivity.this, AboutActivity.class));
+                //TODO CODE POP UP MORE OPTIONS
+                popUpMoreOption();
+
             }
         });
 
         btInfo.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                Toast.makeText(HomeActivity.this, "Sobre nós", Toast.LENGTH_SHORT).show();
+                Toast.makeText(HomeActivity.this, "Mais opções", Toast.LENGTH_SHORT).show();
                 return true;
             }
         });
@@ -611,4 +612,44 @@ public class HomeActivity extends Activity {
         }
     }
 
+    private void logOut(){
+        stop=true;
+        CURRENT_EVENT=null;
+        JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
+        scheduler.cancel(123);
+        Log.d("AQUI", "Job Schedular Cancelled");
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        auth.signOut();
+        startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+        finish();
+    }
+    private  void screenAbout(){
+        startActivity(new Intent(getApplicationContext(), AboutActivity.class));
+    }
+    private void popUpMoreOption() {
+
+        MediaPlayer popup = MediaPlayer.create(this, R.raw.popup);
+        AlertDialog.Builder mBuilder = new AlertDialog.Builder(HomeActivity.this);
+        mBuilder.setCancelable(false);
+        View mView = getLayoutInflater().inflate(R.layout.dialog_teacher_key_word, null);
+        final EditText edtEmail = (EditText) mView.findViewById(R.id.dialog_key_word_edt_password);
+        Button btnConfirma = (Button) mView.findViewById(R.id.dialog_key_word_bt_confirma);
+        mBuilder.setView(mView);
+        final AlertDialog dialog = mBuilder.create();
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        btnConfirma.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+            }
+        });
+
+        dialog.show();
+
+        popup.start();
+
+    }
 }

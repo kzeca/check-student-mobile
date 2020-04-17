@@ -95,6 +95,18 @@
         app:layout_constraintGuide_percent="0.85" />
 
 
+    <ImageButton
+        android:id="@+id/activity_home_bt_about_us"
+        android:layout_width="22dp"
+        android:layout_height="46dp"
+        android:background="#00FFFFFF"
+        android:src="@drawable/ic_more_vert_black_24dp"
+        app:layout_constraintBottom_toTopOf="@+id/guideline31"
+        app:layout_constraintEnd_toStartOf="@+id/guideline37"
+        app:layout_constraintStart_toStartOf="@+id/guideline35"
+        app:layout_constraintTop_toTopOf="@+id/guideline30"
+        tools:ignore="VectorDrawableCompat" />
+
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="0dp"
@@ -161,18 +173,5 @@
             android:src="@drawable/sem_eventos" />
 
     </LinearLayout>
-
-    <ImageButton
-        android:id="@+id/activity_home_bt_about_us"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:background="#00FFFFFF"
-        android:src="@drawable/ic_info_outline_black"
-        app:layout_constraintBottom_toTopOf="@+id/guideline31"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/guideline35"
-        app:layout_constraintTop_toTopOf="@+id/guideline30"
-        tools:ignore="VectorDrawableCompat" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

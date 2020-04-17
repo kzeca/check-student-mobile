@@ -3,6 +3,7 @@
     package="com.fmm.checkapp">
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/logo_main"
@@ -12,10 +13,10 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".LoginActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".AboutActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".RegisterActivity"
             android:screenOrientation="portrait" />
@@ -24,27 +25,27 @@
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER"/>
+
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service
-            android:name=".MyFirebaseMessagingService">
+
+        <service android:name=".MyFirebaseMessagingService">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-        <service android:name=".NotificationServiceScheduler"
-            android:permission="android.permission.BIND_JOB_SERVICE"/>
-
-
-
+        <service
+            android:name=".NotificationServiceScheduler"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <meta-data
-        android:name="preloaded_fonts"
-        android:resource="@array/preloaded_fonts" />
-    <activity
-        android:name=".HomeActivity"
-        android:screenOrientation="portrait" />
-</application>
-</manifest>
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
 
+        <activity
+            android:name=".HomeActivity"
+            android:screenOrientation="portrait" />
+    </application>
+
+</manifest>
