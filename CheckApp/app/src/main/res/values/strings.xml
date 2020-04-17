@@ -2,9 +2,34 @@
     <string name="app_name">CheckApp</string>
 
     <string-array name="salas">
+
+        <item>1AI</item>
+        <item>1BI</item>
+        <item>1CI</item>
+        <item>1AE</item>
+        <item>1BE</item>
+        <item>1AM</item>
+        <item>1BM</item>
+        <item>1CM</item>
+
+        <item>2AI</item>
+        <item>2BI</item>
+        <item>2CI</item>
+        <item>2AE</item>
+        <item>2BE</item>
+        <item>2AM</item>
+        <item>2BM</item>
+        <item>2CM</item>
+
         <item>3AI</item>
         <item>3BI</item>
         <item>3CI</item>
+        <item>3AE</item>
+        <item>3BE</item>
+        <item>3AM</item>
+        <item>3BM</item>
+        <item>3CM</item>    
+
     </string-array>
 
 </resources>

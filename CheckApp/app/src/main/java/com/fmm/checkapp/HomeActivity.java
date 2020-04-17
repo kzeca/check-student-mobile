@@ -630,19 +630,27 @@ public class HomeActivity extends Activity {
 
         MediaPlayer popup = MediaPlayer.create(this, R.raw.popup);
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(HomeActivity.this);
-        mBuilder.setCancelable(false);
-        View mView = getLayoutInflater().inflate(R.layout.dialog_teacher_key_word, null);
-        final EditText edtEmail = (EditText) mView.findViewById(R.id.dialog_key_word_edt_password);
-        Button btnConfirma = (Button) mView.findViewById(R.id.dialog_key_word_bt_confirma);
+        View mView = getLayoutInflater().inflate(R.layout.dialog_options, null);
+        Button btnAboutUs =  mView.findViewById(R.id.dialog_options_bt_about_us);
+        Button btnLogOut =  mView.findViewById(R.id.dialog_options_bt_logout);
         mBuilder.setView(mView);
         final AlertDialog dialog = mBuilder.create();
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-        btnConfirma.setOnClickListener(new View.OnClickListener() {
+        btnAboutUs.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                dialog.dismiss();
+                screenAbout();
+            }
+        });
 
+        btnLogOut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                logOut();
 
             }
         });

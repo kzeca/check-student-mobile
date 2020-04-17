@@ -16,7 +16,7 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
 
             <androidx.constraintlayout.widget.Guideline
@@ -24,9 +24,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                app:layout_constraintGuide_percent="0.05"/>
+                app:layout_constraintGuide_percent="0.06"/>
 
             <LinearLayout
+                android:id="@+id/linearLayout2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/borda_event"
@@ -52,8 +53,6 @@
                         android:text="Reta e Ponto"
                         android:textColor="#000"
                         android:textSize="23sp" />
-
-
 
 
                 </LinearLayout>
@@ -169,7 +168,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="15dp"
                     android:textColor="#635E5E"
-                    android:textSize="13sp" />
+                    android:textSize="13sp"
+                    android:visibility="gone" />
 
                 <TextView
                     android:id="@+id/event_tv_check_out_at"
@@ -177,7 +177,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:textColor="#635E5E"
-                    android:textSize="13sp" />
+                    android:textSize="13sp"
+                    android:visibility="gone" />
 
 
             </LinearLayout>
@@ -186,18 +187,22 @@
                 android:id="@+id/event_tv_subject"
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
                 android:background="@drawable/caixa_subject"
                 android:padding="5dp"
-                android:text="L. Portuguesa"
+                android:text="E. Industrial"
+                android:elevation="10dp"
+                android:shadowColor="#000"
+                android:shadowRadius="10"
                 android:textAlignment="center"
                 android:textColor="#fff"
                 android:textSize="17sp"
-                app:layout_constraintBottom_toTopOf="@+id/guideline46"
+                app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.9"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/guideline46"
-                app:layout_constraintVertical_bias="0.5" />
+                app:layout_constraintTop_toTopOf="@+id/linearLayout2"
+                app:layout_constraintVertical_bias="1.0" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
