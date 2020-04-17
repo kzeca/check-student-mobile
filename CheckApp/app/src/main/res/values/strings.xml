@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">CheckApp</string>
+    <string name="app_name">Frequência FMM</string>
 
     <string-array name="salas">
 
@@ -28,7 +28,7 @@
         <item>3BE</item>
         <item>3AM</item>
         <item>3BM</item>
-        <item>3CM</item>    
+        <item>3CM</item>
 
     </string-array>
 

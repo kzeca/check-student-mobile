@@ -1,6 +1,4 @@
-package com.fmm.checkapp.Model;
-
-import androidx.annotation.NonNull;
+package com.fmm.checkapp.model;
 
 import com.fmm.checkapp.Usuario;
 

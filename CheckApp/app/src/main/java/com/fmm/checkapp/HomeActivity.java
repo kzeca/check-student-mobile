@@ -1,18 +1,15 @@
 package com.fmm.checkapp;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.core.app.TaskStackBuilder;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
@@ -21,8 +18,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.media.MediaPlayer;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -38,8 +33,8 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.fmm.checkapp.Model.Event;
-import com.fmm.checkapp.Model.MyRecyclerViewAdapter;
+import com.fmm.checkapp.model.Event;
+import com.fmm.checkapp.model.MyRecyclerViewAdapter;
 import com.fmm.checkapp.firebasemodel.Events;
 import com.fmm.checkapp.firebasemodel.Keys;
 import com.fmm.checkapp.firebasemodel.Professores;

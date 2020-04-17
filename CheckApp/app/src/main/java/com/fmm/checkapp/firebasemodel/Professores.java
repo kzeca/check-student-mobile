@@ -7,7 +7,6 @@ public class Professores {
 
     String email;
     String name;
-    String subject;
     HashMap<String,HashMap<String,Events>> events;
 
     public String getEmail() {
@@ -24,14 +23,6 @@ public class Professores {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getSubject() {
-        return subject;
-    }
-
-    public void setSubject(String subject) {
-        this.subject = subject;
     }
 
     public HashMap<String, HashMap<String, Events>> getEvents() {

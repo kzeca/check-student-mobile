@@ -8,7 +8,7 @@ import android.util.Log;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-import com.fmm.checkapp.Model.Event;
+import com.fmm.checkapp.model.Event;
 
 import java.util.Date;
 

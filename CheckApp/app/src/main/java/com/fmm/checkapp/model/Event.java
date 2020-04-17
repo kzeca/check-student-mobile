@@ -1,12 +1,9 @@
-package com.fmm.checkapp.Model;
-
-import android.util.Log;
+package com.fmm.checkapp.model;
 
 import androidx.annotation.NonNull;
 
 import com.fmm.checkapp.firebasemodel.Events;
 import com.fmm.checkapp.firebasemodel.Keys;
-import com.google.firebase.database.DataSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
