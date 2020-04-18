@@ -54,6 +54,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -78,7 +79,7 @@ public class HomeActivity extends Activity {
     String minH;
     boolean stop;
     String TAG = "HomeActivity";
-    boolean appHidden,firstTime,cancellThread;
+    boolean appHidden,firstTime,cancellThread,runningThread;
     public static Event CURRENT_EVENT;
     final static String CHANNEL_ID="simplified_coding";
 
@@ -99,6 +100,7 @@ public class HomeActivity extends Activity {
         appHidden =false;
         firstTime=true;
         cancellThread=false;
+        runningThread=false;
 
         Date hora = new Date();
         minH = Integer.toString(hora.getMinutes());
@@ -248,6 +250,7 @@ public class HomeActivity extends Activity {
                                                                         handle.post(new Runnable() {
                                                                             @Override
                                                                             public void run() {
+                                                                                runningThread=true;
                                                                                 Date time = new Date();
                                                                                 String hora = Integer.toString(time.getHours());
                                                                                 String min = Integer.toString(time.getMinutes());
@@ -282,6 +285,7 @@ public class HomeActivity extends Activity {
                                                                 }
 
                                                             }
+                                                            runningThread=false;
 
                                                         }
                                                     };
@@ -326,36 +330,46 @@ public class HomeActivity extends Activity {
     }
 
     public void setCheckInTime(List<Event> events, int position) {
-        if (events.get(position).getCheckInTime() == null || events.get(position).getCheckInTime().isEmpty()) {
-            Date time = new Date();
-            String hora = Integer.toString(time.getHours());
-            String min = Integer.toString(time.getMinutes());
-            min = (time.getMinutes()>=0&&time.getMinutes()<=9 ? "0"+min:min);
-            hora = (time.getHours()>=0&&time.getHours()<=9 ? "0"+hora:hora);
+        if(!runningThread){
 
-            teacherBase.child(events.get(position).getuIdTeacher()).child("events").child(user.getTurma())
-                    .child(events.get(position).getUid()).child("students").child(userUid).child("checkin")
-                    .setValue(hora + "h" + min);
 
-            events.get(position).setCheckInTime(hora + "h" + min);
-            stop=false;
-            CURRENT_EVENT=events.get(position);
-            ComponentName componentName = new ComponentName(this,NotificationServiceScheduler.class);
-            JobInfo info = new JobInfo.Builder(123,componentName)
-                    .setRequiresCharging(false)
-                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
-                    .setPersisted(true)
-                    .setPeriodic(15*60*100)
-                    .build();
-            JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
-            int resultCode = scheduler.schedule(info);
-            if(resultCode==JobScheduler.RESULT_SUCCESS){
-                Log.d("AQUI", "Job scheduled");
-            }else{
-                Log.d("AQUI", "Job scheduled failed");
-            }
+            if(checkHourCheckin(events.get(position))){
+                if (events.get(position).getCheckInTime() == null || events.get(position).getCheckInTime().isEmpty()) {
+                    Date time = new Date();
+                    String hora = Integer.toString(time.getHours());
+                    String min = Integer.toString(time.getMinutes());
+                    min = (time.getMinutes()>=0&&time.getMinutes()<=9 ? "0"+min:min);
+                    hora = (time.getHours()>=0&&time.getHours()<=9 ? "0"+hora:hora);
+
+                    teacherBase.child(events.get(position).getuIdTeacher()).child("events").child(user.getTurma())
+                            .child(events.get(position).getUid()).child("students").child(userUid).child("checkin")
+                            .setValue(hora + "h" + min);
+
+                    events.get(position).setCheckInTime(hora + "h" + min);
+                    stop=false;
+                    CURRENT_EVENT=events.get(position);
+                    ComponentName componentName = new ComponentName(this,NotificationServiceScheduler.class);
+                    JobInfo info = new JobInfo.Builder(123,componentName)
+                            .setRequiresCharging(false)
+                            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
+                            .setPersisted(true)
+                            .setPeriodic(15*60*100)
+                            .build();
+                    JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
+                    int resultCode = scheduler.schedule(info);
+                    if(resultCode==JobScheduler.RESULT_SUCCESS){
+                        Log.d("AQUI", "Job scheduled");
+                    }else{
+                        Log.d("AQUI", "Job scheduled failed");
+                    }
                     //getKeyWordUpdates(  events.get(position));
-            eventsAdapter.notifyItemChanged(position);
+                    eventsAdapter.notifyItemChanged(position);
+                }
+            }else{
+                Toast.makeText(getApplicationContext(),"Você pode entrar com 10 minutos antes de inciar a aula ou até finalizar o evento",Toast.LENGTH_LONG).show();
+            }
+        }else{
+            Toast.makeText(getApplicationContext(),"Aperte em checkout no último evento que você entrou",Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -643,4 +657,29 @@ public class HomeActivity extends Activity {
 
     }
 
+    private boolean checkHourCheckin(Event event){
+        Calendar calendar= Calendar.getInstance();
+        //Calendar calendarEvent = Calendar.getInstance();
+        //Start Time of Event
+        int horaEvent= Integer.parseInt(event.getStartTime().substring(0,1));//Pegar a hora do Evento --> HHhMMmin
+        int minEvent= Integer.parseInt(event.getStartTime().substring(3,4));//Pegar o minuto do Evento --> HHhMMmin
+        //Finish Time of Event
+        int horaEventFinal= Integer.parseInt(event.getEndTime().substring(0,1));//Pegar a hora do Evento --> HHhMMmin
+        int minEventFinal= Integer.parseInt(event.getEndTime().substring(3,4));//Pegar o minuto do Evento --> HHhMMmin
+        //Hour of Now
+        int horaNow = calendar.get(Calendar.HOUR_OF_DAY);
+        int minNow = calendar.get(Calendar.MINUTE);
+        if(horaNow==horaEvent){
+            if(minEvent>minNow) {
+                if ((minEvent - minNow) <= 10 && (minEvent - minNow) >= 0) return true;
+            }else{
+                return true;
+            }
+        }else if(horaNow>horaEvent&&horaNow<=horaEventFinal&&minNow<=minEventFinal){
+            return true;
+        }
+
+
+        return false;
+    }
 }
