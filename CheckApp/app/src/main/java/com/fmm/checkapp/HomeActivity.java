@@ -659,27 +659,31 @@ public class HomeActivity extends Activity {
 
     private boolean checkHourCheckin(Event event){
         Calendar calendar= Calendar.getInstance();
-        //Calendar calendarEvent = Calendar.getInstance();
         //Start Time of Event
-        int horaEvent= Integer.parseInt(event.getStartTime().substring(0,1));//Pegar a hora do Evento --> HHhMMmin
-        int minEvent= Integer.parseInt(event.getStartTime().substring(3,4));//Pegar o minuto do Evento --> HHhMMmin
+        int horaEvent= Integer.parseInt(event.getStartTime().substring(0,2));//Pegar a hora do Evento --> HHhMMmin
+        int minEvent= Integer.parseInt(event.getStartTime().substring(3,5));//Pegar o minuto do Evento --> HHhMMmin
+        Date dInicio = new Date();
+        dInicio.setHours(horaEvent);
+        dInicio.setMinutes(minEvent);
+        Log.d("AQUI","Hora de inicio do Evento: "+horaEvent+"h"+minEvent);
         //Finish Time of Event
-        int horaEventFinal= Integer.parseInt(event.getEndTime().substring(0,1));//Pegar a hora do Evento --> HHhMMmin
-        int minEventFinal= Integer.parseInt(event.getEndTime().substring(3,4));//Pegar o minuto do Evento --> HHhMMmin
+        int horaEventFinal= Integer.parseInt(event.getEndTime().substring(0,2));//Pegar a hora do Evento --> HHhMMmin
+        int minEventFinal= Integer.parseInt(event.getEndTime().substring(3,5));//Pegar o minuto do Evento --> HHhMMmin
+        Date dFinal = new Date();
+        dFinal.setHours(horaEventFinal);
+        dFinal.setMinutes(minEventFinal);
+        Log.d("AQUI","Hora de fim do Evento: "+dFinal.getHours()+"h"+dFinal.getMinutes());
         //Hour of Now
         int horaNow = calendar.get(Calendar.HOUR_OF_DAY);
         int minNow = calendar.get(Calendar.MINUTE);
-        if(horaNow==horaEvent){
-            if(minEvent>minNow) {
-                if ((minEvent - minNow) <= 10 && (minEvent - minNow) >= 0) return true;
-            }else{
-                return true;
-            }
-        }else if(horaNow>horaEvent&&horaNow<=horaEventFinal&&minNow<=minEventFinal){
+        Date dCell = new Date();
+        int horaEmMinutosEvent = horaEvent*60+minEvent;
+        int horaEmMinutosNow = horaNow*60+minNow;
+                //10 minutos antes ou entre o período do evento
+        Log.d("AQUI","Hora do Celular está depois do inicio: "+dCell.after(dInicio)+"   Hora do Celular está antes do Final: "+dCell.before(dFinal));
+        if(((minEvent - minNow) <= 10 && (minEvent - minNow) >= 0 && horaNow==horaEvent)||(horaNow!=horaEvent&&(horaEmMinutosEvent - horaEmMinutosNow) <= 10 && (horaEmMinutosEvent - horaEmMinutosNow) >= 0)||(dCell.after(dInicio)&&dCell.before(dFinal))){
             return true;
         }
-
-
         return false;
     }
 }
