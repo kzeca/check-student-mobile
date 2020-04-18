@@ -14,6 +14,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
+import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -631,7 +632,8 @@ public class HomeActivity extends Activity {
     private void copyLinkMeet(String link){
         ClipboardManager clipboardManager  = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
        if(clipboardManager!=null){
-           clipboardManager.setText(link);
+           ClipData clipData = ClipData.newPlainText(link,link);
+           clipboardManager.setPrimaryClip(clipData);
            Toast.makeText(getApplicationContext(),"Link do Google Meet copiado com sucesso",Toast.LENGTH_SHORT).show();
        }
 
