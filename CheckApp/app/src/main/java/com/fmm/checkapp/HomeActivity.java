@@ -31,6 +31,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fmm.checkapp.model.Event;
@@ -501,7 +502,9 @@ public class HomeActivity extends Activity {
         mBuilder.setCancelable(false);
         View mView = getLayoutInflater().inflate(R.layout.dialog_teacher_key_word, null);
         final EditText edtEmail = (EditText) mView.findViewById(R.id.dialog_key_word_edt_password);
+        TextView messageKey = mView.findViewById(R.id.number_key_word);
         Button btnConfirma = (Button) mView.findViewById(R.id.dialog_key_word_bt_confirma);
+        messageKey.setText("Insira a " + (keyPosition+1) + "ª" +" palavra-passe fornecida pelo(a) professor(a).");
         mBuilder.setView(mView);
         final AlertDialog dialog = mBuilder.create();
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -517,15 +520,15 @@ public class HomeActivity extends Activity {
                                 .setValue("ok");
                         dialog.dismiss();
 
-                        Toast.makeText(HomeActivity.this, "Você acertou a palavra chave", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(HomeActivity.this, "Palavra-passe inserida com sucesso", Toast.LENGTH_SHORT).show();
 
                     } else {
                         teacherBase.child(events.getuIdTeacher()).child("events").child(user.getTurma())
                                 .child(events.getUid()).child("students").child(userUid).child("keys").child("key" + Integer.toString(keyPosition + 1))
-                                .setValue("HUMMMMMMMMMMMMMMMMMM PARECE QUE VC ERROU");
+                                .setValue("");
                         dialog.dismiss();
 
-                        Toast.makeText(HomeActivity.this, "HUMMMMMMMMMMMMMMMMMM PARECE QUE VC ERROU", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(HomeActivity.this, "Palavra-passe inserida incorretamente, preste mais atenção na aula", Toast.LENGTH_SHORT).show();
                     }
                     NotificationManagerCompat mNotificationMgr = NotificationManagerCompat.from(getApplicationContext());
                     mNotificationMgr.cancel(1);
