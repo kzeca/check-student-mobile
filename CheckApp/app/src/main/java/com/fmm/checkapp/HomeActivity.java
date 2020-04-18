@@ -330,47 +330,48 @@ public class HomeActivity extends Activity {
     }
 
     public void setCheckInTime(List<Event> events, int position) {
-        if(!runningThread){
+
+            if(!runningThread){
 
 
-            if(checkHourCheckin(events.get(position))){
-                if (events.get(position).getCheckInTime() == null || events.get(position).getCheckInTime().isEmpty()) {
-                    Date time = new Date();
-                    String hora = Integer.toString(time.getHours());
-                    String min = Integer.toString(time.getMinutes());
-                    min = (time.getMinutes()>=0&&time.getMinutes()<=9 ? "0"+min:min);
-                    hora = (time.getHours()>=0&&time.getHours()<=9 ? "0"+hora:hora);
+                if(checkHourCheckin(events.get(position))){
+                    if (events.get(position).getCheckInTime() == null || events.get(position).getCheckInTime().isEmpty()) {
+                        Date time = new Date();
+                        String hora = Integer.toString(time.getHours());
+                        String min = Integer.toString(time.getMinutes());
+                        min = (time.getMinutes()>=0&&time.getMinutes()<=9 ? "0"+min:min);
+                        hora = (time.getHours()>=0&&time.getHours()<=9 ? "0"+hora:hora);
 
-                    teacherBase.child(events.get(position).getuIdTeacher()).child("events").child(user.getTurma())
-                            .child(events.get(position).getUid()).child("students").child(userUid).child("checkin")
-                            .setValue(hora + "h" + min);
+                        teacherBase.child(events.get(position).getuIdTeacher()).child("events").child(user.getTurma())
+                                .child(events.get(position).getUid()).child("students").child(userUid).child("checkin")
+                                .setValue(hora + "h" + min);
 
-                    events.get(position).setCheckInTime(hora + "h" + min);
-                    stop=false;
-                    CURRENT_EVENT=events.get(position);
-                    ComponentName componentName = new ComponentName(this,NotificationServiceScheduler.class);
-                    JobInfo info = new JobInfo.Builder(123,componentName)
-                            .setRequiresCharging(false)
-                            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
-                            .setPersisted(true)
-                            .setPeriodic(15*60*100)
-                            .build();
-                    JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
-                    int resultCode = scheduler.schedule(info);
-                    if(resultCode==JobScheduler.RESULT_SUCCESS){
-                        Log.d("AQUI", "Job scheduled");
-                    }else{
-                        Log.d("AQUI", "Job scheduled failed");
+                        events.get(position).setCheckInTime(hora + "h" + min);
+                        stop=false;
+                        CURRENT_EVENT=events.get(position);
+                        ComponentName componentName = new ComponentName(this,NotificationServiceScheduler.class);
+                        JobInfo info = new JobInfo.Builder(123,componentName)
+                                .setRequiresCharging(false)
+                                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
+                                .setPersisted(true)
+                                .setPeriodic(15*60*100)
+                                .build();
+                        JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
+                        int resultCode = scheduler.schedule(info);
+                        if(resultCode==JobScheduler.RESULT_SUCCESS){
+                            Log.d("AQUI", "Job scheduled");
+                        }else{
+                            Log.d("AQUI", "Job scheduled failed");
+                        }
+                        //getKeyWordUpdates(  events.get(position));
+                        eventsAdapter.notifyItemChanged(position);
                     }
-                    //getKeyWordUpdates(  events.get(position));
-                    eventsAdapter.notifyItemChanged(position);
+                }else{
+                    Toast.makeText(getApplicationContext(),"Você pode entrar com 10 minutos antes de inciar a aula ou até finalizar o evento",Toast.LENGTH_LONG).show();
                 }
-            }else{
-                Toast.makeText(getApplicationContext(),"Você pode entrar com 10 minutos antes de inciar a aula ou até finalizar o evento",Toast.LENGTH_LONG).show();
+            }else if(runningThread&&events.get(position).getCheckInTime().isEmpty()){
+                Toast.makeText(getApplicationContext(),"Aperte em checkout no último evento que você entrou",Toast.LENGTH_SHORT).show();
             }
-        }else{
-            Toast.makeText(getApplicationContext(),"Aperte em checkout no último evento que você entrou",Toast.LENGTH_SHORT).show();
-        }
     }
 
     public void setCheckOutTime(List<Event> events, int position) {
