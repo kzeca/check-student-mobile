@@ -4,6 +4,7 @@ import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -20,6 +21,8 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 
     public List<Event> eventList;
     private OnItemClickListener mListener;
+    private OnLongClickListener longClickListener;
+
 
     public interface OnItemClickListener{
         void onCheckInClick(int position);
@@ -27,7 +30,15 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         void onGoLiveClick(int position);
 
     }
+    public interface OnLongClickListener{
+        void onLongCheckInClick(int position);
+        void onLongCheckOutClick(int position);
+        void onLongGoLiveClick(int position);
 
+    }
+    public void setOnLongClickListener(OnLongClickListener listener){
+        longClickListener =  listener;
+    }
     public void setOnItemClickListener(OnItemClickListener listener){
         mListener = listener;
     }
@@ -41,7 +52,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         private Button btnCheckIn, btnCheckOut;
         private ImageButton btnGoLive;
 
-        public ViewHolder(@NonNull View itemView, final OnItemClickListener listener) {
+        public ViewHolder(@NonNull View itemView, final OnItemClickListener listener, final OnLongClickListener listenerLong) {
             super(itemView);
             tvSubject = itemView.findViewById(R.id.event_tv_subject);
             tvTitle = itemView.findViewById(R.id.event_tv_class_title);
@@ -88,6 +99,45 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
                     }
                 }
             });
+            btnCheckIn.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if(listenerLong != null){
+                        int position = getAdapterPosition();
+                        if(position != RecyclerView.NO_POSITION){
+                            listenerLong.onLongCheckInClick(position);
+                        }
+                    }
+                    return true;
+                }
+            });
+
+
+            btnCheckOut.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if(listenerLong != null){
+                        int position = getAdapterPosition();
+                        if(position != RecyclerView.NO_POSITION){
+                            listenerLong.onLongCheckOutClick(position);
+                        }
+                    }
+                    return true;
+                }
+            });
+
+            btnGoLive.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if(listenerLong != null){
+                        int position = getAdapterPosition();
+                        if(position != RecyclerView.NO_POSITION){
+                            listenerLong.onLongGoLiveClick(position);
+                        }
+                    }
+                    return  true;
+                }
+            });
 
 
         }
@@ -98,7 +148,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_event, parent, false);
-        ViewHolder viewHolder = new ViewHolder(view, mListener);
+        ViewHolder viewHolder = new ViewHolder(view, mListener, (OnLongClickListener) longClickListener);
         return viewHolder;
     }
 

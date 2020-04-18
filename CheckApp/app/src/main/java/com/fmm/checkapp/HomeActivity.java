@@ -14,6 +14,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -408,6 +409,23 @@ public class HomeActivity extends Activity {
                 startActivity(intent);
             }
         });
+        eventsAdapter.setOnLongClickListener(new MyRecyclerViewAdapter.OnLongClickListener() {
+            @Override
+            public void onLongCheckInClick(int position) {
+
+            }
+
+            @Override
+            public void onLongCheckOutClick(int position) {
+
+            }
+
+            @Override
+            public void onLongGoLiveClick(int position) {
+                copyLinkMeet(eventsList.get(position).getUrl());
+            }
+        });
+
     }
 
     private void givePop(String fullHour, Event events)  {
@@ -607,6 +625,15 @@ public class HomeActivity extends Activity {
         dialog.show();
 
         popup.start();
+
+    }
+
+    private void copyLinkMeet(String link){
+        ClipboardManager clipboardManager  = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+       if(clipboardManager!=null){
+           clipboardManager.setText(link);
+           Toast.makeText(getApplicationContext(),"Link do Google Meet copiado com sucesso",Toast.LENGTH_SHORT).show();
+       }
 
     }
 
