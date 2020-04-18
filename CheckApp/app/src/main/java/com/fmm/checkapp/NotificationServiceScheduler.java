@@ -83,7 +83,11 @@ public class NotificationServiceScheduler extends JobService {
                             ex.printStackTrace();
                         }
                     }
-
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
                 jobFinished(params,false);
             }

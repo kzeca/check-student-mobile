@@ -176,7 +176,6 @@ public class HomeActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-
         appHidden = true;
 
     }
@@ -271,11 +270,16 @@ public class HomeActivity extends Activity {
 
                                                                             }
                                                                         });
+
                                                                     } catch (InterruptedException ex) {
                                                                         ex.printStackTrace();
                                                                     }
                                                                 }
-
+                                                                try {
+                                                                    Thread.sleep(1000);
+                                                                } catch (InterruptedException e) {
+                                                                    e.printStackTrace();
+                                                                }
 
                                                             }
 
