@@ -4,12 +4,14 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.app.TaskStackBuilder;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
@@ -95,6 +97,7 @@ public class HomeActivity extends Activity {
         appHidden =false;
         firstTime=true;
         cancellThread=false;
+
         Date hora = new Date();
         minH = Integer.toString(hora.getMinutes());
         minH = (hora.getMinutes()>=0&&hora.getMinutes()<=9 ? "0"+minH:minH);
@@ -125,7 +128,6 @@ public class HomeActivity extends Activity {
            teacherBase.addValueEventListener(new ValueEventListener() {
                @Override
                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
                    getCurrentUserEvents(user.getTurma());
                }
 
@@ -139,9 +141,7 @@ public class HomeActivity extends Activity {
         btInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO CODE POP UP MORE OPTIONS
                 popUpMoreOption();
-
             }
         });
 
@@ -324,6 +324,8 @@ public class HomeActivity extends Activity {
             Date time = new Date();
             String hora = Integer.toString(time.getHours());
             String min = Integer.toString(time.getMinutes());
+            min = (time.getMinutes()>=0&&time.getMinutes()<=9 ? "0"+min:min);
+            hora = (time.getHours()>=0&&time.getHours()<=9 ? "0"+hora:hora);
 
             teacherBase.child(events.get(position).getuIdTeacher()).child("events").child(user.getTurma())
                     .child(events.get(position).getUid()).child("students").child(userUid).child("checkin")
@@ -357,7 +359,8 @@ public class HomeActivity extends Activity {
                 Date time = new Date();
                 String hora = Integer.toString(time.getHours());
                 String min = Integer.toString(time.getMinutes());
-
+                min = (time.getMinutes()>=0&&time.getMinutes()<=9 ? "0"+min:min);
+                hora = (time.getHours()>=0&&time.getHours()<=9 ? "0"+hora:hora);
                 teacherBase.child(events.get(position).getuIdTeacher()).child("events").child(user.getTurma())
                         .child(events.get(position).getUid()).child("students").child(userUid).child("checkout")
                         .setValue(hora + "h" + min);
@@ -406,63 +409,7 @@ public class HomeActivity extends Activity {
             }
         });
     }
-/*
-    public void getKeyWordUpdates( final Event eventsHere) {
-            CURRENT_EVENT=eventsHere;
 
-            final Handler handle = new Handler();
-
-            Runnable runnable = new Runnable() {
-
-                @Override
-                public void run() {
-
-                    while (!stop) {
-                        Log.d("AQUI", "Na Thread.....");
-                        synchronized (this) {
-                            try {
-                                wait(500);
-                                handle.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Date time = new Date();
-                                        String hora = Integer.toString(time.getHours());
-                                        String min = Integer.toString(time.getMinutes());
-                                        min = (time.getMinutes()>=0&&time.getMinutes()<=9 ? "0"+min:min);
-                                        hora = (time.getHours()>=0&&time.getHours()<=9 ? "0"+hora:hora);
-                                        String fullHour = hora + "h" + min + "min";
-                                        Log.d("AQUI", "Hora atual: "+fullHour);
-                                        if (!minH.equals(min)||firstTime) {
-
-                                            Log.d("AQUI", "Mudou o Minuto, novo horário: "+fullHour);
-
-                                                Log.d("AQUI", "Verificando se lança a key......");
-                                                givePop(fullHour,  eventsHere);
-
-                                                minH = min;
-
-                                        }
-
-
-                                    }
-                                });
-                            } catch (InterruptedException ex) {
-                                ex.printStackTrace();
-                            }
-                        }
-
-                    }
-
-                }
-            };
-            th = new Thread(runnable);
-            th.start();
-            
-
-
-    }
-
-*/
     private void givePop(String fullHour, Event events)  {
 
 
@@ -489,11 +436,12 @@ public class HomeActivity extends Activity {
 
             popUp( events, 2);
 
+        }else{
+            CURRENT_EVENT=events;
         }
         firstTime=false;
 
     }
-
 
     private void popUp(final Event events, final int keyPosition) {
 
@@ -542,21 +490,20 @@ public class HomeActivity extends Activity {
         dialog.show();
         Log.d("AQUI", "POP-UP Lançado!!!!");
         popup.start();
-
+        CURRENT_EVENT=events;
     }
+
     public void displayNotification( String title, String body){
 
 
         Log.d("AQUI","Entrou pra lançar notificação......");
-
-       // Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
-       // Intent intent = getIntent();
-        //TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
-        //stackBuilder.addParentStack(intent.getComponent());
-       // stackBuilder.addNextIntent(intent);
-
-      //  PendingIntent p = PendingIntent.getActivity(getApplicationContext(),1,intent,PendingIntent.FLAG_NO_CREATE);
-
+        /*
+        Intent intent = getIntent();
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
+        stackBuilder.addParentStack(intent.getComponent());
+        stackBuilder.addNextIntent(intent);
+        PendingIntent p = stackBuilder.getPendingIntent(1, PendingIntent.FLAG_UPDATE_CURRENT);
+         */
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(getApplicationContext(), "simplified_coding")
@@ -579,6 +526,7 @@ public class HomeActivity extends Activity {
 
 
     }
+
     public static void createNotificationChannel(Context context) {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
@@ -594,6 +542,7 @@ public class HomeActivity extends Activity {
             notificationManager.createNotificationChannel(channel);
         }
     }
+
     public static void createNotificationChannelFIREBASE(Context context) {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
@@ -621,9 +570,11 @@ public class HomeActivity extends Activity {
         startActivity(new Intent(getApplicationContext(), LoginActivity.class));
         finish();
     }
+
     private  void screenAbout(){
         startActivity(new Intent(getApplicationContext(), AboutActivity.class));
     }
+
     private void popUpMoreOption() {
 
         MediaPlayer popup = MediaPlayer.create(this, R.raw.popup);
@@ -658,4 +609,5 @@ public class HomeActivity extends Activity {
         popup.start();
 
     }
+
 }

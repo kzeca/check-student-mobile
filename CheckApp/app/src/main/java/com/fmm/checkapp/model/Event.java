@@ -17,8 +17,8 @@ public class Event {
     private String checkInTime;
     private String checkOutTime;
     private String url;
-    private boolean isCheckInDone = false;
-    private boolean isCheckOutDone = false;
+    private boolean isCheckInDone ;
+    private boolean isCheckOutDone;
     private String uIdTeacher;
     private List<Keys> keys;
     private String classEvent;
@@ -34,6 +34,8 @@ public class Event {
         this.checkOutTime = checkout;
         this.url = events.getLink();
         this.uid = uid;
+        this.isCheckInDone=!checkin.isEmpty();
+        this.isCheckOutDone=!checkout.isEmpty();
         this.uIdTeacher = uIdTeacher;
         this.keys=new ArrayList<Keys>();
         this.keys = keys;
