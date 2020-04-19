@@ -24,6 +24,10 @@ public class Event {
     private String classEvent;
     private String uid;
 
+    public Event() {
+
+    }
+
     public Event(Events events, String uid, String uIdTeacher, String checkin, String checkout, List<Keys> keys) {
         this.startTime = events.getBegin();
         this.date = events.getDate();
