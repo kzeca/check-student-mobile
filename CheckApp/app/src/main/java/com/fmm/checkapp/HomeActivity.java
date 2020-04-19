@@ -79,7 +79,8 @@ public class HomeActivity extends Activity {
     String minH;
     boolean stop;
     String TAG = "HomeActivity";
-    boolean appHidden,firstTime,cancellThread,runningThread;
+    boolean appHidden,firstTime,cancellThread;
+    boolean runningThread;
     public static Event CURRENT_EVENT;
     final static String CHANNEL_ID="simplified_coding";
 
@@ -241,7 +242,6 @@ public class HomeActivity extends Activity {
 
                                                         @Override
                                                         public void run() {
-
                                                             while (!stop) {
                                                                 Log.d("AQUI", "Na Thread Current Events.....");
                                                                 synchronized (this) {
@@ -279,7 +279,7 @@ public class HomeActivity extends Activity {
                                                                     }
                                                                 }
                                                                 try {
-                                                                    Thread.sleep(1000);
+                                                                    Thread.sleep(2500);
                                                                 } catch (InterruptedException e) {
                                                                     e.printStackTrace();
                                                                 }
@@ -388,7 +388,7 @@ public class HomeActivity extends Activity {
 
                 events.get(position).setCheckInTime(hora + "h" + min);
                 events.get(position).setCheckOutTime(hora + "h" + min);
-               stop=true;
+                stop=true;
                 CURRENT_EVENT=null;
                 JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
                 scheduler.cancel(123);
@@ -525,9 +525,9 @@ public class HomeActivity extends Activity {
             }
         });
         if(!firstTime||appHidden)displayNotification("Frequência FMM","Olá, como está a aula? Você deve inserir a palavra-passe para notificar o professor que você está acompanhando a aula!!!");
+        popup.start();
         dialog.show();
         Log.d("AQUI", "POP-UP Lançado!!!!");
-        popup.start();
         CURRENT_EVENT=events;
     }
 

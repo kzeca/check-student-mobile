@@ -1,7 +1,9 @@
 package com.fmm.checkapp;
 
+import android.app.PendingIntent;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
+import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
 
@@ -84,7 +86,7 @@ public class NotificationServiceScheduler extends JobService {
                         }
                     }
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(2500);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -98,7 +100,7 @@ public class NotificationServiceScheduler extends JobService {
 
 
         if (fullHour.equals(events.getKeys().get(0).getTime())||fullHour.equals(events.getKeys().get(1).getTime())||fullHour.equals(events.getKeys().get(2).getTime())) {
-            Log.d("AQUI", "Vai lançar a Notificação....");
+            Log.d("AQUI", "Vai lançar a Notificação Scheduler....");
             displayNotification("Frequência FMM","Olá, como está a aula? Você deve inserir a palavra-passe para notificar o professor que você está acompanhando a aula!!! ABRA O APLICATIVO!!!");
         }
 
@@ -109,15 +111,7 @@ public class NotificationServiceScheduler extends JobService {
 
         Log.d("AQUI","Entrou pra lançar notificação......");
 
-        // Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
-        // Intent intent = getIntent();
-        //TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
-        //stackBuilder.addParentStack(intent.getComponent());
-        // stackBuilder.addNextIntent(intent);
-
-        //  PendingIntent p = PendingIntent.getActivity(getApplicationContext(),1,intent,PendingIntent.FLAG_NO_CREATE);
-
-
+        Intent it = new Intent(getApplicationContext(),HomeActivity.class);
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(getApplicationContext(), "simplified_coding")
                         .setTicker("Frequência FMM")
@@ -127,6 +121,7 @@ public class NotificationServiceScheduler extends JobService {
                         .setVibrate(new long[]{150,300,150,300,150})
                         .setShowWhen(true)
                         .setAutoCancel(true)
+                        .setContentIntent(PendingIntent.getActivity(getApplicationContext(), 0, it, PendingIntent.FLAG_UPDATE_CURRENT))
                         .setStyle(new NotificationCompat.BigTextStyle().bigText(body))
                         .setPriority(NotificationCompat.PRIORITY_HIGH);
 
