@@ -524,7 +524,7 @@ public class HomeActivity extends Activity {
 
             }
         });
-        if(!firstTime||appHidden)displayNotification("Frequência FMM","Olá, como está a aula? Você deve inserir a palavra-passe para notificar o professor que você está acompanhando a aula!!! ABRA O APLICATIVO!!!");
+        if(!firstTime||appHidden)displayNotification("Frequência FMM","Olá, como está a aula? Você deve inserir a palavra-passe para notificar o professor que você está acompanhando a aula!!!");
         dialog.show();
         Log.d("AQUI", "POP-UP Lançado!!!!");
         popup.start();
@@ -535,13 +535,8 @@ public class HomeActivity extends Activity {
 
 
         Log.d("AQUI","Entrou pra lançar notificação......");
-        /*
-        Intent intent = getIntent();
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
-        stackBuilder.addParentStack(intent.getComponent());
-        stackBuilder.addNextIntent(intent);
-        PendingIntent p = stackBuilder.getPendingIntent(1, PendingIntent.FLAG_UPDATE_CURRENT);
-         */
+
+        Intent it = new Intent(getApplicationContext(),HomeActivity.class);
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(getApplicationContext(), "simplified_coding")
@@ -552,6 +547,7 @@ public class HomeActivity extends Activity {
                         .setVibrate(new long[]{150,300,150,300,150})
                         .setShowWhen(true)
                         .setAutoCancel(true)
+                        .setContentIntent(PendingIntent.getActivity(getApplicationContext(), 0, it, PendingIntent.FLAG_UPDATE_CURRENT))
                         .setStyle(new NotificationCompat.BigTextStyle().bigText(body))
                         .setPriority(NotificationCompat.PRIORITY_HIGH);
 

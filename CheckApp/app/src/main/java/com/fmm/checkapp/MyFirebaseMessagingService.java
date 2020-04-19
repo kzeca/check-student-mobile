@@ -2,7 +2,9 @@ package com.fmm.checkapp;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 
@@ -29,16 +31,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
 
         Log.d("AQUI","Entrou pra lançar notificação......");
-
-        // Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
-        // Intent intent = getIntent();
-        //TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
-        //stackBuilder.addParentStack(intent.getComponent());
-        // stackBuilder.addNextIntent(intent);
-
-        //  PendingIntent p = PendingIntent.getActivity(getApplicationContext(),1,intent,PendingIntent.FLAG_NO_CREATE);
-
-
+        Intent it = new Intent(getApplicationContext(),HomeActivity.class);
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(getApplicationContext(), "simplified_coding_2")
                         .setTicker("Frequência FMM")
@@ -48,6 +41,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                         .setVibrate(new long[]{150,300,150,300,150})
                         .setShowWhen(true)
                         .setAutoCancel(true)
+                        .setContentIntent(PendingIntent.getActivity(getApplicationContext(), 0, it, PendingIntent.FLAG_UPDATE_CURRENT))
                         .setStyle(new NotificationCompat.BigTextStyle().bigText(body))
                         .setPriority(NotificationCompat.PRIORITY_HIGH);
 
