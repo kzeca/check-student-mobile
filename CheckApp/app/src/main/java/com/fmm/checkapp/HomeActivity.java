@@ -80,11 +80,9 @@ public class HomeActivity extends Activity{
     ProgressBar progressBar;
     DatabaseReference teacherBase;
     Thread th;
-    String dateTime;
     String minH;
     boolean stop;
-    String TAG = "HomeActivity";
-    boolean appHidden, firstTime, cancellThread;
+    boolean appHidden, firstTime,checkinChecked;
     boolean runningThread;
     public static Event CURRENT_EVENT;
     final static String CHANNEL_ID = "simplified_coding";
@@ -107,12 +105,17 @@ public class HomeActivity extends Activity{
         progressBar = findViewById(R.id.activity_home_progressBar);
         appHidden = false;
         firstTime = true;
-        cancellThread = false;
         runningThread = false;
+        URL url = NetworkUtil.buildUrl("America", "Manaus");
+        TimeAsyncTask asyncTask = new TimeAsyncTask(new TimeAsyncTask.OnFinishTask() {
+            @Override
+            public void onFinish(String hora, String min) {
+                minH = min;
+            }
+        });
+        asyncTask.execute(url);
 
-        Date hora = new Date();
-        minH = Integer.toString(hora.getMinutes());
-        minH = (hora.getMinutes()>=0&&hora.getMinutes()<=9 ? "0"+minH:minH);
+
         CURRENT_EVENT=null;
         createNotificationChannel(getApplicationContext());
         createNotificationChannelFIREBASE(getApplicationContext());
@@ -260,7 +263,6 @@ public class HomeActivity extends Activity{
                                                                             @Override
                                                                             public void run() {
                                                                                 runningThread = true;
-                                                                                //A   L   T   E   R   A   R
                                                                                 Date time = new Date();
                                                                                 String hora = Integer.toString(time.getHours());
                                                                                 String min = Integer.toString(time.getMinutes());
@@ -339,47 +341,81 @@ public class HomeActivity extends Activity{
         buildRecyclerView(events);
     }
 
-    public void setCheckInTime(List<Event> events, int position) {
+    public void setCheckInTime(final List<Event> events, final int position) {
 
         if (!runningThread) {
 
-
-            //A   L   T   E   R   A   R
-            if (checkHourCheckin(events.get(position))) {
-                if (events.get(position).getCheckInTime() == null || events.get(position).getCheckInTime().isEmpty()) {
-                    Date time = new Date();
-                    String hora = Integer.toString(time.getHours());
-                    String min = Integer.toString(time.getMinutes());
-                    min = (time.getMinutes() >= 0 && time.getMinutes() <= 9 ? "0" + min : min);
-                    hora = (time.getHours() >= 0 && time.getHours() <= 9 ? "0" + hora : hora);
-
-                    teacherBase.child(events.get(position).getuIdTeacher()).child("events").child(user.getTurma())
-                            .child(events.get(position).getUid()).child("students").child(userUid).child("checkin")
-                            .setValue(hora + "h" + min);
-
-                    events.get(position).setCheckInTime(hora + "h" + min);
-                    stop = false;
-                    CURRENT_EVENT = events.get(position);
-                    ComponentName componentName = new ComponentName(this, NotificationServiceScheduler.class);
-                    JobInfo info = new JobInfo.Builder(123, componentName)
-                            .setRequiresCharging(false)
-                            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
-                            .setPersisted(true)
-                            .setPeriodic(15 * 60 * 100)
-                            .build();
-                    JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
-                    int resultCode = scheduler.schedule(info);
-                    if (resultCode == JobScheduler.RESULT_SUCCESS) {
-                        Log.d("AQUI", "Job scheduled");
-                    } else {
-                        Log.d("AQUI", "Job scheduled failed");
+            URL url = NetworkUtil.buildUrl("America", "Manaus");
+            TimeAsyncTask asyncTask = new TimeAsyncTask(new TimeAsyncTask.OnFinishTask() {
+                @Override
+                public void onFinish(String hora, String min) {
+                    //Start Time of Event
+                    final int horaEvent = Integer.parseInt(events.get(position).getStartTime().substring(0, 2));//Pegar a hora do Evento --> HHhMMmin
+                    final int minEvent = Integer.parseInt(events.get(position).getStartTime().substring(3, 5));//Pegar o minuto do Evento --> HHhMMmin
+                    final Date dInicio = new Date();
+                    dInicio.setHours(horaEvent);
+                    dInicio.setMinutes(minEvent);
+                    Log.d("AQUI", "Hora de inicio do Evento: " + horaEvent + "h" + minEvent);
+                    //Finish Time of Event
+                    final int horaEventFinal = Integer.parseInt(events.get(position).getEndTime().substring(0, 2));//Pegar a hora do Evento --> HHhMMmin
+                    final int minEventFinal = Integer.parseInt(events.get(position).getEndTime().substring(3, 5));//Pegar o minuto do Evento --> HHhMMmin
+                    final Date dFinal = new Date();
+                    dFinal.setHours(horaEventFinal);
+                    dFinal.setMinutes(minEventFinal);
+                    Log.d("AQUI", "Hora de fim do Evento: " + dFinal.getHours() + "h" + dFinal.getMinutes());
+                    int horaNow = Integer.parseInt(hora);
+                    int minNow = Integer.parseInt(min);
+                    Date dCell = new Date();
+                    dCell.setHours(horaNow);
+                    dCell.setMinutes(minNow);
+                    int horaEmMinutosEvent = horaEvent * 60 + minEvent;
+                    int horaEmMinutosNow = horaNow * 60 + minNow;
+                    //10 minutos antes ou entre o período do evento
+                    Log.d("AQUI", "Hora do Celular está depois do inicio: " + dCell.after(dInicio) + "   Hora do Celular está antes do Final: " + dCell.before(dFinal));
+                    if (((minEvent - minNow) <= 10 && (minEvent - minNow) >= 0 && horaNow == horaEvent) || (horaNow != horaEvent && (horaEmMinutosEvent - horaEmMinutosNow) <= 10 && (horaEmMinutosEvent - horaEmMinutosNow) >= 0) || (dCell.after(dInicio) && dCell.before(dFinal))) {
+                        checkinChecked=true;
+                    }else{
+                        checkinChecked=false;
                     }
-                    //getKeyWordUpdates(  events.get(position));
-                    eventsAdapter.notifyItemChanged(position);
+                    if (checkinChecked) {
+                        if (events.get(position).getCheckInTime() == null || events.get(position).getCheckInTime().isEmpty()) {
+
+                            teacherBase.child(events.get(position).getuIdTeacher()).child("events").child(user.getTurma())
+                                    .child(events.get(position).getUid()).child("students").child(userUid).child("checkin")
+                                    .setValue(hora + "h" + min);
+
+                            events.get(position).setCheckInTime(hora + "h" + min);
+
+
+
+
+
+                            stop = false;
+                            CURRENT_EVENT = events.get(position);
+                            ComponentName componentName = new ComponentName(HomeActivity.this, NotificationServiceScheduler.class);
+                            JobInfo info = new JobInfo.Builder(123, componentName)
+                                    .setRequiresCharging(false)
+                                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
+                                    .setPersisted(true)
+                                    .setPeriodic(15 * 60 * 100)
+                                    .build();
+                            JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
+                            int resultCode = scheduler.schedule(info);
+                            if (resultCode == JobScheduler.RESULT_SUCCESS) {
+                                Log.d("AQUI", "Job scheduled");
+                            } else {
+                                Log.d("AQUI", "Job scheduled failed");
+                            }
+                            eventsAdapter.notifyItemChanged(position);
+                        }
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Você pode entrar com 10 minutos antes de inciar a aula ou durante o evento", Toast.LENGTH_LONG).show();
+                    }
                 }
-            } else {
-                Toast.makeText(getApplicationContext(), "Você pode entrar com 10 minutos antes de inciar a aula ou até finalizar o evento", Toast.LENGTH_LONG).show();
-            }
+            });
+            asyncTask.execute(url);
+
+
         } else if (runningThread && events.get(position).getCheckInTime().isEmpty()) {
             Toast.makeText(getApplicationContext(), "Aperte em checkout no último evento que você entrou", Toast.LENGTH_SHORT).show();
         }
@@ -388,7 +424,7 @@ public class HomeActivity extends Activity{
     public void setCheckOutTime(final List<Event> events, final int position) {
         if (events.get(position).getCheckInTime() != null && !events.get(position).getCheckInTime().isEmpty()) {
             if (!events.get(position).isCheckOutDone()) {
-                //A   L   T   E   R   A   R
+
 
                 URL url = NetworkUtil.buildUrl("America", "Manaus");
                 TimeAsyncTask asyncTask = new TimeAsyncTask(new TimeAsyncTask.OnFinishTask() {
@@ -668,37 +704,6 @@ public class HomeActivity extends Activity{
             Toast.makeText(getApplicationContext(), "Link do Google Meet copiado com sucesso", Toast.LENGTH_SHORT).show();
         }
 
-    }
-
-    private boolean checkHourCheckin(Event event) {
-        Calendar calendar = Calendar.getInstance();
-        //Start Time of Event
-        int horaEvent = Integer.parseInt(event.getStartTime().substring(0, 2));//Pegar a hora do Evento --> HHhMMmin
-        int minEvent = Integer.parseInt(event.getStartTime().substring(3, 5));//Pegar o minuto do Evento --> HHhMMmin
-        Date dInicio = new Date();
-        dInicio.setHours(horaEvent);
-        dInicio.setMinutes(minEvent);
-        Log.d("AQUI", "Hora de inicio do Evento: " + horaEvent + "h" + minEvent);
-        //Finish Time of Event
-        int horaEventFinal = Integer.parseInt(event.getEndTime().substring(0, 2));//Pegar a hora do Evento --> HHhMMmin
-        int minEventFinal = Integer.parseInt(event.getEndTime().substring(3, 5));//Pegar o minuto do Evento --> HHhMMmin
-        Date dFinal = new Date();
-        dFinal.setHours(horaEventFinal);
-        dFinal.setMinutes(minEventFinal);
-        Log.d("AQUI", "Hora de fim do Evento: " + dFinal.getHours() + "h" + dFinal.getMinutes());
-        //A   L   T   E   R   A   R
-        //Hour of Now
-        int horaNow = calendar.get(Calendar.HOUR_OF_DAY);
-        int minNow = calendar.get(Calendar.MINUTE);
-        Date dCell = new Date();
-        int horaEmMinutosEvent = horaEvent * 60 + minEvent;
-        int horaEmMinutosNow = horaNow * 60 + minNow;
-        //10 minutos antes ou entre o período do evento
-        Log.d("AQUI", "Hora do Celular está depois do inicio: " + dCell.after(dInicio) + "   Hora do Celular está antes do Final: " + dCell.before(dFinal));
-        if (((minEvent - minNow) <= 10 && (minEvent - minNow) >= 0 && horaNow == horaEvent) || (horaNow != horaEvent && (horaEmMinutosEvent - horaEmMinutosNow) <= 10 && (horaEmMinutosEvent - horaEmMinutosNow) >= 0) || (dCell.after(dInicio) && dCell.before(dFinal))) {
-            return true;
-        }
-        return false;
     }
 
 

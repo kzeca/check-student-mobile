@@ -101,7 +101,7 @@ public class NotificationServiceScheduler extends JobService {
 
         if (fullHour.equals(events.getKeys().get(0).getTime())||fullHour.equals(events.getKeys().get(1).getTime())||fullHour.equals(events.getKeys().get(2).getTime())) {
             Log.d("AQUI", "Vai lançar a Notificação Scheduler....");
-            displayNotification("Frequência FMM","Olá, como está a aula? Você deve inserir a palavra-passe para notificar o professor que você está acompanhando a aula!!! ABRA O APLICATIVO!!!");
+            displayNotification("Frequência FMM","Olá, como está a aula? Você deve inserir a palavra-passe para notificar o professor que você está acompanhando a aula!!! ");
         }
 
     }
