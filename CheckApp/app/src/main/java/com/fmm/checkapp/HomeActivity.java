@@ -269,14 +269,14 @@ public class HomeActivity extends Activity{
                                                                                 min = (time.getMinutes() >= 0 && time.getMinutes() <= 9 ? "0" + min : min);
                                                                                 hora = (time.getHours() >= 0 && time.getHours() <= 9 ? "0" + hora : hora);
                                                                                 String fullHour = hora + "h" + min + "min";
-                                                                                Log.d("AQUI", "Hora atual: " + fullHour);
+                                                                                Log.d("AQUI", "Hora atual, no celular: " + fullHour);
                                                                                 if (!minH.equals(min) || firstTime) {
 
-                                                                                    Log.d("AQUI", "Mudou o Minuto, novo horário: " + fullHour);
+                                                                                    Log.d("AQUI", "Mudou o Minuto, novo horário, no celular: " + fullHour);
 
                                                                                     Log.d("AQUI", "Verificando se lança a key......");
 
-                                                                                    givePop(fullHour, new Event(ev_th, uidEv, uidTeacher, checkinF, checkoutF, keysTemp));
+                                                                                    givePop(CURRENT_EVENT);
 
                                                                                     minH = min;
 
@@ -501,34 +501,32 @@ public class HomeActivity extends Activity{
 
     }
 
-    private void givePop(String fullHour, Event events) {
+    private void givePop( final Event events) {
+        URL url = NetworkUtil.buildUrl("America", "Manaus");
+        TimeAsyncTask asyncTask = new TimeAsyncTask(new TimeAsyncTask.OnFinishTask() {
+            @Override
+            public void onFinish(String hora, String min) {
+                String fullHour = hora + "h" + min + "min";
+                if (fullHour.equals(events.getKeys().get(0).getTime())) {
+                    Log.d("AQUI", "Vai soltar o POP-UP");
+                    popUp(events, 0);
+                } else if (fullHour.equals(events.getKeys().get(1).getTime())) {
+                    Log.d("AQUI", "Vai soltar o POP-UP");
+                    popUp(events, 1);
+                } else if (fullHour.equals(events.getKeys().get(2).getTime())) {
 
+                    Log.d("AQUI", "Vai soltar o POP-UP");
 
-        if (fullHour.equals(events.getKeys().get(0).getTime())) {
+                    popUp(events, 2);
 
+                } else {
+                    CURRENT_EVENT = events;
+                }
+                firstTime = false;
+            }
+        });
+        asyncTask.execute(url);
 
-            Log.d("AQUI", "Vai soltar o POP-UP");
-
-            popUp(events, 0);
-
-
-        } else if (fullHour.equals(events.getKeys().get(1).getTime())) {
-
-            Log.d("AQUI", "Vai soltar o POP-UP");
-
-            popUp(events, 1);
-
-
-        } else if (fullHour.equals(events.getKeys().get(2).getTime())) {
-
-            Log.d("AQUI", "Vai soltar o POP-UP");
-
-            popUp(events, 2);
-
-        } else {
-            CURRENT_EVENT = events;
-        }
-        firstTime = false;
 
     }
 

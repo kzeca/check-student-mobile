@@ -11,7 +11,10 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.fmm.checkapp.model.Event;
+import com.fmm.checkapp.task.TimeAsyncTask;
+import com.fmm.checkapp.util.NetworkUtil;
 
+import java.net.URL;
 import java.util.Date;
 
 import static com.fmm.checkapp.HomeActivity.CURRENT_EVENT;
@@ -72,7 +75,7 @@ public class NotificationServiceScheduler extends JobService {
                                         Log.d("AQUI", "Mudou o Minuto, novo horário: "+fullHour);
 
                                         Log.d("AQUI", "Verificando se lança a key......");
-                                        givePop(fullHour,  eventsHere);
+                                        givePop( eventsHere);
 
                                         minH = min;
 
@@ -96,14 +99,19 @@ public class NotificationServiceScheduler extends JobService {
         }).start();
     }
 
-    private void givePop(String fullHour, Event events)  {
-
-
-        if (fullHour.equals(events.getKeys().get(0).getTime())||fullHour.equals(events.getKeys().get(1).getTime())||fullHour.equals(events.getKeys().get(2).getTime())) {
-            Log.d("AQUI", "Vai lançar a Notificação Scheduler....");
-            displayNotification("Frequência FMM","Olá, como está a aula? Você deve inserir a palavra-passe para notificar o professor que você está acompanhando a aula!!! ");
-        }
-
+    private void givePop( final Event events)  {
+        URL url = NetworkUtil.buildUrl("America", "Manaus");
+        TimeAsyncTask asyncTask = new TimeAsyncTask(new TimeAsyncTask.OnFinishTask() {
+            @Override
+            public void onFinish(String hora, String min) {
+                String fullHour = hora + "h" + min + "min";
+                if (fullHour.equals(events.getKeys().get(0).getTime())||fullHour.equals(events.getKeys().get(1).getTime())||fullHour.equals(events.getKeys().get(2).getTime())) {
+                    Log.d("AQUI", "Vai lançar a Notificação Scheduler....");
+                    displayNotification("Frequência FMM","Olá, como está a aula? Você deve inserir a palavra-passe para notificar o professor que você está acompanhando a aula!!! ");
+                }
+            }
+        });
+        asyncTask.execute(url);
     }
 
     public void displayNotification( String title, String body){
