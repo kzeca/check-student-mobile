@@ -19,12 +19,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
-        if(remoteMessage.getNotification() != null){
+        if(remoteMessage.getNotification()!=null) {
             String title = remoteMessage.getNotification().getTitle();
             String body = remoteMessage.getNotification().getBody();
             createNotificationChannelFIREBASE(getApplicationContext());
-            displayNotification( title, body);
-
+            displayNotification(title, body);
         }
     }
     public void displayNotification( String title, String body){
@@ -48,7 +47,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Log.d("AQUI","Criou o Builder......");
 
         NotificationManagerCompat mNotificationMgr = NotificationManagerCompat.from(getApplicationContext());
-        mNotificationMgr.notify(1, mBuilder.build());
+        mNotificationMgr.notify(2, mBuilder.build());
 
         Log.d("AQUI","Lançou a notificação......");
 

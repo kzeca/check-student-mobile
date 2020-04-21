@@ -33,6 +33,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 public class LoginActivity extends Activity {
 
@@ -156,6 +157,7 @@ public class LoginActivity extends Activity {
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     for (DataSnapshot childSnapshot: dataSnapshot.getChildren()) {
                         String turma = childSnapshot.getKey();
+                        FirebaseMessaging.getInstance().subscribeToTopic(turma);
                         user.setTurma(turma);
                     }
                 }
