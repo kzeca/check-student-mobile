@@ -1,5 +1,7 @@
 package com.fmm.checkapp.model;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.fmm.checkapp.firebasemodel.Events;
@@ -9,6 +11,7 @@ import com.fmm.checkapp.util.NetworkUtil;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static com.fmm.checkapp.LoginActivity.user;
@@ -166,16 +169,16 @@ public class Event implements Comparable<Event>{
 
     @Override
     public int compareTo(Event other) {
-
+        Date time = new Date();
 
         String[] timeThis = this.startTime.split("h");
         String[] timeOther = other.getStartTime().split("h");
         int startTimeThis = (Integer.parseInt(timeThis[0])*60) + Integer.parseInt(timeThis[1]);
         int startTimeOther = (Integer.parseInt(timeOther[0])*60) + Integer.parseInt(timeOther[1]);
+        int comparisonTime = time.getHours()*60 + time.getMinutes();
 
-        if (startTimeThis>startTimeOther) return -1;
-        else if(startTimeThis<startTimeOther) return 1;
-
+        if ( Math.abs(startTimeThis - comparisonTime) > Math.abs(startTimeOther - comparisonTime)) return 1;
+        else if ( Math.abs(startTimeThis - comparisonTime) < Math.abs(startTimeOther - comparisonTime)) return -1;
         return 0;
     }
 }
