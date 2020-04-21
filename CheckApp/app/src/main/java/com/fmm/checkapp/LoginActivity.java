@@ -45,7 +45,7 @@ public class LoginActivity extends Activity {
     DatabaseReference dataBase;
     FirebaseUser firebaseUser;
     ProgressBar progressBar;
-    static Usuario user;
+    public static Usuario user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
