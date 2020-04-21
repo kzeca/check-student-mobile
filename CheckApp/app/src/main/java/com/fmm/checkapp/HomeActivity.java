@@ -130,24 +130,24 @@ public class HomeActivity extends Activity{
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
                             final String turma = childSnapshot.getKey();
-                            FirebaseMessaging.getInstance().subscribeToTopic(turma)
-                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            String msg = "Foi inscrito" + turma;
-                                            if (!task.isSuccessful()) {
-                                                msg = "Nao foi inscrito " + turma;
-                                            }
-                                            Log.d(TAG, msg);
-                                            Toast.makeText(HomeActivity.this, msg, Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
                             user.setTurma(turma);
                             if (turma != null) {
                                 user.setTurma(turma);
                             }
                         }
                         getCurrentUserEvents(user.getTurma());
+                        FirebaseMessaging.getInstance().subscribeToTopic(user.getTurma())
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        String msg = "Foi inscrito " + user.getTurma();
+                                        if (!task.isSuccessful()) {
+                                            msg = "Nao foi inscrito " + user.getTurma();
+                                        }
+                                        Log.d(TAG, msg);
+                                        Toast.makeText(HomeActivity.this, msg, Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                     }
 
                     @Override
