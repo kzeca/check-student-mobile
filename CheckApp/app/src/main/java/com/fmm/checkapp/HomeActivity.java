@@ -62,6 +62,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -464,6 +465,8 @@ public class HomeActivity extends Activity{
 
     public void buildRecyclerView(final List<Event> eventsList) {
 
+        Collections.sort(eventsList);
+
         recyclerViewEvents = findViewById(R.id.home_recycler_view_events);
         recyclerViewEvents.setLayoutManager(new LinearLayoutManager(this));
         eventsAdapter = new MyRecyclerViewAdapter(eventsList);
@@ -538,7 +541,7 @@ public class HomeActivity extends Activity{
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(HomeActivity.this);
         mBuilder.setCancelable(false);
         View mView = getLayoutInflater().inflate(R.layout.dialog_teacher_key_word, null);
-        final EditText edtEmail = (EditText) mView.findViewById(R.id.dialog_key_word_edt_password);
+        final EditText edtPassword = (EditText) mView.findViewById(R.id.dialog_key_word_edt_password);
         TextView messageKey = mView.findViewById(R.id.number_key_word);
         Button btnConfirma = (Button) mView.findViewById(R.id.dialog_key_word_bt_confirma);
         messageKey.setText("Insira a " + (keyPosition + 1) + "ª" + " palavra-passe fornecida pelo(a) professor(a).");
@@ -550,8 +553,8 @@ public class HomeActivity extends Activity{
         btnConfirma.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!edtEmail.getText().toString().equals("") || !edtEmail.getText().toString().isEmpty()) {
-                    if (edtEmail.getText().toString().equals(events.getKeys().get(keyPosition).getKey())) {
+                if (!edtPassword.getText().toString().equals("") || !edtPassword.getText().toString().isEmpty()) {
+                    if (edtPassword.getText().toString().equalsIgnoreCase(events.getKeys().get(keyPosition).getKey())) {
                         teacherBase.child(events.getuIdTeacher()).child("events").child(user.getTurma())
                                 .child(events.getUid()).child("students").child(userUid).child("keys").child("key" + Integer.toString(keyPosition + 1))
                                 .setValue("ok");

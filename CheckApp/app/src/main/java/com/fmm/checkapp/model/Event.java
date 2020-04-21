@@ -4,11 +4,16 @@ import androidx.annotation.NonNull;
 
 import com.fmm.checkapp.firebasemodel.Events;
 import com.fmm.checkapp.firebasemodel.Keys;
+import com.fmm.checkapp.task.TimeAsyncTask;
+import com.fmm.checkapp.util.NetworkUtil;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Event {
+import static com.fmm.checkapp.LoginActivity.user;
+
+public class Event implements Comparable<Event>{
     private String subject;
     private String title;
     private String date;
@@ -157,5 +162,20 @@ public class Event {
     @Override
     public String toString() {
         return this.getTitle() + "," + this.getUrl() + "," + this.getStartTime() + this.getEndTime();
+    }
+
+    @Override
+    public int compareTo(Event other) {
+
+
+        String[] timeThis = this.startTime.split("h");
+        String[] timeOther = other.getStartTime().split("h");
+        int startTimeThis = (Integer.parseInt(timeThis[0])*60) + Integer.parseInt(timeThis[1]);
+        int startTimeOther = (Integer.parseInt(timeOther[0])*60) + Integer.parseInt(timeOther[1]);
+
+        if (startTimeThis>startTimeOther) return -1;
+        else if(startTimeThis<startTimeOther) return 1;
+
+        return 0;
     }
 }
