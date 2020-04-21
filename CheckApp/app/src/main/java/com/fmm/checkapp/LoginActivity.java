@@ -157,7 +157,7 @@ public class LoginActivity extends Activity {
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     for (DataSnapshot childSnapshot: dataSnapshot.getChildren()) {
                         String turma = childSnapshot.getKey();
-                        FirebaseMessaging.getInstance().subscribeToTopic(turma);
+
                         user.setTurma(turma);
                     }
                 }

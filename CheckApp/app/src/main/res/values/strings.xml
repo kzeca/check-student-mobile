@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Frequência FMM</string>
+    <string name="msg_subscribed">Foi inscrito</string>
+    <string name="msg_subscribe_failed">Deu errado</string>
 
     <string-array name="salas">
 

@@ -46,6 +46,8 @@ import com.fmm.checkapp.firebasemodel.Professores;
 import com.fmm.checkapp.firebasemodel.Students;
 import com.fmm.checkapp.task.TimeAsyncTask;
 import com.fmm.checkapp.util.NetworkUtil;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -53,6 +55,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.net.URL;
 import java.text.ParseException;
@@ -86,6 +89,7 @@ public class HomeActivity extends Activity{
     boolean runningThread;
     public static Event CURRENT_EVENT;
     final static String CHANNEL_ID = "simplified_coding";
+    static public String TAG = "HomeScreen";
 
 
     @Override
@@ -125,7 +129,19 @@ public class HomeActivity extends Activity{
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
-                            String turma = childSnapshot.getKey();
+                            final String turma = childSnapshot.getKey();
+                            FirebaseMessaging.getInstance().subscribeToTopic(turma)
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            String msg = "Foi inscrito" + turma;
+                                            if (!task.isSuccessful()) {
+                                                msg = "Nao foi inscrito " + turma;
+                                            }
+                                            Log.d(TAG, msg);
+                                            Toast.makeText(HomeActivity.this, msg, Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
                             user.setTurma(turma);
                             if (turma != null) {
                                 user.setTurma(turma);
