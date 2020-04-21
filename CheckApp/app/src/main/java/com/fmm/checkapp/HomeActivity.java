@@ -261,11 +261,12 @@ public class HomeActivity extends Activity{
                                                     final String uidEv = m.getKey();
                                                     final String uidTeacher = dados.getKey();
                                                     CURRENT_EVENT = new Event(ev_th, uidEv, uidTeacher, checkinF, checkoutF, keysTemp);
-
+                                                    stop=true;
                                                     Runnable runnable = new Runnable() {
 
                                                         @Override
                                                         public void run() {
+                                                            stop=false;
                                                             while (!stop) {
                                                                 Log.d("AQUI", "Na Thread Current Events.....");
                                                                 synchronized (this) {
@@ -288,7 +289,7 @@ public class HomeActivity extends Activity{
 
                                                                                     Log.d("AQUI", "Verificando se lança a key......");
 
-                                                                                    givePop(fullHour,CURRENT_EVENT);
+                                                                                    givePop(CURRENT_EVENT);
 
                                                                                     minH = min;
 
@@ -515,7 +516,13 @@ public class HomeActivity extends Activity{
 
     }
 
-    private void givePop(String fullHour,  Event events) {
+    private void givePop(final  Event events) {
+        URL url = NetworkUtil.buildUrl("America", "Manaus");
+        TimeAsyncTask asyncTask = new TimeAsyncTask(new TimeAsyncTask.OnFinishTask() {
+            @Override
+            public void onFinish(String hora, String min) {
+
+                String fullHour = hora + "h" + min + "min";
                 if (fullHour.equals(events.getKeys().get(0).getTime())) {
                     Log.d("AQUI", "Vai soltar o POP-UP - 1");
                     popUp(events, 0);
@@ -533,8 +540,10 @@ public class HomeActivity extends Activity{
                     CURRENT_EVENT = events;
                 }
                 firstTime = false;
+            }
+        });
+        asyncTask.execute(url);
     }
-
     private void popUp(final Event events, final int keyPosition) {
 
         MediaPlayer popup = MediaPlayer.create(this, R.raw.popup);
