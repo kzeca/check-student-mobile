@@ -563,7 +563,7 @@ public class HomeActivity extends Activity{
             @Override
             public void onClick(View v) {
                 if (!edtPassword.getText().toString().equals("") || !edtPassword.getText().toString().isEmpty()) {
-                    if (edtPassword.getText().toString().equalsIgnoreCase(events.getKeys().get(keyPosition).getKey())) {
+                    if (edtPassword.getText().toString().trim().equalsIgnoreCase(events.getKeys().get(keyPosition).getKey().trim())) {
                         teacherBase.child(events.getuIdTeacher()).child("events").child(user.getTurma())
                                 .child(events.getUid()).child("students").child(userUid).child("keys").child("key" + Integer.toString(keyPosition + 1))
                                 .setValue("ok");
