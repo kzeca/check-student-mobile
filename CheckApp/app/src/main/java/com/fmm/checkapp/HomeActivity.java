@@ -92,6 +92,7 @@ public class HomeActivity extends Activity{
     static public String TAG = "HomeScreen";
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,14 +111,9 @@ public class HomeActivity extends Activity{
         appHidden = false;
         firstTime = true;
         runningThread = false;
-        URL url = NetworkUtil.buildUrl("America", "Manaus");
-        TimeAsyncTask asyncTask = new TimeAsyncTask(new TimeAsyncTask.OnFinishTask() {
-            @Override
-            public void onFinish(String hora, String min) {
-                minH = min;
-            }
-        });
-        asyncTask.execute(url);
+        Date hora = new Date();
+        minH= Integer.toString(hora.getHours());
+        minH=(hora.getMinutes() >= 0 && hora.getMinutes() <= 9 ? "0" + minH : minH);
 
 
         CURRENT_EVENT=null;
@@ -291,7 +287,7 @@ public class HomeActivity extends Activity{
 
                                                                                     Log.d("AQUI", "Verificando se lança a key......");
 
-                                                                                    givePop(CURRENT_EVENT);
+                                                                                    givePop(fullHour,CURRENT_EVENT);
 
                                                                                     minH = min;
 
@@ -516,33 +512,24 @@ public class HomeActivity extends Activity{
 
     }
 
-    private void givePop( final Event events) {
-        URL url = NetworkUtil.buildUrl("America", "Manaus");
-        TimeAsyncTask asyncTask = new TimeAsyncTask(new TimeAsyncTask.OnFinishTask() {
-            @Override
-            public void onFinish(String hora, String min) {
-                String fullHour = hora + "h" + min + "min";
+    private void givePop(String fullHour,  Event events) {
                 if (fullHour.equals(events.getKeys().get(0).getTime())) {
-                    Log.d("AQUI", "Vai soltar o POP-UP");
+                    Log.d("AQUI", "Vai soltar o POP-UP - 1");
                     popUp(events, 0);
                 } else if (fullHour.equals(events.getKeys().get(1).getTime())) {
-                    Log.d("AQUI", "Vai soltar o POP-UP");
+
+                    Log.d("AQUI", "Vai soltar o POP-UP - 2");
                     popUp(events, 1);
+
                 } else if (fullHour.equals(events.getKeys().get(2).getTime())) {
 
-                    Log.d("AQUI", "Vai soltar o POP-UP");
-
+                    Log.d("AQUI", "Vai soltar o POP-UP - 3");
                     popUp(events, 2);
 
                 } else {
                     CURRENT_EVENT = events;
                 }
                 firstTime = false;
-            }
-        });
-        asyncTask.execute(url);
-
-
     }
 
     private void popUp(final Event events, final int keyPosition) {
