@@ -145,7 +145,6 @@ public class HomeActivity extends Activity{
                                             msg = "Nao foi inscrito " + user.getTurma();
                                         }
                                         Log.d(TAG, msg);
-                                        Toast.makeText(HomeActivity.this, msg, Toast.LENGTH_SHORT).show();
                                     }
                                 });
                     }

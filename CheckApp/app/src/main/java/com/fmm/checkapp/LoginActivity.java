@@ -157,7 +157,6 @@ public class LoginActivity extends Activity {
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     for (DataSnapshot childSnapshot: dataSnapshot.getChildren()) {
                         String turma = childSnapshot.getKey();
-
                         user.setTurma(turma);
                     }
                 }
