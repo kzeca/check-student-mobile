@@ -121,17 +121,6 @@ public class HomeActivity extends Activity {
         CURRENT_EVENT = null;
         createNotificationChannel(getApplicationContext());
         createNotificationChannelFIREBASE(getApplicationContext());
-        teacherBase.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                getCurrentUserEvents(classStudent);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
 
 
         btInfo.setOnClickListener(new View.OnClickListener() {
@@ -188,6 +177,19 @@ public class HomeActivity extends Activity {
 
             }
         });
+
+        teacherBase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                getCurrentUserEvents(classStudent);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
 
     }
 
@@ -272,15 +274,11 @@ public class HomeActivity extends Activity {
                                                     CURRENT_EVENT = new Event(ev_th, uidEv, uidTeacher, checkinF, checkoutF, keysTemp);
 
 
-                                                    stop = true;
-                                                    JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
-                                                    scheduler.cancel(123);
-                                                    Log.d("AQUI", "Job Schedular Cancelled On Current Events....");
+
                                                     Runnable runnable = new Runnable() {
 
                                                         @Override
                                                         public void run() {
-                                                            stop = false;
                                                             while (!stop) {
                                                                 Log.d("AQUI", "Na Thread Current Events.....");
                                                                 synchronized (this) {
@@ -330,19 +328,7 @@ public class HomeActivity extends Activity {
                                                     };
                                                     th = new Thread(runnable);
                                                     th.start();
-                                                    ComponentName componentName = new ComponentName(HomeActivity.this, NotificationServiceScheduler.class);
-                                                    JobInfo info = new JobInfo.Builder(123, componentName)
-                                                            .setRequiresCharging(false)
-                                                            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
-                                                            .setPersisted(true)
-                                                            .setPeriodic(15 * 60 * 100)
-                                                            .build();
-                                                    int resultCode = scheduler.schedule(info);
-                                                    if (resultCode == JobScheduler.RESULT_SUCCESS) {
-                                                        Log.d("AQUI", "Job scheduled");
-                                                    } else {
-                                                        Log.d("AQUI", "Job scheduled failed");
-                                                    }
+
 
 
                                                 }
@@ -552,49 +538,53 @@ public class HomeActivity extends Activity {
     }
 
     private void givePopEmergency(final Event events) {
-    if (clickCheckKey) {
-        clickCheckKey = false;
-        URL url = NetworkUtil.buildUrl("America", "Manaus");
-        TimeAsyncTask asyncTask = new TimeAsyncTask(new TimeAsyncTask.OnFinishTask() {
-            @Override
-            public void onFinish(String hora, String min) {
-                int minTemp = Integer.parseInt(min);
-                int horaTemp = Integer.parseInt(hora);
-                boolean verify = false;
-                Log.d("AQUI", Integer.toString(events.getKeys().size()));
-                int tam;
+        if(events.isCheckInDone()&&!events.isCheckOutDone()) {
+            if (clickCheckKey) {
+                clickCheckKey = false;
+                URL url = NetworkUtil.buildUrl("America", "Manaus");
+                TimeAsyncTask asyncTask = new TimeAsyncTask(new TimeAsyncTask.OnFinishTask() {
+                    @Override
+                    public void onFinish(String hora, String min) {
+                        int minTemp = Integer.parseInt(min);
+                        int horaTemp = Integer.parseInt(hora);
+                        boolean verify = false;
+                        Log.d("AQUI", Integer.toString(events.getKeys().size()));
+                        int tam;
 
-                for (int i = 0; i < events.getKeys().size(); i++) {
-                    if (!events.getKeys().get(i).getTime().isEmpty() && !events.getKeys().get(i).getKey().isEmpty()) {
-                        int horaKey = Integer.parseInt(events.getKeys().get(i).getTime().substring(0, 2));
-                        int minKey = Integer.parseInt(events.getKeys().get(i).getTime().substring(3, 5));// HHhMMmin
-                        int horaKeyMin = horaKey * 60 + minKey;
-                        int horaTempMin = horaTemp * 60 + minTemp;
-                        Log.d("AQUI", "Hora em minutos de Manaus: " + horaTempMin + "   Hora em minutos da Key: " + horaKeyMin);
-                        Log.d("AQUI", "Diferença das horas em minutos: " + (Math.abs(horaTempMin - horaKeyMin)));
+                        for (int i = 0; i < events.getKeys().size(); i++) {
+                            if (!events.getKeys().get(i).getTime().isEmpty() && !events.getKeys().get(i).getKey().isEmpty()) {
+                                int horaKey = Integer.parseInt(events.getKeys().get(i).getTime().substring(0, 2));
+                                int minKey = Integer.parseInt(events.getKeys().get(i).getTime().substring(3, 5));// HHhMMmin
+                                int horaKeyMin = horaKey * 60 + minKey;
+                                int horaTempMin = horaTemp * 60 + minTemp;
+                                Log.d("AQUI", "Hora em minutos de Manaus: " + horaTempMin + "   Hora em minutos da Key: " + horaKeyMin);
+                                Log.d("AQUI", "Diferença das horas em minutos: " + (Math.abs(horaTempMin - horaKeyMin)));
 
-                        if (horaTempMin - horaKeyMin <= 2 && horaTempMin - horaKeyMin >= 0) {
-                            Log.d("AQUI", "Diferença entre 2min e 0min");
-                            popUp(events, i);
+                                if (horaTempMin - horaKeyMin <= 2 && horaTempMin - horaKeyMin >= 0) {
+                                    Log.d("AQUI", "Diferença entre 2min e 0min");
+                                    popUp(events, i);
 
-                            verify = true;
-                            break;
+                                    verify = true;
+                                    break;
+                                }
+                            }
                         }
+                        if (!verify) {
+
+                            Toast.makeText(getApplicationContext(), "Não se preocupe! Não há palavra-passe no momento!", Toast.LENGTH_SHORT).show();
+                            CURRENT_EVENT = events;
+
+                            firstTime = false;
+
+                        }
+                        clickCheckKey = true;
                     }
-                }
-                if (!verify) {
-
-                    Toast.makeText(getApplicationContext(), "Não se preocupe! Não há palavra-passe no momento!", Toast.LENGTH_SHORT).show();
-                    CURRENT_EVENT = events;
-
-                    firstTime = false;
-
-                }
-                clickCheckKey = true;
+                });
+                asyncTask.execute(url);
             }
-        });
-        asyncTask.execute(url);
-    }
+        }else{
+            Toast.makeText(getApplicationContext(), "Aperte em checkout no último evento que você entrou", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void givePop(final Event events) {
