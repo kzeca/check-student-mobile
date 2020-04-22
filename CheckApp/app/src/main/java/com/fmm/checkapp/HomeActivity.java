@@ -571,33 +571,22 @@ public class HomeActivity extends Activity {
                             int minKey = Integer.parseInt(events.getKeys().get(i).getTime().substring(3, 5));// HHhMMmin
                             int horaKeyMin = horaKey * 60 + minKey;
                             int horaTempMin = horaTemp * 60 + minTemp;
-                            Log.d("AQUI", "+1");
+                            Log.d("AQUI", "Hora em minutos de Manaus: "+horaTempMin+ "   Hora em minutos da Key: "+horaKeyMin);
+                            Log.d("AQUI","Diferença das horas em minutos: "+(Math.abs(horaTempMin - horaKeyMin)));
 
-                            if (Math.abs(horaTempMin - horaKeyMin) <= 2 && Math.abs(horaTempMin - horaKeyMin) >= 0) {
+                            if (horaTempMin - horaKeyMin <= 2 && horaTempMin - horaKeyMin >= 0) {
+                                Log.d("AQUI","Diferença entre 2min e 0min");
+                                popUp(events, i);
                                 verify = true;
                                 break;
                             }
                         }
                     }
-                    if (verify) {
-                        String fullHour = hora + "h" + min + "min";
-                        if (fullHour.equals(events.getKeys().get(0).getTime())) {
-                            Log.d("AQUI", "Vai soltar o POP-UP - 1");
-                            popUp(events, 0);
-                        } else if (fullHour.equals(events.getKeys().get(1).getTime())) {
+                    if (!verify) {
 
-                            Log.d("AQUI", "Vai soltar o POP-UP - 2");
-                            popUp(events, 1);
+                        Toast.makeText(getApplicationContext(), "Não se preocupe! Não há palavra-passe no momento!", Toast.LENGTH_SHORT).show();
+                        CURRENT_EVENT = events;
 
-                        } else if (fullHour.equals(events.getKeys().get(2).getTime())) {
-
-                            Log.d("AQUI", "Vai soltar o POP-UP - 3");
-                            popUp(events, 2);
-
-                        } else {
-                            Toast.makeText(getApplicationContext(), "Não se preocupe! Não há palavra-passe no momento!", Toast.LENGTH_SHORT).show();
-                            CURRENT_EVENT = events;
-                        }
                         firstTime = false;
 
                     }
