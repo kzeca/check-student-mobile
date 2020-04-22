@@ -71,7 +71,7 @@ import java.util.Map;
 
 import static com.fmm.checkapp.LoginActivity.user;
 
-public class HomeActivity extends Activity{
+public class HomeActivity extends Activity {
 
     RecyclerView recyclerViewEvents;
     MyRecyclerViewAdapter eventsAdapter;
@@ -85,13 +85,13 @@ public class HomeActivity extends Activity{
     DatabaseReference teacherBase;
     Thread th;
     String minH;
+    boolean clickCheckKey;
     boolean stop;
-    boolean appHidden, firstTime,checkinChecked;
+    boolean appHidden, firstTime, checkinChecked;
     boolean runningThread;
     public static Event CURRENT_EVENT;
     final static String CHANNEL_ID = "simplified_coding";
     static public String TAG = "HomeScreen";
-
 
 
     @Override
@@ -99,7 +99,7 @@ public class HomeActivity extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-
+        clickCheckKey = true;
         btInfo = findViewById(R.id.activity_home_bt_about_us);
         imgNoEvents = findViewById(R.id.activity_home_img_no_events);
         msgNoEvents = findViewById(R.id.msg_no_events);
@@ -113,11 +113,11 @@ public class HomeActivity extends Activity{
         firstTime = true;
         runningThread = false;
         Date hora = new Date();
-        minH= Integer.toString(hora.getHours());
-        minH=(hora.getMinutes() >= 0 && hora.getMinutes() <= 9 ? "0" + minH : minH);
+        minH = Integer.toString(hora.getHours());
+        minH = (hora.getMinutes() >= 0 && hora.getMinutes() <= 9 ? "0" + minH : minH);
 
 
-        CURRENT_EVENT=null;
+        CURRENT_EVENT = null;
         createNotificationChannel(getApplicationContext());
         createNotificationChannelFIREBASE(getApplicationContext());
 
@@ -261,12 +261,17 @@ public class HomeActivity extends Activity{
                                                     final String uidEv = m.getKey();
                                                     final String uidTeacher = dados.getKey();
                                                     CURRENT_EVENT = new Event(ev_th, uidEv, uidTeacher, checkinF, checkoutF, keysTemp);
-                                                    stop=true;
+
+
+                                                    stop = true;
+                                                    JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
+                                                    scheduler.cancel(123);
+                                                    Log.d("AQUI", "Job Schedular Cancelled On Current Events....");
                                                     Runnable runnable = new Runnable() {
 
                                                         @Override
                                                         public void run() {
-                                                            stop=false;
+                                                            stop = false;
                                                             while (!stop) {
                                                                 Log.d("AQUI", "Na Thread Current Events.....");
                                                                 synchronized (this) {
@@ -316,6 +321,19 @@ public class HomeActivity extends Activity{
                                                     };
                                                     th = new Thread(runnable);
                                                     th.start();
+                                                    ComponentName componentName = new ComponentName(HomeActivity.this, NotificationServiceScheduler.class);
+                                                    JobInfo info = new JobInfo.Builder(123, componentName)
+                                                            .setRequiresCharging(false)
+                                                            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
+                                                            .setPersisted(true)
+                                                            .setPeriodic(15 * 60 * 100)
+                                                            .build();
+                                                    int resultCode = scheduler.schedule(info);
+                                                    if (resultCode == JobScheduler.RESULT_SUCCESS) {
+                                                        Log.d("AQUI", "Job scheduled");
+                                                    } else {
+                                                        Log.d("AQUI", "Job scheduled failed");
+                                                    }
 
 
                                                 }
@@ -386,9 +404,9 @@ public class HomeActivity extends Activity{
                     //10 minutos antes ou entre o período do evento
                     Log.d("AQUI", "Hora do Celular está depois do inicio: " + dCell.after(dInicio) + "   Hora do Celular está antes do Final: " + dCell.before(dFinal));
                     if (((minEvent - minNow) <= 10 && (minEvent - minNow) >= 0 && horaNow == horaEvent) || (horaNow != horaEvent && (horaEmMinutosEvent - horaEmMinutosNow) <= 10 && (horaEmMinutosEvent - horaEmMinutosNow) >= 0) || (dCell.after(dInicio) && dCell.before(dFinal))) {
-                        checkinChecked=true;
-                    }else{
-                        checkinChecked=false;
+                        checkinChecked = true;
+                    } else {
+                        checkinChecked = false;
                     }
                     if (checkinChecked) {
                         if (events.get(position).getCheckInTime() == null || events.get(position).getCheckInTime().isEmpty()) {
@@ -398,9 +416,6 @@ public class HomeActivity extends Activity{
                                     .setValue(hora + "h" + min);
 
                             events.get(position).setCheckInTime(hora + "h" + min);
-
-
-
 
 
                             stop = false;
@@ -464,6 +479,7 @@ public class HomeActivity extends Activity{
         }
     }
 
+
     public void buildRecyclerView(final List<Event> eventsList) {
 
         Collections.sort(eventsList);
@@ -491,6 +507,11 @@ public class HomeActivity extends Activity{
             }
 
             @Override
+            public void onKeyButtonClick(int position) {
+                givePopEmergency(eventsList.get(position));
+            }
+
+            @Override
             public void onGoLiveClick(int position) {
                 Uri uri = Uri.parse(eventsList.get(position).getUrl());
                 Intent intent = new Intent(Intent.ACTION_VIEW, uri);
@@ -512,11 +533,73 @@ public class HomeActivity extends Activity{
             public void onLongGoLiveClick(int position) {
                 copyLinkMeet(eventsList.get(position).getUrl());
             }
+
+            @Override
+            public void onLongKeyButtonClick(int position) {
+                Toast.makeText(HomeActivity.this, "Verifique se ainda pode colocar a key", Toast.LENGTH_SHORT).show();
+            }
         });
 
     }
 
-    private void givePop(final  Event events) {
+    private void givePopEmergency(final Event events) {
+
+        if (clickCheckKey) {
+            clickCheckKey = false;
+            URL url = NetworkUtil.buildUrl("America", "Manaus");
+            TimeAsyncTask asyncTask = new TimeAsyncTask(new TimeAsyncTask.OnFinishTask() {
+                @Override
+                public void onFinish(String hora, String min) {
+                    int minTemp = Integer.parseInt(min);
+                    int horaTemp = Integer.parseInt(hora);
+                    boolean verify = false;
+                    Log.d("AQUI", Integer.toString(events.getKeys().size()));
+                    int tam;
+
+                    for (int i = 0; i < events.getKeys().size(); i++) {
+                        if(!events.getKeys().get(i).getTime().isEmpty()&&!events.getKeys().get(i).getKey().isEmpty()){
+                            int horaKey = Integer.parseInt(events.getKeys().get(i).getTime().substring(0, 2));
+                            int minKey = Integer.parseInt(events.getKeys().get(i).getTime().substring(3, 5));// HHhMMmin
+                            int horaKeyMin = horaKey * 60 + minKey;
+                            int horaTempMin = horaTemp * 60 + minTemp;
+                            Log.d("AQUI", "+1");
+
+                            if ((horaTempMin - horaKeyMin) <= 2 && (horaTempMin - horaKeyMin) >= 0) {
+                                verify = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (verify) {
+                        String fullHour = hora + "h" + min + "min";
+                        if (fullHour.equals(events.getKeys().get(0).getTime())) {
+                            Log.d("AQUI", "Vai soltar o POP-UP - 1");
+                            popUp(events, 0);
+                        } else if (fullHour.equals(events.getKeys().get(1).getTime())) {
+
+                            Log.d("AQUI", "Vai soltar o POP-UP - 2");
+                            popUp(events, 1);
+
+                        } else if (fullHour.equals(events.getKeys().get(2).getTime())) {
+
+                            Log.d("AQUI", "Vai soltar o POP-UP - 3");
+                            popUp(events, 2);
+
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Não se preocupe! Não há palavra-passe no momento!", Toast.LENGTH_SHORT).show();
+                            CURRENT_EVENT = events;
+                        }
+                        firstTime = false;
+
+                    }
+                    clickCheckKey = true;
+                }
+            });
+            asyncTask.execute(url);
+        }
+    }
+
+    private void givePop(final Event events) {
         URL url = NetworkUtil.buildUrl("America", "Manaus");
         TimeAsyncTask asyncTask = new TimeAsyncTask(new TimeAsyncTask.OnFinishTask() {
             @Override
@@ -544,6 +627,7 @@ public class HomeActivity extends Activity{
         });
         asyncTask.execute(url);
     }
+
     private void popUp(final Event events, final int keyPosition) {
 
         MediaPlayer popup = MediaPlayer.create(this, R.raw.popup);
@@ -719,7 +803,7 @@ public class HomeActivity extends Activity{
     }
 
 
-    interface OnDateTimeReceived{
+    interface OnDateTimeReceived {
         void dateTimeReceivedListener(String hora, String min);
     }
 }

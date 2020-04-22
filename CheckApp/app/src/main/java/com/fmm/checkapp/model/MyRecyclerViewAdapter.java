@@ -28,12 +28,14 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         void onCheckInClick(int position);
         void onCheckOutClick(int position);
         void onGoLiveClick(int position);
+        void onKeyButtonClick(int position);
 
     }
     public interface OnLongClickListener{
         void onLongCheckInClick(int position);
         void onLongCheckOutClick(int position);
         void onLongGoLiveClick(int position);
+        void onLongKeyButtonClick(int position);
 
     }
     public void setOnLongClickListener(OnLongClickListener listener){
@@ -50,7 +52,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     public static class ViewHolder extends RecyclerView.ViewHolder{
         private TextView tvSubject, tvTitle, tvStartTime, tvEndTime, tvCheckInTime, tvCheckOutTime;
         private Button btnCheckIn, btnCheckOut;
-        private ImageButton btnGoLive;
+        private ImageButton btnGoLive, btnKey;
 
         public ViewHolder(@NonNull View itemView, final OnItemClickListener listener, final OnLongClickListener listenerLong) {
             super(itemView);
@@ -63,6 +65,8 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
             btnCheckIn = itemView.findViewById(R.id.event_bt_check_in);
             btnCheckOut = itemView.findViewById(R.id.event_bt_check_out);
             btnGoLive = itemView.findViewById(R.id.event_bt_go_live);
+            btnKey = itemView.findViewById(R.id.event_bt_keys);
+
 
             btnCheckIn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -99,6 +103,20 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
                     }
                 }
             });
+
+            btnKey.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(listener != null){
+                        int position = getAdapterPosition();
+                        if(position != RecyclerView.NO_POSITION){
+                            listener.onKeyButtonClick(position);
+                        }
+                    }
+                }
+            });
+
+
             btnCheckIn.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
@@ -136,6 +154,19 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
                         }
                     }
                     return  true;
+                }
+            });
+            btnKey.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if(listenerLong != null){
+                        int position = getAdapterPosition();
+                        if(position != RecyclerView.NO_POSITION){
+                            listenerLong.onLongKeyButtonClick(position);
+                        }
+                    }
+
+                    return true;
                 }
             });
 
