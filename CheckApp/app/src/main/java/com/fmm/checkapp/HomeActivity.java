@@ -552,49 +552,49 @@ public class HomeActivity extends Activity {
     }
 
     private void givePopEmergency(final Event events) {
+    if (clickCheckKey) {
+        clickCheckKey = false;
+        URL url = NetworkUtil.buildUrl("America", "Manaus");
+        TimeAsyncTask asyncTask = new TimeAsyncTask(new TimeAsyncTask.OnFinishTask() {
+            @Override
+            public void onFinish(String hora, String min) {
+                int minTemp = Integer.parseInt(min);
+                int horaTemp = Integer.parseInt(hora);
+                boolean verify = false;
+                Log.d("AQUI", Integer.toString(events.getKeys().size()));
+                int tam;
 
-        if (clickCheckKey) {
-            clickCheckKey = false;
-            URL url = NetworkUtil.buildUrl("America", "Manaus");
-            TimeAsyncTask asyncTask = new TimeAsyncTask(new TimeAsyncTask.OnFinishTask() {
-                @Override
-                public void onFinish(String hora, String min) {
-                    int minTemp = Integer.parseInt(min);
-                    int horaTemp = Integer.parseInt(hora);
-                    boolean verify = false;
-                    Log.d("AQUI", Integer.toString(events.getKeys().size()));
-                    int tam;
+                for (int i = 0; i < events.getKeys().size(); i++) {
+                    if (!events.getKeys().get(i).getTime().isEmpty() && !events.getKeys().get(i).getKey().isEmpty()) {
+                        int horaKey = Integer.parseInt(events.getKeys().get(i).getTime().substring(0, 2));
+                        int minKey = Integer.parseInt(events.getKeys().get(i).getTime().substring(3, 5));// HHhMMmin
+                        int horaKeyMin = horaKey * 60 + minKey;
+                        int horaTempMin = horaTemp * 60 + minTemp;
+                        Log.d("AQUI", "Hora em minutos de Manaus: " + horaTempMin + "   Hora em minutos da Key: " + horaKeyMin);
+                        Log.d("AQUI", "Diferença das horas em minutos: " + (Math.abs(horaTempMin - horaKeyMin)));
 
-                    for (int i = 0; i < events.getKeys().size(); i++) {
-                        if(!events.getKeys().get(i).getTime().isEmpty()&&!events.getKeys().get(i).getKey().isEmpty()){
-                            int horaKey = Integer.parseInt(events.getKeys().get(i).getTime().substring(0, 2));
-                            int minKey = Integer.parseInt(events.getKeys().get(i).getTime().substring(3, 5));// HHhMMmin
-                            int horaKeyMin = horaKey * 60 + minKey;
-                            int horaTempMin = horaTemp * 60 + minTemp;
-                            Log.d("AQUI", "Hora em minutos de Manaus: "+horaTempMin+ "   Hora em minutos da Key: "+horaKeyMin);
-                            Log.d("AQUI","Diferença das horas em minutos: "+(Math.abs(horaTempMin - horaKeyMin)));
+                        if (horaTempMin - horaKeyMin <= 2 && horaTempMin - horaKeyMin >= 0) {
+                            Log.d("AQUI", "Diferença entre 2min e 0min");
+                            popUp(events, i);
 
-                            if (horaTempMin - horaKeyMin <= 2 && horaTempMin - horaKeyMin >= 0) {
-                                Log.d("AQUI","Diferença entre 2min e 0min");
-                                popUp(events, i);
-                                verify = true;
-                                break;
-                            }
+                            verify = true;
+                            break;
                         }
                     }
-                    if (!verify) {
-
-                        Toast.makeText(getApplicationContext(), "Não se preocupe! Não há palavra-passe no momento!", Toast.LENGTH_SHORT).show();
-                        CURRENT_EVENT = events;
-
-                        firstTime = false;
-
-                    }
-                    clickCheckKey = true;
                 }
-            });
-            asyncTask.execute(url);
-        }
+                if (!verify) {
+
+                    Toast.makeText(getApplicationContext(), "Não se preocupe! Não há palavra-passe no momento!", Toast.LENGTH_SHORT).show();
+                    CURRENT_EVENT = events;
+
+                    firstTime = false;
+
+                }
+                clickCheckKey = true;
+            }
+        });
+        asyncTask.execute(url);
+    }
     }
 
     private void givePop(final Event events) {
@@ -607,15 +607,20 @@ public class HomeActivity extends Activity {
                 if (fullHour.equals(events.getKeys().get(0).getTime())) {
                     Log.d("AQUI", "Vai soltar o POP-UP - 1");
                     popUp(events, 0);
+
+
                 } else if (fullHour.equals(events.getKeys().get(1).getTime())) {
 
                     Log.d("AQUI", "Vai soltar o POP-UP - 2");
                     popUp(events, 1);
 
+
+
                 } else if (fullHour.equals(events.getKeys().get(2).getTime())) {
 
                     Log.d("AQUI", "Vai soltar o POP-UP - 3");
                     popUp(events, 2);
+
 
                 } else {
                     CURRENT_EVENT = events;
@@ -652,7 +657,9 @@ public class HomeActivity extends Activity {
                         dialog.dismiss();
 
                         Toast.makeText(HomeActivity.this, "Palavra-passe inserida com sucesso", Toast.LENGTH_SHORT).show();
-
+                        events.getKeys().get(keyPosition).setKey("");
+                        events.getKeys().get(keyPosition).setTime("");
+                        CURRENT_EVENT=events;
                     } else {
                         teacherBase.child(events.getuIdTeacher()).child("events").child(classStudent)
                                 .child(events.getUid()).child("students").child(userUid).child("keys").child("key" + Integer.toString(keyPosition + 1))
@@ -660,6 +667,9 @@ public class HomeActivity extends Activity {
                         dialog.dismiss();
 
                         Toast.makeText(HomeActivity.this, "Palavra-passe inserida incorretamente, preste mais atenção na aula", Toast.LENGTH_SHORT).show();
+                        events.getKeys().get(keyPosition).setKey("");
+                        events.getKeys().get(keyPosition).setTime("");
+                        CURRENT_EVENT=events;
                     }
                     NotificationManagerCompat mNotificationMgr = NotificationManagerCompat.from(getApplicationContext());
                     mNotificationMgr.cancel(1);
