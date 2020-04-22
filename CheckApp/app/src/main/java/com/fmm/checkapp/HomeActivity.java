@@ -57,19 +57,16 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 
+
 import java.net.URL;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
-import static com.fmm.checkapp.LoginActivity.user;
 
 public class HomeActivity extends Activity {
 
@@ -85,6 +82,7 @@ public class HomeActivity extends Activity {
     DatabaseReference teacherBase;
     Thread th;
     String minH;
+    String classStudent;
     boolean clickCheckKey;
     boolean stop;
     boolean appHidden, firstTime, checkinChecked;
@@ -98,14 +96,17 @@ public class HomeActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        Log.d("AQUI","Iniciou em Home Activity");
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        userUid = firebaseUser.getUid();
+        DatabaseReference dataStudent = FirebaseDatabase.getInstance().getReference();
 
+        Log.d("AQUI","Começou a configurar as variáveis");
         clickCheckKey = true;
         btInfo = findViewById(R.id.activity_home_bt_about_us);
         imgNoEvents = findViewById(R.id.activity_home_img_no_events);
         msgNoEvents = findViewById(R.id.msg_no_events);
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         th = null;
-        userUid = firebaseUser.getUid();
         dataBase = FirebaseDatabase.getInstance().getReference();
         teacherBase = dataBase.child("professores");
         progressBar = findViewById(R.id.activity_home_progressBar);
@@ -120,42 +121,10 @@ public class HomeActivity extends Activity {
         CURRENT_EVENT = null;
         createNotificationChannel(getApplicationContext());
         createNotificationChannelFIREBASE(getApplicationContext());
-
-        dataBase.child("salas").orderByChild(userUid)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
-                            final String turma = childSnapshot.getKey();
-                            user.setTurma(turma);
-                            if (turma != null) {
-                                user.setTurma(turma);
-                            }
-                        }
-                        getCurrentUserEvents(user.getTurma());
-                        FirebaseMessaging.getInstance().subscribeToTopic(user.getTurma())
-                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        String msg = "Foi inscrito " + user.getTurma();
-                                        if (!task.isSuccessful()) {
-                                            msg = "Nao foi inscrito " + user.getTurma();
-                                        }
-                                        Log.d(TAG, msg);
-                                    }
-                                });
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
-
         teacherBase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                getCurrentUserEvents(user.getTurma());
+                getCurrentUserEvents(classStudent);
             }
 
             @Override
@@ -177,6 +146,46 @@ public class HomeActivity extends Activity {
             public boolean onLongClick(View v) {
                 Toast.makeText(HomeActivity.this, "Mais opções", Toast.LENGTH_SHORT).show();
                 return true;
+            }
+        });
+
+        Log.d("AQUI","BUSCARÁ A TURMA");
+        dataStudent.child("salas").orderByChild(userUid).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Log.d("AQUI","No OnDataChange");
+                if(dataSnapshot.exists()){
+
+                    Log.d("AQUI","DataSnapshot existe");
+                    Log.d("AQUI","UID: "+userUid);
+                    for(DataSnapshot dados : dataSnapshot.getChildren()){
+                        Log.d("AQUI","Dados Key: "+dados.getKey()+ "   Dados Value: "+dados.getValue());
+                        classStudent=dados.getKey();
+                    }
+                    Log.d("AQUI","Class: "+classStudent);
+                    //Toast.makeText(getApplicationContext(),"Sua Turma: "+classStudent,Toast.LENGTH_SHORT).show();
+
+                        FirebaseMessaging.getInstance().subscribeToTopic(classStudent)
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        String msg = "Foi inscrito " + classStudent;
+                                        if (!task.isSuccessful()) {
+                                            msg = "Nao foi inscrito " + classStudent;
+                                        }
+                                        Log.d(TAG, msg);
+                                    }
+                                });
+
+
+                   getCurrentUserEvents(classStudent);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
             }
         });
 
@@ -411,7 +420,7 @@ public class HomeActivity extends Activity {
                     if (checkinChecked) {
                         if (events.get(position).getCheckInTime() == null || events.get(position).getCheckInTime().isEmpty()) {
 
-                            teacherBase.child(events.get(position).getuIdTeacher()).child("events").child(user.getTurma())
+                            teacherBase.child(events.get(position).getuIdTeacher()).child("events").child(classStudent)
                                     .child(events.get(position).getUid()).child("students").child(userUid).child("checkin")
                                     .setValue(hora + "h" + min);
 
@@ -458,7 +467,7 @@ public class HomeActivity extends Activity {
                 TimeAsyncTask asyncTask = new TimeAsyncTask(new TimeAsyncTask.OnFinishTask() {
                     @Override
                     public void onFinish(String hora, String min) {
-                        teacherBase.child(events.get(position).getuIdTeacher()).child("events").child(user.getTurma())
+                        teacherBase.child(events.get(position).getuIdTeacher()).child("events").child(classStudent)
                                 .child(events.get(position).getUid()).child("students").child(userUid).child("checkout")
                                 .setValue(hora + "h" + min);
 
@@ -564,7 +573,7 @@ public class HomeActivity extends Activity {
                             int horaTempMin = horaTemp * 60 + minTemp;
                             Log.d("AQUI", "+1");
 
-                            if ((horaTempMin - horaKeyMin) <= 2 && (horaTempMin - horaKeyMin) >= 0) {
+                            if (Math.abs(horaTempMin - horaKeyMin) <= 2 && Math.abs(horaTempMin - horaKeyMin) >= 0) {
                                 verify = true;
                                 break;
                             }
@@ -648,7 +657,7 @@ public class HomeActivity extends Activity {
             public void onClick(View v) {
                 if (!edtPassword.getText().toString().equals("") || !edtPassword.getText().toString().isEmpty()) {
                     if (edtPassword.getText().toString().trim().equalsIgnoreCase(events.getKeys().get(keyPosition).getKey().trim())) {
-                        teacherBase.child(events.getuIdTeacher()).child("events").child(user.getTurma())
+                        teacherBase.child(events.getuIdTeacher()).child("events").child(classStudent)
                                 .child(events.getUid()).child("students").child(userUid).child("keys").child("key" + Integer.toString(keyPosition + 1))
                                 .setValue("ok");
                         dialog.dismiss();
@@ -656,7 +665,7 @@ public class HomeActivity extends Activity {
                         Toast.makeText(HomeActivity.this, "Palavra-passe inserida com sucesso", Toast.LENGTH_SHORT).show();
 
                     } else {
-                        teacherBase.child(events.getuIdTeacher()).child("events").child(user.getTurma())
+                        teacherBase.child(events.getuIdTeacher()).child("events").child(classStudent)
                                 .child(events.getUid()).child("students").child(userUid).child("keys").child("key" + Integer.toString(keyPosition + 1))
                                 .setValue("");
                         dialog.dismiss();
