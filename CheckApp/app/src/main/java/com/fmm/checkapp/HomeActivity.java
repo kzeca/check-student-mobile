@@ -9,11 +9,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
+import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
@@ -61,11 +63,14 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class HomeActivity extends Activity {
@@ -84,13 +89,14 @@ public class HomeActivity extends Activity {
     String minH;
     String classStudent;
     boolean clickCheckKey;
+    Timer time;
+    int timeCount=0;
     boolean stop;
     boolean appHidden, firstTime, checkinChecked;
     boolean runningThread;
-    public static Event CURRENT_EVENT;
+    Event CURRENT_EVENT;
     final static String CHANNEL_ID = "simplified_coding";
     static public String TAG = "HomeScreen";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,12 +107,14 @@ public class HomeActivity extends Activity {
         userUid = firebaseUser.getUid();
         DatabaseReference dataStudent = FirebaseDatabase.getInstance().getReference();
 
-        Log.d("AQUI","Começou a configurar as variáveis");
+
         clickCheckKey = true;
         btInfo = findViewById(R.id.activity_home_bt_about_us);
         imgNoEvents = findViewById(R.id.activity_home_img_no_events);
         msgNoEvents = findViewById(R.id.msg_no_events);
         th = null;
+
+
         dataBase = FirebaseDatabase.getInstance().getReference();
         teacherBase = dataBase.child("professores");
         progressBar = findViewById(R.id.activity_home_progressBar);
@@ -148,12 +156,9 @@ public class HomeActivity extends Activity {
                     Log.d("AQUI","DataSnapshot existe");
                     Log.d("AQUI","UID: "+userUid);
                     for(DataSnapshot dados : dataSnapshot.getChildren()){
-                        Log.d("AQUI","Dados Key: "+dados.getKey()+ "   Dados Value: "+dados.getValue());
                         classStudent=dados.getKey();
                     }
                     Log.d("AQUI","Class: "+classStudent);
-                    //Toast.makeText(getApplicationContext(),"Sua Turma: "+classStudent,Toast.LENGTH_SHORT).show();
-
                         FirebaseMessaging.getInstance().subscribeToTopic(classStudent)
                                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
@@ -193,6 +198,8 @@ public class HomeActivity extends Activity {
 
     }
 
+
+
     //Visiveis
     @Override
     protected void onStart() {
@@ -224,6 +231,12 @@ public class HomeActivity extends Activity {
 
         appHidden = true;
 
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
 
     }
 
@@ -265,70 +278,14 @@ public class HomeActivity extends Activity {
                                                 checkin = (s.getValue().getCheckin());
                                                 checkout = (s.getValue().getCheckout());
                                                 if (!checkin.equals("") && checkout.equals("")) {
-                                                    final Handler handle = new Handler();
                                                     final String checkinF = checkin;
                                                     final String checkoutF = checkout;
                                                     final Events ev_th = m.getValue();
                                                     final String uidEv = m.getKey();
                                                     final String uidTeacher = dados.getKey();
                                                     CURRENT_EVENT = new Event(ev_th, uidEv, uidTeacher, checkinF, checkoutF, keysTemp);
-
-
-
-                                                    Runnable runnable = new Runnable() {
-
-                                                        @Override
-                                                        public void run() {
-                                                            while (!stop) {
-                                                                Log.d("AQUI", "Na Thread Current Events.....");
-                                                                synchronized (this) {
-                                                                    try {
-                                                                        wait(500);
-                                                                        handle.post(new Runnable() {
-                                                                            @Override
-                                                                            public void run() {
-                                                                                runningThread = true;
-                                                                                Date time = new Date();
-                                                                                String hora = Integer.toString(time.getHours());
-                                                                                String min = Integer.toString(time.getMinutes());
-                                                                                min = (time.getMinutes() >= 0 && time.getMinutes() <= 9 ? "0" + min : min);
-                                                                                hora = (time.getHours() >= 0 && time.getHours() <= 9 ? "0" + hora : hora);
-                                                                                String fullHour = hora + "h" + min + "min";
-                                                                                Log.d("AQUI", "Hora atual, no celular: " + fullHour);
-                                                                                if (!minH.equals(min) || firstTime) {
-
-                                                                                    Log.d("AQUI", "Mudou o Minuto, novo horário, no celular: " + fullHour);
-
-                                                                                    Log.d("AQUI", "Verificando se lança a key......");
-
-                                                                                    givePop(CURRENT_EVENT);
-
-                                                                                    minH = min;
-
-                                                                                }
-
-
-                                                                            }
-                                                                        });
-
-                                                                    } catch (InterruptedException ex) {
-                                                                        ex.printStackTrace();
-                                                                    }
-                                                                }
-                                                                try {
-                                                                    Thread.sleep(2500);
-                                                                } catch (InterruptedException e) {
-                                                                    e.printStackTrace();
-                                                                }
-
-                                                            }
-                                                            runningThread = false;
-
-                                                        }
-                                                    };
-                                                    th = new Thread(runnable);
-                                                    th.start();
-
+                                                    stopTimer();
+                                                    startTimer();
 
 
                                                 }
@@ -368,7 +325,7 @@ public class HomeActivity extends Activity {
     }
 
     public void setCheckInTime(final List<Event> events, final int position) {
-
+        progressBar.setVisibility(View.VISIBLE);
         if (!runningThread) {
 
             URL url = NetworkUtil.buildUrl("America", "Manaus");
@@ -386,6 +343,7 @@ public class HomeActivity extends Activity {
                     final int horaEventFinal = Integer.parseInt(events.get(position).getEndTime().substring(0, 2));//Pegar a hora do Evento --> HHhMMmin
                     final int minEventFinal = Integer.parseInt(events.get(position).getEndTime().substring(3, 5));//Pegar o minuto do Evento --> HHhMMmin
                     final Date dFinal = new Date();
+                    int horaEventFinalMin = horaEventFinal*60+minEventFinal;
                     dFinal.setHours(horaEventFinal);
                     dFinal.setMinutes(minEventFinal);
                     Log.d("AQUI", "Hora de fim do Evento: " + dFinal.getHours() + "h" + dFinal.getMinutes());
@@ -396,6 +354,7 @@ public class HomeActivity extends Activity {
                     dCell.setMinutes(minNow);
                     int horaEmMinutosEvent = horaEvent * 60 + minEvent;
                     int horaEmMinutosNow = horaNow * 60 + minNow;
+
                     //10 minutos antes ou entre o período do evento
                     Log.d("AQUI", "Hora do Celular está depois do inicio: " + dCell.after(dInicio) + "   Hora do Celular está antes do Final: " + dCell.before(dFinal));
                     if (((minEvent - minNow) <= 10 && (minEvent - minNow) >= 0 && horaNow == horaEvent) || (horaNow != horaEvent && (horaEmMinutosEvent - horaEmMinutosNow) <= 10 && (horaEmMinutosEvent - horaEmMinutosNow) >= 0) || (dCell.after(dInicio) && dCell.before(dFinal))) {
@@ -413,25 +372,15 @@ public class HomeActivity extends Activity {
                             events.get(position).setCheckInTime(hora + "h" + min);
 
 
-                            stop = false;
+                            runningThread=true;
                             CURRENT_EVENT = events.get(position);
-                            ComponentName componentName = new ComponentName(HomeActivity.this, NotificationServiceScheduler.class);
-                            JobInfo info = new JobInfo.Builder(123, componentName)
-                                    .setRequiresCharging(false)
-                                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
-                                    .setPersisted(true)
-                                    .setPeriodic(15 * 60 * 100)
-                                    .build();
-                            JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
-                            int resultCode = scheduler.schedule(info);
-                            if (resultCode == JobScheduler.RESULT_SUCCESS) {
-                                Log.d("AQUI", "Job scheduled");
-                            } else {
-                                Log.d("AQUI", "Job scheduled failed");
-                            }
+                            startTimer();
+
                             eventsAdapter.notifyItemChanged(position);
+                            progressBar.setVisibility(View.GONE);
                         }
                     } else {
+                        progressBar.setVisibility(View.GONE);
                         Toast.makeText(getApplicationContext(), "Você pode entrar com 10 minutos antes de inciar a aula ou durante o evento", Toast.LENGTH_LONG).show();
                     }
                 }
@@ -439,12 +388,15 @@ public class HomeActivity extends Activity {
             asyncTask.execute(url);
 
 
-        } else if (runningThread && events.get(position).getCheckInTime().isEmpty()) {
+        } else if (runningThread&&!events.get(position).isCheckInDone()) {
+            progressBar.setVisibility(View.GONE);
             Toast.makeText(getApplicationContext(), "Aperte em checkout no último evento que você entrou", Toast.LENGTH_SHORT).show();
         }
+        if(progressBar.getVisibility()==View.VISIBLE)progressBar.setVisibility(View.GONE);
     }
 
     public void setCheckOutTime(final List<Event> events, final int position) {
+        progressBar.setVisibility(View.VISIBLE);
         if (events.get(position).getCheckInTime() != null && !events.get(position).getCheckInTime().isEmpty()) {
             if (!events.get(position).isCheckOutDone()) {
 
@@ -464,16 +416,18 @@ public class HomeActivity extends Activity {
                 asyncTask.execute(url);
 
 
-                stop = true;
+
                 CURRENT_EVENT = null;
-                JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
-                scheduler.cancel(123);
-                Log.d("AQUI", "Job Schedular Cancelled");
+
+                runningThread=false;
+                stopTimer();
+
                 eventsAdapter.notifyItemChanged(position);
+                progressBar.setVisibility(View.GONE);
             }
         }
+        if(progressBar.getVisibility()==View.VISIBLE)progressBar.setVisibility(View.GONE);
     }
-
 
     public void buildRecyclerView(final List<Event> eventsList) {
 
@@ -538,31 +492,34 @@ public class HomeActivity extends Activity {
     }
 
     private void givePopEmergency(final Event events) {
-        if(events.isCheckInDone()&&!events.isCheckOutDone()) {
+        progressBar.setVisibility(View.VISIBLE);
+        if(events.isCheckInDone()&&!events.isCheckOutDone()&&runningThread) {
             if (clickCheckKey) {
                 clickCheckKey = false;
                 URL url = NetworkUtil.buildUrl("America", "Manaus");
                 TimeAsyncTask asyncTask = new TimeAsyncTask(new TimeAsyncTask.OnFinishTask() {
                     @Override
                     public void onFinish(String hora, String min) {
+
                         int minTemp = Integer.parseInt(min);
                         int horaTemp = Integer.parseInt(hora);
                         boolean verify = false;
-                        Log.d("AQUI", Integer.toString(events.getKeys().size()));
+                        Event eventsAux=CURRENT_EVENT;
+                        Log.d("AQUI", Integer.toString(eventsAux.getKeys().size()));
                         int tam;
 
-                        for (int i = 0; i < events.getKeys().size(); i++) {
-                            if (!events.getKeys().get(i).getTime().isEmpty() && !events.getKeys().get(i).getKey().isEmpty()) {
-                                int horaKey = Integer.parseInt(events.getKeys().get(i).getTime().substring(0, 2));
-                                int minKey = Integer.parseInt(events.getKeys().get(i).getTime().substring(3, 5));// HHhMMmin
+                        for (int i = 0; i < eventsAux.getKeys().size(); i++) {
+                            if (!eventsAux.getKeys().get(i).getTime().equals("") && !eventsAux.getKeys().get(i).getKey().equals("")) {
+                                int horaKey = Integer.parseInt(eventsAux.getKeys().get(i).getTime().substring(0, 2));
+                                int minKey = Integer.parseInt(eventsAux.getKeys().get(i).getTime().substring(3, 5));// HHhMMmin
                                 int horaKeyMin = horaKey * 60 + minKey;
                                 int horaTempMin = horaTemp * 60 + minTemp;
                                 Log.d("AQUI", "Hora em minutos de Manaus: " + horaTempMin + "   Hora em minutos da Key: " + horaKeyMin);
-                                Log.d("AQUI", "Diferença das horas em minutos: " + (Math.abs(horaTempMin - horaKeyMin)));
+                                Log.d("AQUI", "Diferença das horas em minutos: " + (horaTempMin - horaKeyMin));
 
-                                if (horaTempMin - horaKeyMin <= 2 && horaTempMin - horaKeyMin >= 0) {
-                                    Log.d("AQUI", "Diferença entre 2min e 0min");
-                                    popUp(events, i);
+                                if (horaTempMin - horaKeyMin <= 5 && horaTempMin - horaKeyMin >= 0) {
+                                    Log.d("AQUI", "Diferença entre 4min e 0min");
+                                    popUp(eventsAux, i);
 
                                     verify = true;
                                     break;
@@ -572,19 +529,25 @@ public class HomeActivity extends Activity {
                         if (!verify) {
 
                             Toast.makeText(getApplicationContext(), "Não se preocupe! Não há palavra-passe no momento!", Toast.LENGTH_SHORT).show();
-                            CURRENT_EVENT = events;
-
+                            CURRENT_EVENT = eventsAux;
                             firstTime = false;
-
                         }
                         clickCheckKey = true;
+                        progressBar.setVisibility(View.GONE);
                     }
                 });
                 asyncTask.execute(url);
             }
-        }else{
-            Toast.makeText(getApplicationContext(), "Aperte em checkout no último evento que você entrou", Toast.LENGTH_SHORT).show();
+        }else if(runningThread&&!events.isCheckInDone()){
+            progressBar.setVisibility(View.GONE);
+            Toast.makeText(getApplicationContext(), "Dê checkin neste evento!", Toast.LENGTH_SHORT).show();
+        }else if(events.isCheckInDone()&&events.isCheckOutDone()){
+            progressBar.setVisibility(View.GONE);
+            Toast.makeText(getApplicationContext(), "Você não está mais neste evento!", Toast.LENGTH_SHORT).show();
         }
+
+        if(progressBar.getVisibility()==View.VISIBLE)progressBar.setVisibility(View.GONE);
+
     }
 
     private void givePop(final Event events) {
@@ -647,9 +610,7 @@ public class HomeActivity extends Activity {
                         dialog.dismiss();
 
                         Toast.makeText(HomeActivity.this, "Palavra-passe inserida com sucesso", Toast.LENGTH_SHORT).show();
-                        events.getKeys().get(keyPosition).setKey("");
-                        events.getKeys().get(keyPosition).setTime("");
-                        CURRENT_EVENT=events;
+
                     } else {
                         teacherBase.child(events.getuIdTeacher()).child("events").child(classStudent)
                                 .child(events.getUid()).child("students").child(userUid).child("keys").child("key" + Integer.toString(keyPosition + 1))
@@ -657,9 +618,7 @@ public class HomeActivity extends Activity {
                         dialog.dismiss();
 
                         Toast.makeText(HomeActivity.this, "Palavra-passe inserida incorretamente, preste mais atenção na aula", Toast.LENGTH_SHORT).show();
-                        events.getKeys().get(keyPosition).setKey("");
-                        events.getKeys().get(keyPosition).setTime("");
-                        CURRENT_EVENT=events;
+
                     }
                     NotificationManagerCompat mNotificationMgr = NotificationManagerCompat.from(getApplicationContext());
                     mNotificationMgr.cancel(1);
@@ -674,7 +633,9 @@ public class HomeActivity extends Activity {
         popup.start();
         dialog.show();
         Log.d("AQUI", "POP-UP Lançado!!!!");
-        CURRENT_EVENT = events;
+        events.getKeys().get(keyPosition).setKey("");
+        events.getKeys().get(keyPosition).setTime("");
+        CURRENT_EVENT=events;
     }
 
     public void displayNotification(String title, String body) {
@@ -740,13 +701,12 @@ public class HomeActivity extends Activity {
     }
 
     private void logOut() {
+        progressBar.setVisibility(View.VISIBLE);
         stop = true;
         CURRENT_EVENT = null;
-        JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
-        scheduler.cancel(123);
-        Log.d("AQUI", "Job Schedular Cancelled");
         FirebaseAuth auth = FirebaseAuth.getInstance();
         auth.signOut();
+        progressBar.setVisibility(View.GONE);
         startActivity(new Intent(getApplicationContext(), LoginActivity.class));
         finish();
     }
@@ -800,8 +760,55 @@ public class HomeActivity extends Activity {
 
     }
 
-
     interface OnDateTimeReceived {
         void dateTimeReceivedListener(String hora, String min);
     }
+
+    public void startTimer(){
+        Log.d("AQUI","INICIOU O TIMER");
+        time = new Timer();
+        time.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        runningThread = true;
+                        Date time = new Date();
+                        String hora = Integer.toString(time.getHours());
+                        String min = Integer.toString(time.getMinutes());
+                        min = (time.getMinutes() >= 0 && time.getMinutes() <= 9 ? "0" + min : min);
+                        hora = (time.getHours() >= 0 && time.getHours() <= 9 ? "0" + hora : hora);
+                        String fullHour = hora + "h" + min + "min";
+                        Log.d("AQUI", "Hora atual, no celular: " + fullHour);
+                        if (!minH.equals(min) || firstTime) {
+
+                            Log.d("AQUI", "Mudou o Minuto, novo horário, no celular: " + fullHour);
+
+                            Log.d("AQUI", "Verificando se lança a key......");
+
+                            givePop(CURRENT_EVENT);
+
+                            minH = min;
+
+                        }
+
+                    }
+                });
+            }
+        },2000,2000);
+
+    }
+
+    public void stopTimer(){
+        if(time!=null){
+            Log.d("AQUI","PAROU O TIMER");
+            time.cancel();
+        }
+    }
+
+
+
+
+
 }
