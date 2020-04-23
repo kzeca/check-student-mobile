@@ -48,13 +48,20 @@ public class TimeAsyncTask extends AsyncTask<URL, Void, String> {
         String dateTime;
 
         try {
-            JSONObject jsonObject = new JSONObject(s);
-            dateTime = jsonObject.getString("datetime");
-            Log.d(TAG, "datetime: "+ dateTime);
-            String[] data = dateTime.substring(dateTime.indexOf("T")+1).split(":");
-            String hora = data[0];
-            String min = data[1];
-            listener.onFinish(hora, min);
+            if(s==null){
+                Date date = new Date();
+                String hora = Integer.toString(date.getHours());
+                String min = Integer.toString(date.getMinutes());
+                listener.onFinish(hora, min);
+            }else{
+                JSONObject jsonObject = new JSONObject(s);
+                dateTime = jsonObject.getString("datetime");
+                Log.d(TAG, "datetime: "+ dateTime);
+                String[] data = dateTime.substring(dateTime.indexOf("T")+1).split(":");
+                String hora = data[0];
+                String min = data[1];
+                listener.onFinish(hora, min);
+            }
 
         } catch (JSONException e) {
             e.printStackTrace();

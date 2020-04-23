@@ -83,7 +83,6 @@ public class HomeActivity extends Activity {
     Thread th;
     String minH;
     String classStudent;
-    boolean clickCheckKey;
     boolean stop;
     boolean appHidden, firstTime, checkinChecked;
     boolean runningThread;
@@ -102,7 +101,6 @@ public class HomeActivity extends Activity {
         DatabaseReference dataStudent = FirebaseDatabase.getInstance().getReference();
 
         Log.d("AQUI","Começou a configurar as variáveis");
-        clickCheckKey = true;
         btInfo = findViewById(R.id.activity_home_bt_about_us);
         imgNoEvents = findViewById(R.id.activity_home_img_no_events);
         msgNoEvents = findViewById(R.id.msg_no_events);
@@ -539,8 +537,7 @@ public class HomeActivity extends Activity {
 
     private void givePopEmergency(final Event events) {
         if(events.isCheckInDone()&&!events.isCheckOutDone()) {
-            if (clickCheckKey) {
-                clickCheckKey = false;
+
                 URL url = NetworkUtil.buildUrl("America", "Manaus");
                 TimeAsyncTask asyncTask = new TimeAsyncTask(new TimeAsyncTask.OnFinishTask() {
                     @Override
@@ -558,10 +555,10 @@ public class HomeActivity extends Activity {
                                 int horaKeyMin = horaKey * 60 + minKey;
                                 int horaTempMin = horaTemp * 60 + minTemp;
                                 Log.d("AQUI", "Hora em minutos de Manaus: " + horaTempMin + "   Hora em minutos da Key: " + horaKeyMin);
-                                Log.d("AQUI", "Diferença das horas em minutos: " + (Math.abs(horaTempMin - horaKeyMin)));
+                                Log.d("AQUI", "Diferença das horas em minutos: " + (horaTempMin - horaKeyMin));
 
-                                if (horaTempMin - horaKeyMin <= 2 && horaTempMin - horaKeyMin >= 0) {
-                                    Log.d("AQUI", "Diferença entre 2min e 0min");
+                                if (horaTempMin - horaKeyMin <= 5 && horaTempMin - horaKeyMin >= 0) {
+                                    Log.d("AQUI", "Diferença entre 4min e 0min");
                                     popUp(events, i);
 
                                     verify = true;
@@ -577,13 +574,14 @@ public class HomeActivity extends Activity {
                             firstTime = false;
 
                         }
-                        clickCheckKey = true;
                     }
                 });
                 asyncTask.execute(url);
-            }
-        }else{
+
+        }else if(!events.isCheckInDone()&&!events.isCheckOutDone()&&runningThread){
             Toast.makeText(getApplicationContext(), "Aperte em checkout no último evento que você entrou", Toast.LENGTH_SHORT).show();
+        }else if(events.isCheckInDone()&&events.isCheckOutDone()){
+            Toast.makeText(getApplicationContext(), "Você já saiu desse evento", Toast.LENGTH_SHORT).show();
         }
     }
 
