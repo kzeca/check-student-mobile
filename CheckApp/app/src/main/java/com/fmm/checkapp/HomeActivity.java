@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.core.app.TaskStackBuilder;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -44,8 +43,6 @@ import com.fmm.checkapp.firebasemodel.Events;
 import com.fmm.checkapp.firebasemodel.Keys;
 import com.fmm.checkapp.firebasemodel.Professores;
 import com.fmm.checkapp.firebasemodel.Students;
-import com.fmm.checkapp.task.TimeAsyncTask;
-import com.fmm.checkapp.util.NetworkUtil;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -54,13 +51,10 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.database.core.ServerValues;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -72,6 +66,7 @@ import java.util.Map;
 
 public class HomeActivity extends Activity {
 
+    private static final int TIME_EMERGENCY = 4 ;
     RecyclerView recyclerViewEvents;
     MyRecyclerViewAdapter eventsAdapter;
     ImageButton btInfo;
@@ -85,6 +80,7 @@ public class HomeActivity extends Activity {
     Thread th;
     String minH;
     String classStudent;
+    int countKey;
     boolean stop;
     boolean appHidden, firstTime, checkinChecked;
     boolean runningThread;
@@ -113,6 +109,7 @@ public class HomeActivity extends Activity {
         appHidden = false;
         firstTime = true;
         runningThread = false;
+        countKey=0;
         Date hora = new Date();
         minH = Integer.toString(hora.getHours());
         minH = (hora.getMinutes() >= 0 && hora.getMinutes() <= 9 ? "0" + minH : minH);
@@ -264,96 +261,37 @@ public class HomeActivity extends Activity {
                                             if (s.getKey().equals(userUid)) {
                                                 checkin = (s.getValue().getCheckin());
                                                 checkout = (s.getValue().getCheckout());
-                                                if (!checkin.equals("") && checkout.equals("")) {
+                                                if (!checkin.equals("") && checkout.equals(""))
+                                                {
                                                     final Handler handle = new Handler();
                                                     final String checkinF = checkin;
                                                     final String checkoutF = checkout;
                                                     final Events ev_th = m.getValue();
                                                     final String uidEv = m.getKey();
                                                     final String uidTeacher = dados.getKey();
-                                                    Date timeh = new Date();
-                                                    String horah = Integer.toString(timeh.getHours());
-                                                    String minh = Integer.toString(timeh.getMinutes());
-                                                    minh = (timeh.getMinutes() >= 0 && timeh.getMinutes() <= 9 ? "0" + minh : minh);
-                                                    horah = (timeh.getHours() >= 0 && timeh.getHours() <= 9 ? "0" + horah : horah);
-                                                    int minTemp = Integer.parseInt(minh);
-                                                    int horaTemp = Integer.parseInt(horah);
-                                                    Log.d("AQUI", Integer.toString(keysTemp.size()));
 
-                                                    for (int i = 0; i < keysTemp.size(); i++) {
-                                                        if (!keysTemp.get(i).getTime().isEmpty() && !keysTemp.get(i).getKey().isEmpty()) {
-                                                            int horaKey = Integer.parseInt(keysTemp.get(i).getTime().substring(0, 2));
-                                                            int minKey = Integer.parseInt(keysTemp.get(i).getTime().substring(3, 5));// HHhMMmin
-                                                            int horaKeyMin = horaKey * 60 + minKey;
-                                                            int horaTempMin = horaTemp * 60 + minTemp;
-                                                            Log.d("AQUI", "Hora em minutos de Manaus: " + horaTempMin + "   Hora em minutos da Key: " + horaKeyMin);
-                                                            Log.d("AQUI", "Diferença das horas em minutos: " + (horaTempMin - horaKeyMin));
-
-                                                            if (horaTempMin - horaKeyMin > 6) {
-                                                                Log.d("AQUI", "Diferença entre 5min e 0min");
-                                                                keysTemp.get(i).setKey("");
-                                                                keysTemp.get(i).setTime("");
+                                                    teacherBase.child(uidTeacher).child("events").child(classStudent)
+                                                            .child(uidEv).child("students").child(userUid).child("keys").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                        @Override
+                                                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                            if(dataSnapshot.exists()){
+                                                                Log.d("AQUI","No OnDataChange Current Event");
+                                                                countKey=0;
+                                                                if(dataSnapshot.child("key1").getValue().toString().equals("ok"))countKey++;
+                                                                if(dataSnapshot.child("key2").getValue().toString().equals("ok"))countKey++;
+                                                                if(dataSnapshot.child("key3").getValue().toString().equals("ok"))countKey++;
+                                                                Log.d("AQUI","Count Key: "+countKey);
+                                                                continueThreadCurrent(handle,checkinF,checkoutF,ev_th,uidEv,uidTeacher,keysTemp);
                                                             }
                                                         }
-                                                    }
-
-                                                    CURRENT_EVENT = new Event(ev_th, uidEv, uidTeacher, checkinF, checkoutF, keysTemp);
-
-
-
-                                                    Runnable runnable = new Runnable() {
 
                                                         @Override
-                                                        public void run() {
-                                                            while (!stop) {
-                                                                Log.d("AQUI", "Na Thread Current Events.....");
-                                                                synchronized (this) {
-                                                                    try {
-                                                                        wait(500);
-                                                                        handle.post(new Runnable() {
-                                                                            @Override
-                                                                            public void run() {
-                                                                                runningThread = true;
-                                                                                Date time = new Date();
-                                                                                String hora = Integer.toString(time.getHours());
-                                                                                String min = Integer.toString(time.getMinutes());
-                                                                                min = (time.getMinutes() >= 0 && time.getMinutes() <= 9 ? "0" + min : min);
-                                                                                hora = (time.getHours() >= 0 && time.getHours() <= 9 ? "0" + hora : hora);
-                                                                                String fullHour = hora + "h" + min + "min";
-                                                                                Log.d("AQUI", "Hora atual, no celular: " + fullHour);
-                                                                                if (!minH.equals(min) || firstTime) {
-
-                                                                                    Log.d("AQUI", "Mudou o Minuto, novo horário, no celular: " + fullHour);
-
-                                                                                    Log.d("AQUI", "Verificando se lança a key......");
-
-                                                                                    givePop(fullHour,CURRENT_EVENT);
-
-                                                                                    minH = min;
-
-                                                                                }
-
-
-                                                                            }
-                                                                        });
-
-                                                                    } catch (InterruptedException ex) {
-                                                                        ex.printStackTrace();
-                                                                    }
-                                                                }
-                                                                try {
-                                                                    Thread.sleep(2500);
-                                                                } catch (InterruptedException e) {
-                                                                    e.printStackTrace();
-                                                                }
-
-                                                            }
-                                                            runningThread = false;
+                                                        public void onCancelled(@NonNull DatabaseError databaseError) {
 
                                                         }
-                                                    };
-                                                    th = new Thread(runnable);
-                                                    th.start();
+                                                    });
+
+
                                                 }
 
                                             }
@@ -377,6 +315,67 @@ public class HomeActivity extends Activity {
         });
 
     }
+
+    private void continueThreadCurrent(final Handler handle,final String checkinF,final String checkoutF, final Events ev_th, final String uidEv, final String uidTeacher, final List<Keys> keysTemp  ){
+        CURRENT_EVENT = new Event(ev_th, uidEv, uidTeacher, checkinF, checkoutF, keysTemp);
+
+
+
+        Runnable runnable = new Runnable() {
+
+            @Override
+            public void run() {
+                while (!stop) {
+                    Log.d("AQUI", "Na Thread Current Events.....");
+                    synchronized (this) {
+                        try {
+                            wait(500);
+                            handle.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    runningThread = true;
+                                    Date time = new Date();
+                                    String hora = Integer.toString(time.getHours());
+                                    String min = Integer.toString(time.getMinutes());
+                                    min = (time.getMinutes() >= 0 && time.getMinutes() <= 9 ? "0" + min : min);
+                                    hora = (time.getHours() >= 0 && time.getHours() <= 9 ? "0" + hora : hora);
+                                    String fullHour = hora + "h" + min + "min";
+                                    Log.d("AQUI", "Hora atual, no celular: " + fullHour);
+                                    if (!minH.equals(min) || firstTime) {
+
+                                        Log.d("AQUI", "Mudou o Minuto, novo horário, no celular: " + fullHour);
+
+                                        Log.d("AQUI", "Verificando se lança a key......");
+
+                                        givePop(fullHour,CURRENT_EVENT);
+
+                                        minH = min;
+
+                                    }
+
+
+                                }
+                            });
+
+                        } catch (InterruptedException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                    try {
+                        Thread.sleep(2500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+                runningThread = false;
+
+            }
+        };
+        th = new Thread(runnable);
+        th.start();
+    }
+
 
     private void getCheckedEvents(List<Event> events) {
 
@@ -438,6 +437,7 @@ public class HomeActivity extends Activity {
                             events.get(position).setCheckInTime(hora + "h" + min);
 
                             stop = false;
+                            countKey=0;
                             CURRENT_EVENT = events.get(position);
                             ComponentName componentName = new ComponentName(HomeActivity.this, NotificationServiceScheduler.class);
                             JobInfo info = new JobInfo.Builder(123, componentName)
@@ -491,6 +491,7 @@ public class HomeActivity extends Activity {
 
 
                         stop = true;
+                        countKey=0;
                         CURRENT_EVENT = null;
                         JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
                         scheduler.cancel(123);
@@ -566,52 +567,53 @@ public class HomeActivity extends Activity {
 
     private void givePopEmergency(final Event events) {
 
-                if(events.isCheckInDone()&&!events.isCheckOutDone()&&runningThread) {
+        if(events.isCheckInDone()&&!events.isCheckOutDone()&&runningThread) {
 
-                    Date time = new Date();
-                    String hora = Integer.toString(time.getHours());
-                    String min = Integer.toString(time.getMinutes());
-                    min = (time.getMinutes() >= 0 && time.getMinutes() <= 9 ? "0" + min : min);
-                    hora = (time.getHours() >= 0 && time.getHours() <= 9 ? "0" + hora : hora);
-                    int minTemp = Integer.parseInt(min);
-                    int horaTemp = Integer.parseInt(hora);
-                    boolean verify = false;
-                    Log.d("AQUI", Integer.toString(events.getKeys().size()));
+            Date time = new Date();
+            String hora = Integer.toString(time.getHours());
+            String min = Integer.toString(time.getMinutes());
+            min = (time.getMinutes() >= 0 && time.getMinutes() <= 9 ? "0" + min : min);
+            hora = (time.getHours() >= 0 && time.getHours() <= 9 ? "0" + hora : hora);
+            int minTemp = Integer.parseInt(min);
+            int horaTemp = Integer.parseInt(hora);
+            boolean verify = false;
+            Log.d("AQUI", Integer.toString(events.getKeys().size()));
 
-                    for (int i = 0; i < events.getKeys().size(); i++) {
-                        if (!events.getKeys().get(i).getTime().isEmpty() && !events.getKeys().get(i).getKey().isEmpty()) {
-                            int horaKey = Integer.parseInt(events.getKeys().get(i).getTime().substring(0, 2));
-                            int minKey = Integer.parseInt(events.getKeys().get(i).getTime().substring(3, 5));// HHhMMmin
-                            int horaKeyMin = horaKey * 60 + minKey;
-                            int horaTempMin = horaTemp * 60 + minTemp;
+            for (int i = 0; i < events.getKeys().size(); i++) {
+                if (!events.getKeys().get(i).getTime().isEmpty() && !events.getKeys().get(i).getKey().isEmpty()) {
+                    int horaKey = Integer.parseInt(events.getKeys().get(i).getTime().substring(0, 2));
+                    int minKey = Integer.parseInt(events.getKeys().get(i).getTime().substring(3, 5));// HHhMMmin
+                    int horaKeyMin = horaKey * 60 + minKey;
+                    int horaTempMin = horaTemp * 60 + minTemp;
 
-                            Log.d("AQUI", "Hora em minutos de Manaus: " + horaTempMin + "   Hora em minutos da Key: " + horaKeyMin);
-                            Log.d("AQUI", "Diferença das horas em minutos: " + (horaTempMin - horaKeyMin));
+                    Log.d("AQUI", "Hora em minutos de Manaus: " + horaTempMin + "   Hora em minutos da Key: " + horaKeyMin);
+                    Log.d("AQUI", "Diferença das horas em minutos: " + (horaTempMin - horaKeyMin));
+                    Log.d("AQUI","CountKey: "+countKey);
 
-                            if (horaTempMin - horaKeyMin <= 6 && horaTempMin - horaKeyMin >= 0) {
-                                Log.d("AQUI", "Diferença entre 5min e 0min");
-                                popUp(events, i);
-                                verify = true;
-                                break;
-                            }
-                        }
+                    if ((horaTempMin - horaKeyMin <= (1+TIME_EMERGENCY) && horaTempMin - horaKeyMin >= 0)&&countKey==i) {
+                        Log.d("AQUI", "Diferença entre "+TIME_EMERGENCY+"min e 0min");
+                        popUp(events, i);
+                        verify = true;
+                        break;
                     }
-                    if (!verify) {
-
-                        Toast.makeText(getApplicationContext(), "Não se preocupe! Não há palavra-passe no momento!", Toast.LENGTH_SHORT).show();
-                        CURRENT_EVENT = events;
-
-                        firstTime = false;
-
-                    }
-
-
-
-                }else if(!events.isCheckInDone()&&!events.isCheckOutDone()&&runningThread){
-                    Toast.makeText(getApplicationContext(), "Aperte em checkout no último evento que você entrou", Toast.LENGTH_SHORT).show();
-                }else if(events.isCheckInDone()&&events.isCheckOutDone()){
-                    Toast.makeText(getApplicationContext(), "Você já saiu desse evento", Toast.LENGTH_SHORT).show();
                 }
+            }
+            if (!verify) {
+
+                Toast.makeText(getApplicationContext(), "Não se preocupe! Não há palavra-passe no momento!", Toast.LENGTH_SHORT).show();
+                CURRENT_EVENT = events;
+
+                firstTime = false;
+
+            }
+
+
+
+        }else if(!events.isCheckInDone()&&!events.isCheckOutDone()&&runningThread){
+            Toast.makeText(getApplicationContext(), "Aperte em checkout no último evento que você entrou", Toast.LENGTH_SHORT).show();
+        }else if(events.isCheckInDone()&&events.isCheckOutDone()){
+            Toast.makeText(getApplicationContext(), "Você já saiu desse evento", Toast.LENGTH_SHORT).show();
+        }
 
 
     }
@@ -696,6 +698,7 @@ public class HomeActivity extends Activity {
         popup.start();
         dialog.show();
         Log.d("AQUI", "POP-UP Lançado!!!!");
+        countKey++;
         CURRENT_EVENT=events;
     }
 
@@ -805,11 +808,8 @@ public class HomeActivity extends Activity {
 
             }
         });
-
-        dialog.show();
-
         popup.start();
-
+        dialog.show();
     }
 
     private void copyLinkMeet(String link) {
