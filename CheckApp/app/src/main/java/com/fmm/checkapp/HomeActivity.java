@@ -277,9 +277,9 @@ public class HomeActivity extends Activity {
                                                             if(dataSnapshot.exists()){
                                                                 Log.d("AQUI","No OnDataChange Current Event");
                                                                 countKey=0;
-                                                                if(dataSnapshot.child("key1").getValue().toString().equals("ok")||dataSnapshot.child("key1").getValue().toString().equals("err"))countKey++;
-                                                                if(dataSnapshot.child("key2").getValue().toString().equals("ok")||dataSnapshot.child("key2").getValue().toString().equals("err"))countKey++;
-                                                                if(dataSnapshot.child("key3").getValue().toString().equals("ok")||dataSnapshot.child("key3").getValue().toString().equals("err"))countKey++;
+                                                                if(dataSnapshot.child("key1").getValue().toString().equals("ok")||dataSnapshot.child("key1").getValue().toString().equals("err")||isAfterKey(keysTemp.get(0).getTime()))countKey++;
+                                                                if(dataSnapshot.child("key2").getValue().toString().equals("ok")||dataSnapshot.child("key2").getValue().toString().equals("err")||isAfterKey(keysTemp.get(1).getTime()))countKey++;
+                                                                if(dataSnapshot.child("key3").getValue().toString().equals("ok")||dataSnapshot.child("key3").getValue().toString().equals("err")||isAfterKey(keysTemp.get(2).getTime()))countKey++;
                                                                 Log.d("AQUI","Count Key: "+countKey);
                                                                 continueThreadCurrent(handle,checkinF,checkoutF,ev_th,uidEv,uidTeacher,keysTemp);
                                                             }
@@ -314,6 +314,16 @@ public class HomeActivity extends Activity {
             }
         });
 
+    }
+
+    private boolean isAfterKey(String hourKey){
+        int horaKeyFinal = Integer.parseInt(hourKey.substring(0, 2));//Pegar a hora do Evento --> HHhMMmin
+        int minKeyFinal = Integer.parseInt(hourKey.substring(3, 5));//Pegar o minuto do Evento --> HHhMMmin
+        Date dKey = new Date();
+        dKey.setHours(horaKeyFinal);
+        dKey.setMinutes(minKeyFinal);
+        Date dCell = new Date();
+        return dCell.after(dKey);
     }
 
     private void continueThreadCurrent(final Handler handle,final String checkinF,final String checkoutF, final Events ev_th, final String uidEv, final String uidTeacher, final List<Keys> keysTemp  ){
@@ -375,7 +385,6 @@ public class HomeActivity extends Activity {
         th = new Thread(runnable);
         th.start();
     }
-
 
     private void getCheckedEvents(List<Event> events) {
 
@@ -822,7 +831,6 @@ public class HomeActivity extends Activity {
         }
 
     }
-
 
     interface OnDateTimeReceived {
         void dateTimeReceivedListener(String hora, String min);
