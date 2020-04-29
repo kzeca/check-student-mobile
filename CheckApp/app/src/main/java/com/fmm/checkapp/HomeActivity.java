@@ -277,9 +277,9 @@ public class HomeActivity extends Activity {
                                                             if(dataSnapshot.exists()){
                                                                 Log.d("AQUI","No OnDataChange Current Event");
                                                                 countKey=0;
-                                                                if(dataSnapshot.child("key1").getValue().toString().equals("ok"))countKey++;
-                                                                if(dataSnapshot.child("key2").getValue().toString().equals("ok"))countKey++;
-                                                                if(dataSnapshot.child("key3").getValue().toString().equals("ok"))countKey++;
+                                                                if(dataSnapshot.child("key1").getValue().toString().equals("ok")||dataSnapshot.child("key1").getValue().toString().equals("err"))countKey++;
+                                                                if(dataSnapshot.child("key2").getValue().toString().equals("ok")||dataSnapshot.child("key2").getValue().toString().equals("err"))countKey++;
+                                                                if(dataSnapshot.child("key3").getValue().toString().equals("ok")||dataSnapshot.child("key3").getValue().toString().equals("err"))countKey++;
                                                                 Log.d("AQUI","Count Key: "+countKey);
                                                                 continueThreadCurrent(handle,checkinF,checkoutF,ev_th,uidEv,uidTeacher,keysTemp);
                                                             }
@@ -675,17 +675,17 @@ public class HomeActivity extends Activity {
                         dialog.dismiss();
 
                         Toast.makeText(HomeActivity.this, "Palavra-passe inserida com sucesso", Toast.LENGTH_SHORT).show();
-
                         countKey++;
+
                     } else {
                         teacherBase.child(events.getuIdTeacher()).child("events").child(classStudent)
                                 .child(events.getUid()).child("students").child(userUid).child("keys").child("key" + Integer.toString(keyPosition + 1))
-                                .setValue("");
+                                .setValue("err");
                         dialog.dismiss();
 
                         Toast.makeText(HomeActivity.this, "Palavra-passe inserida incorretamente, preste mais atenção na aula", Toast.LENGTH_SHORT).show();
-
                         countKey++;
+
                     }
                     NotificationManagerCompat mNotificationMgr = NotificationManagerCompat.from(getApplicationContext());
                     mNotificationMgr.cancel(1);
