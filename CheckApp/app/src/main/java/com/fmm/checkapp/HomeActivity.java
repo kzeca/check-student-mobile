@@ -317,6 +317,7 @@ public class HomeActivity extends Activity {
     }
 
     private boolean isAfterKey(String hourKey){
+        if(hourKey.equals(""))return false;
         int horaKeyFinal = Integer.parseInt(hourKey.substring(0, 2));//Pegar a hora do Evento --> HHhMMmin
         int minKeyFinal = Integer.parseInt(hourKey.substring(3, 5));//Pegar o minuto do Evento --> HHhMMmin
         Date dKey = new Date();
