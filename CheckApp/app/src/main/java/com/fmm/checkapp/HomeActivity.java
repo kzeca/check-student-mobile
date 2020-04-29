@@ -676,6 +676,7 @@ public class HomeActivity extends Activity {
 
                         Toast.makeText(HomeActivity.this, "Palavra-passe inserida com sucesso", Toast.LENGTH_SHORT).show();
 
+                        countKey++;
                     } else {
                         teacherBase.child(events.getuIdTeacher()).child("events").child(classStudent)
                                 .child(events.getUid()).child("students").child(userUid).child("keys").child("key" + Integer.toString(keyPosition + 1))
@@ -684,6 +685,7 @@ public class HomeActivity extends Activity {
 
                         Toast.makeText(HomeActivity.this, "Palavra-passe inserida incorretamente, preste mais atenção na aula", Toast.LENGTH_SHORT).show();
 
+                        countKey++;
                     }
                     NotificationManagerCompat mNotificationMgr = NotificationManagerCompat.from(getApplicationContext());
                     mNotificationMgr.cancel(1);
@@ -698,7 +700,6 @@ public class HomeActivity extends Activity {
         popup.start();
         dialog.show();
         Log.d("AQUI", "POP-UP Lançado!!!!");
-        countKey++;
         CURRENT_EVENT=events;
     }
 
