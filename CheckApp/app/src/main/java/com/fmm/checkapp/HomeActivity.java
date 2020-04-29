@@ -320,11 +320,15 @@ public class HomeActivity extends Activity {
         if(hourKey.equals(""))return false;
         int horaKeyFinal = Integer.parseInt(hourKey.substring(0, 2));//Pegar a hora do Evento --> HHhMMmin
         int minKeyFinal = Integer.parseInt(hourKey.substring(3, 5));//Pegar o minuto do Evento --> HHhMMmin
-        Date dKey = new Date();
-        dKey.setHours(horaKeyFinal);
-        dKey.setMinutes(minKeyFinal);
         Date dCell = new Date();
-        return dCell.after(dKey);
+        int horaNow = dCell.getHours();
+        int minNow = dCell.getMinutes();
+        int horaEmMinutosKey = horaKeyFinal * 60 + minKeyFinal;
+        int horaEmMinutosNow = horaNow * 60 + minNow;
+        boolean b=(  horaEmMinutosNow-horaEmMinutosKey <= (1+TIME_EMERGENCY) && horaEmMinutosNow-horaEmMinutosKey >= 0);
+        Log.d("AQUI","IsAfter: "+(!b));
+        if(b)return false;
+        return true;
     }
 
     private void continueThreadCurrent(final Handler handle,final String checkinF,final String checkoutF, final Events ev_th, final String uidEv, final String uidTeacher, final List<Keys> keysTemp  ){
