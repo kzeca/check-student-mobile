@@ -325,10 +325,12 @@ public class HomeActivity extends Activity {
         int minNow = dCell.getMinutes();
         int horaEmMinutosKey = horaKeyFinal * 60 + minKeyFinal;
         int horaEmMinutosNow = horaNow * 60 + minNow;
-        boolean b=(  horaEmMinutosNow-horaEmMinutosKey <= (1+TIME_EMERGENCY) && horaEmMinutosNow-horaEmMinutosKey >= 0);
-        Log.d("AQUI","IsAfter: "+(!b));
+        boolean b=(  horaEmMinutosNow-horaEmMinutosKey <= (1+TIME_EMERGENCY) && horaEmMinutosNow-horaEmMinutosKey >= 0);//Verifica se a key está entre o período de apertar o botão - Valor entre 0 e TIME_EMERGENCY
+        Log.d("AQUI","Está entre o período de colocar a key: "+(b));
+        Log.d("AQUI", "Diferença das horas em minutos: " + (horaEmMinutosNow - horaEmMinutosKey));
         if(b)return false;
-        return true;
+        if(horaEmMinutosNow-horaEmMinutosKey > (1+TIME_EMERGENCY)&&!b)return true;//Passou a hora da key
+        return false;
     }
 
     private void continueThreadCurrent(final Handler handle,final String checkinF,final String checkoutF, final Events ev_th, final String uidEv, final String uidTeacher, final List<Keys> keysTemp  ){
@@ -603,7 +605,6 @@ public class HomeActivity extends Activity {
                     Log.d("AQUI", "Hora em minutos de Manaus: " + horaTempMin + "   Hora em minutos da Key: " + horaKeyMin);
                     Log.d("AQUI", "Diferença das horas em minutos: " + (horaTempMin - horaKeyMin));
                     Log.d("AQUI","CountKey: "+countKey);
-
                     if ((horaTempMin - horaKeyMin <= (1+TIME_EMERGENCY) && horaTempMin - horaKeyMin >= 0)&&countKey==i) {
                         Log.d("AQUI", "Diferença entre "+TIME_EMERGENCY+"min e 0min");
                         popUp(events, i);
@@ -689,7 +690,7 @@ public class HomeActivity extends Activity {
                         dialog.dismiss();
 
                         Toast.makeText(HomeActivity.this, "Palavra-passe inserida com sucesso", Toast.LENGTH_SHORT).show();
-                        countKey++;
+
 
                     } else {
                         teacherBase.child(events.getuIdTeacher()).child("events").child(classStudent)
@@ -698,7 +699,7 @@ public class HomeActivity extends Activity {
                         dialog.dismiss();
 
                         Toast.makeText(HomeActivity.this, "Palavra-passe inserida incorretamente, preste mais atenção na aula", Toast.LENGTH_SHORT).show();
-                        countKey++;
+
 
                     }
                     NotificationManagerCompat mNotificationMgr = NotificationManagerCompat.from(getApplicationContext());
