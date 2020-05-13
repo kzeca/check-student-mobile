@@ -55,7 +55,7 @@ public class NotificationServiceScheduler extends JobService {
             public void run() {
 
                 while (!jobCancelled) {
-
+                    if(CURRENT_EVENT==null)break;
                     Log.d("AQUI", "Na Thread Scheduler.....");
                     synchronized (this) {
                         try {

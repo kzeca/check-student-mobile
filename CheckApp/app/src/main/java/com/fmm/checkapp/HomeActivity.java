@@ -435,6 +435,8 @@ public class HomeActivity extends Activity {
                     dCell.setHours(horaNow);
                     dCell.setMinutes(minNow);
                     int horaEmMinutosEvent = horaEvent * 60 + minEvent;
+                    int horaEmMinutosEventFinal= horaEventFinal*60+minEventFinal;
+                    long periodicEvent = (horaEmMinutosEventFinal-horaEmMinutosEvent)*60*1000;
                     int horaEmMinutosNow = horaNow * 60 + minNow;
                     //10 minutos antes ou entre o período do evento
                     Log.d("AQUI", "Hora do Celular está depois do inicio: " + dCell.after(dInicio) + "   Hora do Celular está antes do Final: " + dCell.before(dFinal));
@@ -455,12 +457,12 @@ public class HomeActivity extends Activity {
                             stop = false;
                             countKey=0;
                             CURRENT_EVENT = events.get(position);
-                            ComponentName componentName = new ComponentName(HomeActivity.this, NotificationServiceScheduler.class);
+                            ComponentName componentName = new ComponentName(getBaseContext(), NotificationServiceScheduler.class);
                             JobInfo info = new JobInfo.Builder(123, componentName)
                                     .setRequiresCharging(false)
-                                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
+                                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                                     .setPersisted(true)
-                                    .setPeriodic(15 * 60 * 100)
+                                    .setMinimumLatency(periodicEvent)
                                     .build();
                             JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
                             int resultCode = scheduler.schedule(info);
