@@ -436,8 +436,9 @@ public class HomeActivity extends Activity {
                     dCell.setMinutes(minNow);
                     int horaEmMinutosEvent = horaEvent * 60 + minEvent;
                     int horaEmMinutosEventFinal= horaEventFinal*60+minEventFinal;
-                    long periodicEvent = (horaEmMinutosEventFinal-horaEmMinutosEvent)*60*1000;
+
                     int horaEmMinutosNow = horaNow * 60 + minNow;
+                    long periodicEvent = (horaEmMinutosEventFinal-horaEmMinutosNow)*60*1000;
                     //10 minutos antes ou entre o período do evento
                     Log.d("AQUI", "Hora do Celular está depois do inicio: " + dCell.after(dInicio) + "   Hora do Celular está antes do Final: " + dCell.before(dFinal));
                     if (((minEvent - minNow) <= 10 && (minEvent - minNow) >= 0 && horaNow == horaEvent) || (horaNow != horaEvent && (horaEmMinutosEvent - horaEmMinutosNow) <= 10 && (horaEmMinutosEvent - horaEmMinutosNow) >= 0) || (dCell.after(dInicio) && dCell.before(dFinal))) {
