@@ -317,13 +317,20 @@ public class HomeActivity extends Activity {
     }
 
     private boolean isAfterKey(String hourKey){
+        if(hourKey.equals(""))return false;
         int horaKeyFinal = Integer.parseInt(hourKey.substring(0, 2));//Pegar a hora do Evento --> HHhMMmin
         int minKeyFinal = Integer.parseInt(hourKey.substring(3, 5));//Pegar o minuto do Evento --> HHhMMmin
-        Date dKey = new Date();
-        dKey.setHours(horaKeyFinal);
-        dKey.setMinutes(minKeyFinal);
         Date dCell = new Date();
-        return dCell.after(dKey);
+        int horaNow = dCell.getHours();
+        int minNow = dCell.getMinutes();
+        int horaEmMinutosKey = horaKeyFinal * 60 + minKeyFinal;
+        int horaEmMinutosNow = horaNow * 60 + minNow;
+        boolean b=(  horaEmMinutosNow-horaEmMinutosKey <= (1+TIME_EMERGENCY) && horaEmMinutosNow-horaEmMinutosKey >= 0);//Verifica se a key está entre o período de apertar o botão - Valor entre 0 e TIME_EMERGENCY
+        Log.d("AQUI","Está entre o período de colocar a key: "+(b));
+        Log.d("AQUI", "Diferença das horas em minutos: " + (horaEmMinutosNow - horaEmMinutosKey));
+        if(b)return false;
+        if(horaEmMinutosNow-horaEmMinutosKey > (1+TIME_EMERGENCY)&&!b)return true;//Passou a hora da key
+        return false;
     }
 
     private void continueThreadCurrent(final Handler handle,final String checkinF,final String checkoutF, final Events ev_th, final String uidEv, final String uidTeacher, final List<Keys> keysTemp  ){
@@ -428,7 +435,10 @@ public class HomeActivity extends Activity {
                     dCell.setHours(horaNow);
                     dCell.setMinutes(minNow);
                     int horaEmMinutosEvent = horaEvent * 60 + minEvent;
+                    int horaEmMinutosEventFinal= horaEventFinal*60+minEventFinal;
+
                     int horaEmMinutosNow = horaNow * 60 + minNow;
+                    long periodicEvent = (horaEmMinutosEventFinal-horaEmMinutosNow)*60*1000;
                     //10 minutos antes ou entre o período do evento
                     Log.d("AQUI", "Hora do Celular está depois do inicio: " + dCell.after(dInicio) + "   Hora do Celular está antes do Final: " + dCell.before(dFinal));
                     if (((minEvent - minNow) <= 10 && (minEvent - minNow) >= 0 && horaNow == horaEvent) || (horaNow != horaEvent && (horaEmMinutosEvent - horaEmMinutosNow) <= 10 && (horaEmMinutosEvent - horaEmMinutosNow) >= 0) || (dCell.after(dInicio) && dCell.before(dFinal))) {
@@ -448,12 +458,12 @@ public class HomeActivity extends Activity {
                             stop = false;
                             countKey=0;
                             CURRENT_EVENT = events.get(position);
-                            ComponentName componentName = new ComponentName(HomeActivity.this, NotificationServiceScheduler.class);
+                            ComponentName componentName = new ComponentName(getBaseContext(), NotificationServiceScheduler.class);
                             JobInfo info = new JobInfo.Builder(123, componentName)
                                     .setRequiresCharging(false)
-                                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
+                                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                                     .setPersisted(true)
-                                    .setPeriodic(15 * 60 * 100)
+                                    .setMinimumLatency(periodicEvent)
                                     .build();
                             JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
                             int resultCode = scheduler.schedule(info);
@@ -598,7 +608,6 @@ public class HomeActivity extends Activity {
                     Log.d("AQUI", "Hora em minutos de Manaus: " + horaTempMin + "   Hora em minutos da Key: " + horaKeyMin);
                     Log.d("AQUI", "Diferença das horas em minutos: " + (horaTempMin - horaKeyMin));
                     Log.d("AQUI","CountKey: "+countKey);
-
                     if ((horaTempMin - horaKeyMin <= (1+TIME_EMERGENCY) && horaTempMin - horaKeyMin >= 0)&&countKey==i) {
                         Log.d("AQUI", "Diferença entre "+TIME_EMERGENCY+"min e 0min");
                         popUp(events, i);
@@ -684,7 +693,7 @@ public class HomeActivity extends Activity {
                         dialog.dismiss();
 
                         Toast.makeText(HomeActivity.this, "Palavra-passe inserida com sucesso", Toast.LENGTH_SHORT).show();
-                        countKey++;
+
 
                     } else {
                         teacherBase.child(events.getuIdTeacher()).child("events").child(classStudent)
@@ -693,7 +702,7 @@ public class HomeActivity extends Activity {
                         dialog.dismiss();
 
                         Toast.makeText(HomeActivity.this, "Palavra-passe inserida incorretamente, preste mais atenção na aula", Toast.LENGTH_SHORT).show();
-                        countKey++;
+
 
                     }
                     NotificationManagerCompat mNotificationMgr = NotificationManagerCompat.from(getApplicationContext());

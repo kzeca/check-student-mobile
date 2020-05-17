@@ -51,21 +51,27 @@ public class RegisterActivity extends Activity implements AdapterView.OnItemSele
                 if (edtEmail.getText().toString().isEmpty()
                         || edtSenha.getText().toString().isEmpty()
                         || edtNome.getText().toString().isEmpty()
-                        || edtConfirmar.getText().toString().isEmpty()||edtRA.getText().toString().isEmpty()) {
-                        Toast.makeText(getApplicationContext(), "Preencha todos os campos!",
+                        || edtConfirmar.getText().toString().isEmpty() || edtRA.getText().toString().isEmpty()) {
+                    Toast.makeText(getApplicationContext(), "Preencha todos os campos!",
                             Toast.LENGTH_SHORT).show();
-                    }else{
-                        if(!edtSenha.getText().toString().equals(edtConfirmar.getText().toString())){
-                            Toast.makeText(getApplicationContext(), "Os campos de senha não coincidem!",
-                                    Toast.LENGTH_SHORT).show();
-                        }else {
-                                progressBar.setVisibility(View.VISIBLE);
-                                registerUser();
-                            }
+                } else {
+                    if (!edtSenha.getText().toString().equals(edtConfirmar.getText().toString())) {
+                        Toast.makeText(getApplicationContext(), "Os campos de senha não coincidem!",
+                                Toast.LENGTH_SHORT).show();
+                    } else {
+                        if (edtSenha.getText().toString().trim().length() >= 6) {
+                            progressBar.setVisibility(View.VISIBLE);
+                            registerUser();
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Sua senha não possui 6 dígitos"
+                                    ,Toast.LENGTH_SHORT).show();
                         }
-                    }
 
-            });
+                    }
+                }
+            }
+
+        });
     }
 
     private void setObjects() {
@@ -92,7 +98,7 @@ public class RegisterActivity extends Activity implements AdapterView.OnItemSele
 
     }
 
-    void registerUser(){
+    void registerUser() {
         final String nome = edtNome.getText().toString();
         final String email = edtEmail.getText().toString();
         final String senha = edtSenha.getText().toString();
@@ -102,7 +108,7 @@ public class RegisterActivity extends Activity implements AdapterView.OnItemSele
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(task.isSuccessful()){
+                        if (task.isSuccessful()) {
                             login.user.setSenha(senha);
                             login.user.setEmail(email);
                             login.user.setNome(nome);
@@ -116,7 +122,6 @@ public class RegisterActivity extends Activity implements AdapterView.OnItemSele
                             database.child("ra").setValue(login.user.getRa());
                             database.child("turma").setValue(login.user.getTurma());
                             database.child("checkin").setValue("");
-                            database.child("checkout").setValue("");
                             database.child("keys").child("key1").setValue("");
                             database.child("keys").child("key2").setValue("");
                             database.child("keys").child("key3").setValue("");
@@ -126,16 +131,16 @@ public class RegisterActivity extends Activity implements AdapterView.OnItemSele
                             startActivity(intent);
                             progressBar.setVisibility(View.GONE);
                             finish();
-                        }else {
-                            Toast.makeText(getApplicationContext(), "Sua senha não possui 6 dígitos"
-                                    ,Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Conta já existente, tente outro email."
+                                    , Toast.LENGTH_SHORT).show();
                             progressBar.setVisibility(View.INVISIBLE);
                         }
                     }
                 });
     }
 
-    void registerTopic(){
+    void registerTopic() {
         FirebaseMessaging.getInstance().subscribeToTopic(login.user.getTurma());
     }
 
